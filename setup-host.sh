@@ -3,13 +3,13 @@
 apt update
 apt install --yes software-properties-common &> /dev/null
 
-add-apt-repository -y ppa:kobuk-team/tdx
+add-apt-repository -y ppa:kobuk-team/tdx-release
 
 # PPA pinning
-rm -f /etc/apt/preferences.d/kobuk-tdx-pin-4000
-cat <<EOF | tee /etc/apt/preferences.d/kobuk-tdx-pin-4000
+rm -f /etc/apt/preferences.d/kobuk-tdx-release-pin-4000
+cat <<EOF | tee /etc/apt/preferences.d/kobuk-tdx-release-pin-4000
 Package: *
-Pin: release o=LP-PPA-kobuk-team-tdx
+Pin: release o=LP-PPA-kobuk-team-tdx-release
 Pin-Priority: 4000
 EOF
 
