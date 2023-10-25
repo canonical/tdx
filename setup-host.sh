@@ -3,10 +3,14 @@
 apt update
 apt install --yes software-properties-common &> /dev/null
 
+# cleanup
+rm -f /etc/apt/preferences.d/kobuk-tdx-*
+add-apt-repository -yr ppa:kobuk-team/tdx
+apt autoremove
+
 add-apt-repository -y ppa:kobuk-team/tdx-release
 
 # PPA pinning
-rm -f /etc/apt/preferences.d/kobuk-tdx-release-pin-4000
 cat <<EOF | tee /etc/apt/preferences.d/kobuk-tdx-release-pin-4000
 Package: *
 Pin: release o=LP-PPA-kobuk-team-tdx-release
@@ -15,7 +19,9 @@ EOF
 
 apt update
 
-apt install --yes kobuk-tdx-host
+# --allow-downgrades : if kobuk-tdx-host is already installed
+apt install --yes --allow-downgrades kobuk-tdx-host
+apt upgrade --yes kobuk-tdx-host
 
 # update cmdline to add tdx=1 to kvm_intel
 sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 kvm_intel.tdx=1\"/g" /etc/default/grub
