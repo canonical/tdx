@@ -24,5 +24,8 @@ apt install --yes --allow-downgrades kobuk-tdx-host
 apt upgrade --yes kobuk-tdx-host
 
 # update cmdline to add tdx=1 to kvm_intel
-sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 kvm_intel.tdx=1\"/g" /etc/default/grub
+grep -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub &> /dev/null
+if [ $? -ne 0 ]; then
+  sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 kvm_intel.tdx=1\"/g" /etc/default/grub
+fi
 
