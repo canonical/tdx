@@ -6,16 +6,11 @@ on top of Ubuntu 23.10
 
 ## Enable TDX on host
 
-- Deploy Ubuntu 23.10 cloud image on the server
+- Install Ubuntu 23.10 image on the host machine
+  
+  https://releases.ubuntu.com/23.10/ubuntu-23.10-live-server-amd64.iso
 
-  https://cloud-images.ubuntu.com/mantic/current/mantic-server-cloudimg-amd64.img
-
-  If you are not able to deploy image on the server, you can try to install it from
-	an ISO:
-
-	https://cdimage.ubuntu.com/ubuntu-server/daily-live/20230927/mantic-live-server-amd64.iso
-
-- Get the script
+- Get the setup script
 
   $ wget https://raw.githubusercontent.com/canonical/tdx/main/setup-host.sh
 
