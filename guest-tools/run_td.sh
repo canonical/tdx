@@ -40,7 +40,6 @@ qemu-system-x86_64 -D /tmp/tdx-guest-td.log \
 		   -drive file=${TD_IMG},if=none,id=virtio-disk0 \
 		   -device virtio-blk-pci,drive=virtio-disk0 \
 		   ${QUOTE_ARGS} \
-		   -monitor unix:/tmp/tdx-demo-td-monitor.sock,server,nowait \
 		   -pidfile /tmp/tdx-demo-td-pid.pid
 
 PID_TD=$(cat /tmp/tdx-demo-td-pid.pid)
