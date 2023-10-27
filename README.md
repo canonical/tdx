@@ -12,11 +12,15 @@ on top of Ubuntu 23.10
 
 - Get the setup script
 
+```bash
   $ wget https://raw.githubusercontent.com/canonical/tdx/main/setup-host.sh
+```
 
 - Run the script
 
+```bash
   $ chmod a+x ./setup-host.sh && sudo ./setup-host.sh
+```
 
 - Reboot
 
@@ -27,11 +31,17 @@ these instructions:
 
 - Get the script
 
+```bash
   $ wget https://raw.githubusercontent.com/canonical/tdx/main/setup-guest.sh
+```
 
 - Run the script
 
+```bash
   $ chmod a+x ./setup-guest.sh && sudo ./setup-guest.sh
+```
+
+Now the VM is TDX ready and needs to reboot with appropriate QEMU flags, please refer to	https://raw.githubusercontent.com/canonical/tdx/main/guest-tools/run_td.sh as an example.
 
 ### Create TD guest image
 
@@ -42,22 +52,50 @@ or on any other Ubuntu (>= 22.04):
 - Clone the current repo
 - Generate TD guest image
 
-  The original image is ubuntu-23.10-server-cloudimg-amd64.img and it can be foud here
-	https://cloud-images.ubuntu.com/releases/mantic/release/
-
+```bash
   $ (cd  guest-tools/image/ ; sudo ./create-td-image.sh)
+```
+
+This script will create a TD image based on the Ubuntu 23.10 Cloud Image ubuntu-23.10-server-cloudimg-amd64.img
+and can be found at : https://cloud-images.ubuntu.com/releases/mantic/release/
+
+This base image can be customized by setting two environment variables:
+
+```bash
+  $ export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/mantic/release/"
+  $ export CLOUD_IMG="ubuntu-23.10-server-cloudimg-amd64.img"
+```
 
 The TD image will be available at : /tmp/tdx-guest-ubuntu-23.10.qcow2
-The root passwordis set to 123456.
+
+The root password is set to 123456
 
 ## Run a TD guest with QEMU
 
 On the TDX host previously setup, to run the TD guest with QEMU:
 
+If you have cloned this repository, the script wil be in guest-tools.
+
+```bash
+  $ cd guest-tools
+```
+
+If not, you can download the script as follow:
+
+```bash
+  $ https://raw.githubusercontent.com/canonical/tdx/dev-review/guest-tools/run_td.sh
+  $ chmod a+x run_td.sh
+```
+
+To run the TD:
+
+```bash
   $ TD_IMG=/tmp/tdx-guest-ubuntu-23.10.qcow2 ./run_td.sh
+```
 
-To access the guest:
+The script will run the TD in the background and if the guest image has been created from scratch previously,
+it can be accessed via SSH:
 
+```bash
   $ ssh -p 10022 root@localhost
-
-The password is : 123456
+```
