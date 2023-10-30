@@ -13,13 +13,13 @@ on top of Ubuntu 23.10
 - Get the setup script
 
 ```bash
-  $ wget https://raw.githubusercontent.com/canonical/tdx/main/setup-host.sh
+  $ wget https://raw.githubusercontent.com/canonical/tdx/main/setup-tdx-host.sh
 ```
 
 - Run the script
 
 ```bash
-  $ chmod a+x ./setup-host.sh && sudo ./setup-host.sh
+  $ chmod a+x ./setup-tdx-host.sh && sudo ./setup-tdx-host.sh
 ```
 
 - Reboot
@@ -32,13 +32,13 @@ these instructions:
 - Get the script
 
 ```bash
-  $ wget https://raw.githubusercontent.com/canonical/tdx/main/setup-guest.sh
+  $ wget https://raw.githubusercontent.com/canonical/tdx/main/setup-tdx-guest.sh
 ```
 
 - Run the script
 
 ```bash
-  $ chmod a+x ./setup-guest.sh && sudo ./setup-guest.sh
+  $ chmod a+x ./setup-tdx-guest.sh && sudo ./setup-tdx-guest.sh
 ```
 
 Now the VM is TDX ready and needs to reboot with appropriate QEMU flags, please refer to	https://raw.githubusercontent.com/canonical/tdx/main/guest-tools/run_td.sh as an example.
