@@ -110,7 +110,7 @@ This base image can be customized by setting two environment variables:
   $ export CLOUD_IMG="ubuntu-23.10-server-cloudimg-amd64.img"
 ```
 
-The produced TD guest image will be available at : /tmp/tdx-guest-ubuntu-23.10.qcow2
+The produced TD guest image will be available at : guest-tools/image/tdx-guest-ubuntu-23.10.qcow2
 
 The root password is set to 123456
 
@@ -120,7 +120,7 @@ Now that you have a TD guest image, let’s boot it with QEMU.
 
 - Start the TD guest
 
-If you have cloned this repository, the script wil be in guest-tools.
+If you have downloaded this repository, the script wil be in guest-tools.
 
 ```bash
   $ cd guest-tools
@@ -136,7 +136,7 @@ If not, you can download the script as follow:
 To run the TD:
 
 ```bash
-  $ TD_IMG=/tmp/tdx-guest-ubuntu-23.10.qcow2 ./run_td.sh
+  $ TD_IMG=<path_to_td_qcow2> ./run_td.sh
 ```
 
 - Log into the guest

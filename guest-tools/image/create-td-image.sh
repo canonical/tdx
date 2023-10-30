@@ -5,6 +5,7 @@
 # not required to run on a TDX capable system.
 #
 
+WORK_DIR=${PWD}
 CURR_DIR=$(dirname "$(realpath $0)")
 USE_OFFICIAL_IMAGE=true
 FORCE_RECREATE=false
@@ -77,12 +78,6 @@ process_args() {
 
     if [[ "${CLOUD_IMG}" == "${GUEST_IMG}" ]]; then
         error "Please specify a different name for guest image via -o"
-    fi
-
-    if [[ -f "${GUEST_IMG}" ]]; then
-        if [[ ${FORCE_RECREATE} != "true" ]]; then
-            error "Guest image ${GUEST_IMG} already exist, please specify -f if want force to recreate"
-        fi
     fi
 
     if [[ ${GUEST_IMG} != *.qcow2 ]]; then
@@ -198,7 +193,7 @@ setup_guest_image() {
     virt-customize -a /tmp/${GUEST_IMG} \
         --copy-in ${CURR_DIR}/setup.sh:/tmp/
     virt-customize -a /tmp/${GUEST_IMG} \
-        --copy-in ${CURR_DIR}/../../setup-guest.sh:/tmp/
+        --copy-in ${CURR_DIR}/../../setup-tdx-guest.sh:/tmp/
     virt-customize -a /tmp/${GUEST_IMG} \
         --run-command "/tmp/setup.sh"
     ok "Setup guest image..."
@@ -213,7 +208,7 @@ cleanup() {
 
 # install required tools
 echo "Installing required tools ..."
-apt install --yes qemu-utils libguestfs-tools virtinst genisoimage &> /dev/null
+apt install --yes qemu-utils libguestfs-tools virtinst genisoimage
 
 check_tool qemu-img
 check_tool virt-customize
@@ -242,6 +237,7 @@ setup_guest_image
 
 cleanup
 
-chmod a+rw /tmp/${GUEST_IMG}
+mv /tmp/${GUEST_IMG} ${WORK_DIR}/
+chmod a+rw ${WORK_DIR}/${GUEST_IMG}
 
-ok "Please get the output TDX guest image file at /tmp/${GUEST_IMG}"
+ok "TDX guest image : ${WORK_DIR}/${GUEST_IMG}"
