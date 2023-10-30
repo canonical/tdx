@@ -1,14 +1,11 @@
-# tdx
-Intel confidential computing - TDX
+## Intel® Trust Domain Extensions (TDX)
 
-## What is Intel TDX ?
-
-Intel® Trust Domain Extensions (Intel® TDX) is a confidential computing technology which deploys hardware-isolated,
+Intel® TDX is a confidential computing technology which deploys hardware-isolated,
 Virtual Machines (VMs) called Trust Domains (TDs). It protects TD VMs from a broad range of software attacks by
 isolating them from the Virtual-Machine Manager (VMM), hypervisor and other non-TD software on the host platform.
 As a result, it enhances a platform user’s control of data security and IP protection.  Also, it enhances the
 Cloud Service Providers’ (CSP) ability to provide managed cloud services without exposing tenant data to adversaries.
-For more information see the Intel article on TDX architecture.
+For more information see the [Intel article on TDX architecture](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-trust-domain-extensions.html).
 
 This tech preview of TDX 1.0 on Ubuntu 23.10  provides host and guest functionalities. Follow these instructions
 to setup the TDX host, create a TD guest, and boot it. 
@@ -22,54 +19,56 @@ to setup the TDX host, create a TD guest, and boot it.
 In this section, you will install a generic Ubuntu 23.10 server, install necessary packages to turn the host
 into a TDX host, and enable TDX settings in the BIOS.
 
-- Install Ubuntu 23.10 image on the host machine
+1. Download and install [Ubuntu 23.10 server](https://releases.ubuntu.com/23.10/ubuntu-23.10-live-server-amd64.iso) on the host machine.
   
-  https://releases.ubuntu.com/23.10/ubuntu-23.10-live-server-amd64.iso
-
-- Get the setup script
+2. Clone this repo to get scripts that will be used throughout this README.
 
 ```bash
-  $ wget https://raw.githubusercontent.com/canonical/tdx/main/setup-tdx-host.sh
+git clone git@github.com:canonical/tdx.git
 ```
 
-- Run the script
+3. Run the script.
 
 ```bash
-  $ chmod a+x ./setup-tdx-host.sh && sudo ./setup-tdx-host.sh
+cd tdx
+sudo ./setup-tdx-host.sh
 ```
 
-- Reboot
+4. Reboot.
 
-### TDX Host BIOS configuration
+### Enable TDX Settings in the Host's BIOS
 
-Go into the BIOS and configure these settings to enable TDX:
+1. Go into the host's BIOS.  
 
-Go to EDKII MENU -> Socket Configuration -> Processor Configuration -> TME, TME-MT, TDX
+NOTE: The following is a sample BIOS configuration.  It may vary slightly from one manufacturer to another.  
 
-  - Set Total Memory Encryption (TME) to Enable
-  - Set Total Memory Encryption Bypass to Enable (optional; for best host and non-TDVM performance)
-  - Set Total Memory Encryption Multi-Tenant (TME-MT) to Enable
-  - Set TME-MT memory integrity to Disable
-  - Set Trust Domain Extension (TDX) to Enable
-  - Set the TME-MT/TDX key split to a non zero value
-  - Set TDX Secure Arbitration Mode Loader (SEAM Loader) to Enable. This allows loading SEAMLDR and TDX module
-    from the ESP or BIOS.
+2. Go to `Socket Configuration > Processor Configuration > TME, TME-MT, TDX`.
 
-Go to EDKII MENU -> Socket Configuration -> Processor Configuration -> Software Guard Extension (SGX)
+    * Set `Memory Encryption (TME)` to `Enabled`
+    * Set `Total Memory Encryption Bypass` to `Enabled` (Optional: for best host and non-TDVM performance.)
+    * Set `Total Memory Encryption Multi-Tenant (TME-MT)` to `Enabled`
+    * Set `TME-MT memory integrity` to `Disabled`
+    * Set `Trust Domain Extension (TDX)` to `Enabled`
+    * Set `TDX Secure Arbitration Mode Loader (SEAM Loader)` to `Enabled`. (NOTE: This allows loading SEAMLDR and TDX module from the ESP or BIOS.)
+    * Set `TME-MT/TDX key split` to a non-zero value
 
-  - Set SW Guard Extensions (SGX) to Enable
+3. Go to `Socket Configuration > Processor Configuration > Software Guard Extension (SGX)`.
 
-Save BIOS settings and boot up.
+    * Set `SW Guard Extensions (SGX)` to `Enabled`
 
-### TDX Host check
+4. Save the BIOS settings and boot up.
 
-Verify that TDX is enabled using the dmesg command:
+### Verify TDX is Enabled on Host
 
-$ sudo dmesg | grep -i tdx
+1. Verify that TDX is enabled using the `dmesg` command.
+
+```bash
+sudo dmesg | grep -i tdx
+```
 
 Example output:
 
-```
+```bash
 ...
 [    5.300843] tdx: BIOS enabled: private KeyID range [16, 32)
 [   15.960876] tdx: TDX module: attributes 0x0, vendor_id 0x8086, major_version 1, minor_version 5, build_date 20230323, build_num 481
@@ -80,82 +79,75 @@ Example output:
 [   15.960884] tdx: CMR: [0xc080000000, 0x1007c000000)
 [   18.149996] tdx: 4202516 KBs allocated for PAMT.
 [   18.150000] tdx: module initialized.
-…
+...
 ```
 
 ## Setup TDX Guest
 
-### Create a new TD Guest image
+In this section, you will create an Ubuntu 23.10-based TD guest from scratch or convert an existing non-TD guest into one. This can be performed on any Ubuntu 22.04 or newer system and a TDX-specific environment is not required.  
 
-In this section, you will create an Ubuntu 23.10-based TD guest. This can be performed on any Ubuntu 22.04 or
-newer system and a TDX-specific environment is not required.
+### Create a New TD Guest Image
 
-- Get the current repository
+The base image is an Ubuntu 23.10 cloud image [`ubuntu-23.10-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/releases/mantic/release/). You can be customized your preferences by setting these two environment variables before running the script:
 
 ```bash
-  $ wget https://github.com/canonical/tdx/archive/refs/heads/main.zip
-  $ unzip main.zip
-  $ cd tdx-main/
+export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/mantic/release/"
+export CLOUD_IMG="ubuntu-23.10-server-cloudimg-amd64.img"
 ```
 
-- Generate TD guest image
+1. Generate a TD guest image.
 
 ```bash
-  $ (cd  guest-tools/image/ ; sudo ./create-td-image.sh)
+cd tdx/guest-tools/image/
+sudo ./create-td-image.sh
 ```
 
-This script will create a TD image based on the Ubuntu 23.10 Cloud Image ubuntu-23.10-server-cloudimg-amd64.img
-and can be found at : https://cloud-images.ubuntu.com/releases/mantic/release/
+The produced TD guest image is `tdx-guest-ubuntu-23.10.qcow2`.
 
-This base image can be customized by setting two environment variables:
+The root password is set to `123456`.
+
+### Convert a Non-TD Guest into a TD Guest
+
+If you have an existing Ubuntu 23.10 non-TD guest, you can enable the TDX feature by following these steps.
+
+1. Boot up your guest.  
+
+2. Clone this repo.
 
 ```bash
-  $ export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/mantic/release/"
-  $ export CLOUD_IMG="ubuntu-23.10-server-cloudimg-amd64.img"
+git clone git@github.com:canonical/tdx.git
 ```
 
-The produced TD guest image will be available at : guest-tools/image/tdx-guest-ubuntu-23.10.qcow2
-
-The root password is set to 123456
-
-### Boot TD Guest with QEMU
-
-Now that you have a TD guest image, let’s boot it with QEMU.
-
-- Start the TD guest
-
-If you have downloaded this repository, the script wil be in guest-tools.
+3. Run the script.
 
 ```bash
-  $ cd guest-tools
+cd tdx
+sudo ./setup-tdx-guest.sh
+```
+4. Shutdown the guest.  
+
+## Boot TD Guest
+
+1. Now that you have a TD guest image, let’s boot it with the provided script.
+
+```bash
+cd tdx/guest-tools
+TD_IMG=<path_to_td_qcow2_image> ./run_td.sh
 ```
 
-If not, you can download the script as follow:
+2. Log into the guest. 
+
+NOTE: The example below uses the credentials for a TD guest created from scratch.   
+If you converted your own guest, please use your original credentials. 
 
 ```bash
-  $ https://raw.githubusercontent.com/canonical/tdx/dev-review/guest-tools/run_td.sh
-  $ chmod a+x run_td.sh
+ssh -p 10022 root@localhost
 ```
 
-To run the TD:
+3. Verify TDX is enabled in the guest.
 
 ```bash
-  $ TD_IMG=<path_to_td_qcow2> ./run_td.sh
-```
-
-- Log into the guest
-
-The script will run the TD in the background and if the guest image has been created from scratch previously,
-it can be accessed via SSH:
-
-```bash
-  $ ssh -p 10022 root@localhost
-```
-
-- Verify TDX in the guest
-
-```bash
-$ dmesg | grep -i tdx
+sudo dmesg | grep -i tdx
 ```
 
 Example output:
@@ -167,29 +159,14 @@ Example output:
 [    0.395218] Memory Encryption Features active: Intel TDX
 ```
 
-Please check that the tdx device is available :
+4. Verify the `tdx_guest` device exists.
 
 ```bash
-root@tdx-guest:~# ls /dev/tdx_guest 
+ls /dev/tdx_guest 
+```
+
+Example output:
+
+```bash
 /dev/tdx_guest
-root@tdx-guest:~# 
 ```
-
-### Convert regular Guest into a TD Guest
-
-If you have an existing Ubuntu 23.10 VM up and running and do not wish to create an image from scratch,
-you can enable the TDX feature by following these instructions:
-
-- Get the script
-
-```bash
-  $ wget https://raw.githubusercontent.com/canonical/tdx/main/setup-tdx-guest.sh
-```
-
-- Run the script
-
-```bash
-  $ chmod a+x ./setup-tdx-guest.sh && sudo ./setup-tdx-guest.sh
-```
-
-Now the VM is TDX ready and needs to reboot with appropriate QEMU flags, please refer to	https://raw.githubusercontent.com/canonical/tdx/main/guest-tools/run_td.sh as an example.
