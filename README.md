@@ -40,7 +40,9 @@ into a TDX host, and enable TDX settings in the BIOS.
 
 - Reboot
 
-- Go into the BIOS and configure these settings to enable TDX:
+### TDX Host BIOS configuration
+
+Go into the BIOS and configure these settings to enable TDX:
 
 Go to EDKII MENU -> Socket Configuration -> Processor Configuration -> TME, TME-MT, TDX
 
@@ -59,7 +61,9 @@ Go to EDKII MENU -> Socket Configuration -> Processor Configuration -> Software 
 
 Save BIOS settings and boot up.
 
-- Verify that TDX is enabled using the dmesg command:
+### TDX Host check
+
+Verify that TDX is enabled using the dmesg command:
 
 $ sudo dmesg | grep -i tdx
 
@@ -173,8 +177,8 @@ root@tdx-guest:~#
 
 ### Convert regular Guest into a TD Guest
 
-If you have an existing Ubuntu 23.10 VM up and running, you can enable the TDX feature by following
-these instructions:
+If you have an existing Ubuntu 23.10 VM up and running and do not wish to create an image from scratch,
+you can enable the TDX feature by following these instructions:
 
 - Get the script
 
