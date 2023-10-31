@@ -170,3 +170,7 @@ Example output:
 ```bash
 /dev/tdx_guest
 ```
+
+## Additional Sanity and Functional Test Cases
+
+If you're interested in doing additional sanity and functional testing of TDX, see this [wiki](https://github.com/intel/tdx/wiki/Tests).
