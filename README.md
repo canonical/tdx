@@ -24,7 +24,7 @@ into a TDX host, and enable TDX settings in the BIOS.
 2. Clone this repo to get scripts that will be used throughout this README.
 
 ```bash
-git clone git@github.com:canonical/tdx.git
+git clone https://github.com/canonical/tdx.git
 ```
 
 3. Run the script.
@@ -115,7 +115,7 @@ If you have an existing Ubuntu 23.10 non-TD guest, you can enable the TDX featur
 2. Clone this repo.
 
 ```bash
-git clone git@github.com:canonical/tdx.git
+git clone https://github.com/canonical/tdx.git
 ```
 
 3. Run the script.
