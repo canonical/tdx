@@ -130,6 +130,13 @@ sudo ./setup-tdx-guest.sh
 
 1. Now that you have a TD guest image, let’s boot it with the provided script.
 
+NOTE: It is recommended to run the script with normal user. In this case, please make sure that the user belongs to kvm group. To add the current user to kvm group:
+
+```bash
+sudo usemod -aG kvm $USER
+```
+Close the current shell and open a new one to apply this group settings.
+
 ```bash
 cd tdx/guest-tools
 TD_IMG=<path_to_td_qcow2_image> ./run_td.sh

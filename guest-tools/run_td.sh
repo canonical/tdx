@@ -18,6 +18,11 @@ fi
 TD_IMG=${TD_IMG:-${PWD}/ubuntu-23.10-td.qcow2}
 TDVF_FIRMWARE=/usr/share/ovmf/OVMF.fd
 
+if ! groups | grep -qw "kvm"; then
+    echo "Please add user $USER to kvm group to run this script (usermod -aG kvm $USER && log out)."
+    exit 1
+fi
+
 set -e
 
 ###################### RUN VM WITH TDX SUPPORT ##################################
