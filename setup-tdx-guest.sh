@@ -21,7 +21,3 @@ apt update
 
 # install TDX feature
 apt install -y kobuk-tdx-guest
-
-# modprobe the tdx_guest
-modprobe tdx-guest
-echo tdx-guest > /etc/modprobe.d/tdx-guest.conf
