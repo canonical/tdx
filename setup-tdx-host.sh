@@ -5,8 +5,6 @@ apt install --yes software-properties-common &> /dev/null
 
 # cleanup
 rm -f /etc/apt/preferences.d/kobuk-team-tdx-*
-add-apt-repository -yr ppa:kobuk-team/tdx
-apt autoremove
 
 add-apt-repository -y ppa:kobuk-team/tdx-release
 
