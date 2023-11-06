@@ -146,7 +146,7 @@ sudo ./setup-tdx-guest.sh
 NOTE: It is recommended to run the script with normal user. In this case, please make sure that the user belongs to kvm group. To add the current user to kvm group:
 
 ```bash
-sudo usemod -aG kvm $USER
+sudo usermod -aG kvm $USER
 ```
 Close the current shell and open a new one to apply this group settings.
 
