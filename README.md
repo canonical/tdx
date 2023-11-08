@@ -141,7 +141,11 @@ sudo ./setup-tdx-guest.sh
 
 ## Boot TD Guest
 
-1. Now that you have a TD guest image, let’s boot it with the provided script.
+Now that you have a TD guest image, let’s boot it.
+
+### Boot TD Guest with qemu  
+
+1. Boot TD Guest with the provided script.
 
 NOTE: It is recommended to run the script with normal user. In this case, please make sure that the user belongs to kvm group. To add the current user to kvm group:
 
@@ -164,7 +168,59 @@ If you converted your own guest, please use your original credentials.
 ssh -p 10022 root@localhost
 ```
 
-3. Verify TDX is enabled in the guest.
+### Boot TD Guest with virsh(Libvirt)
+
+1. Configure libvirt and guest xml file
+
+It is recommended to run virsh with normal user. In this case, please make sure that the user is added to /etc/libvirt/qemu.conf, for example:
+
+```bash
+# Add current user to /etc/libvirt/qemu.conf
+echo "user = '$USER'
+group = '$USER'
+dynamic_ownership = 0
+security_driver = 'none'
+" | sudo tee -a /etc/libvirt/qemu.conf
+
+# Restart libvirtd service
+systemctl restart libvirtd
+systemctl status libvirtd
+```
+Modify the provided XML file: tdx/guest-tools/td_guest.xml, replace the value of "source file" in td_guest.xml with the absolute path of your guest image.
+
+2. Boot TD Guest with the provided XML file and login
+
+```bash
+farrah@farrah:~/tdx/guest-tools$ virsh
+Welcome to virsh, the virtualization interactive terminal.
+
+Type:  'help' for help with commands
+       'quit' to quit
+
+virsh # define td_guest.xml
+Domain 'td_guest' defined from td_guest.xml
+
+virsh # start td_guest
+Domain 'td_guest' started
+
+virsh # console td_guest
+Connected to domain 'td_guest'
+Escape character is ^] (Ctrl + ])
+
+
+Ubuntu 23.10 tdx-guest hvc0
+
+tdx-guest login: root
+Password:
+
+root@tdx-guest:~#
+virsh #
+virsh # help
+virsh # quit
+```
+
+## Verify TD Guest
+1. Verify TDX is enabled in the guest.
 
 ```bash
 sudo dmesg | grep -i tdx
@@ -179,7 +235,7 @@ Example output:
 [    0.395218] Memory Encryption Features active: Intel TDX
 ```
 
-4. Verify the `tdx_guest` device exists.
+2. Verify the `tdx_guest` device exists.
 
 ```bash
 ls /dev/tdx_guest 
