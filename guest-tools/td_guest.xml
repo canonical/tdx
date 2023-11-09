@@ -1,4 +1,4 @@
-<domain type='kvm' id='1'>
+<domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
   <name>td_guest</name>
   <memory unit='KiB'>2097152</memory>
   <memoryBacking>
@@ -51,5 +51,9 @@
   <qemu:commandline>
     <qemu:arg value='-cpu'/>
     <qemu:arg value='host'/>
+    <qemu:arg value='-device'/>
+    <qemu:arg value='virtio-net-pci,netdev=nic0,bus=pcie.0,addr=0x5'/>
+    <qemu:arg value='-netdev'/>
+    <qemu:arg value='user,id=nic0,hostfwd=tcp::10022-:22'/>
   </qemu:commandline>
 </domain>
