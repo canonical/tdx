@@ -97,7 +97,10 @@ Example output:
 
 ## Setup TDX Guest
 
-In this section, you will create an Ubuntu 23.10-based TD guest from scratch or convert an existing non-TD guest into one. This can be performed on any Ubuntu 22.04 or newer system and a TDX-specific environment is not required.  
+In this section, you will create a TD guest from scratch or convert an existing non-TD guest into one. The supported 
+Ubuntu guest versions are 23.04 and 23.10.  We'll use 23.10 as the example for this section.    
+
+NOTE: The creation of or conversion to a TD guest be performed on any Ubuntu 22.04 or newer system and a TDX-specific environment is not required.  
 
 ### Create a New TD Guest Image
 
