@@ -149,7 +149,7 @@ Now that you have a TD guest image, let’s boot it.  There are two ways to boot
 
 1. Boot TD Guest with the provided script.
 
-&nbsp;&nbsp;&nbsp;&nbsp; NOTE: It is recommended that you run the script as a non-root user. To do this, add the current user to the `kvm` group:
+NOTE: It is recommended that you run the script as a non-root user. To do this, add the current user to the `kvm` group:
 
 ```bash
 sudo usermod -aG kvm $USER
@@ -172,43 +172,28 @@ ssh -p 10022 root@localhost
 
 ### Boot TD Guest with virsh (Libvirt)
 
-1. Configure the libvirt and the guest XML file.
+1. Configure the libvirt.
 
-&nbsp;&nbsp;&nbsp;&nbsp; NOTE: It is recommended that you run virsh as a non-root user. To do that, add the user to `/etc/libvirt/qemu.conf`.  Follow these steps:
-
-* Add current user to `/etc/libvirt/qemu.conf`
+NOTE: It is recommended that you run virsh as a non-root user. To do that, please apply these settings to `/etc/libvirt/qemu.conf`.
 
 ```bash
-echo "user = '$USER'
-group = '$USER'
+user = <your_user_name>
+group = <your_group>
 dynamic_ownership = 0
 security_driver = 'none'
-" | sudo tee -a /etc/libvirt/qemu.conf
 ```
 
 * Restart the `libvirtd` service
 
 ```bash
 systemctl restart libvirtd
-systemctl status libvirtd
 ```
 
 2. Boot TD guest with the provided XML file.
 
 ```bash
 cd tdx/guest-tools
-
-# start virsh
-virsh
-
-# load the XML file
-virsh # define td_guest.xml
-
-# start guest
-virsh # start td_guest
-
-# connect to the console
-virsh # console td_guest
+TD_IMG=<path_to_td_qcow2_image> ./run_td_virsh.sh
 ```
 
 ## Verify TD Guest

@@ -33,7 +33,7 @@
     <emulator>/usr/bin/qemu-system-x86_64</emulator>
     <disk type="file" device="disk">
       <driver name="qemu" type="qcow2"/>
-      <source file="/home/test/tdx/guest-tools/image/tdx-guest-ubuntu-23.10.qcow2"/>
+      <source file="/tmp/tdx-guest-ubuntu-23.10.qcow2"/>
       <target dev="vda" bus="virtio"/>
     </disk>
     <console type='pty'>
