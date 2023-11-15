@@ -141,9 +141,15 @@ sudo ./setup-tdx-guest.sh
 
 ## Boot TD Guest
 
-1. Now that you have a TD guest image, let’s boot it with the provided script.
+Now that you have a TD guest image, let’s boot it.  There are two ways to boot it:
+* Boot using QEMU
+* Boot using virsh
 
-NOTE: It is recommended to run the script with normal user. In this case, please make sure that the user belongs to kvm group. To add the current user to kvm group:
+### Boot TD Guest with QEMU  
+
+1. Boot TD Guest with the provided script.
+
+&nbsp;&nbsp;&nbsp;&nbsp; NOTE: It is recommended that you run the script as a non-root user. To do this, add the current user to the `kvm` group:
 
 ```bash
 sudo usermod -aG kvm $USER
@@ -164,7 +170,49 @@ If you converted your own guest, please use your original credentials.
 ssh -p 10022 root@localhost
 ```
 
-3. Verify TDX is enabled in the guest.
+### Boot TD Guest with virsh (Libvirt)
+
+1. Configure the libvirt and the guest XML file.
+
+&nbsp;&nbsp;&nbsp;&nbsp; NOTE: It is recommended that you run virsh as a non-root user. To do that, add the user to `/etc/libvirt/qemu.conf`.  Follow these steps:
+
+* Add current user to `/etc/libvirt/qemu.conf`
+
+```bash
+echo "user = '$USER'
+group = '$USER'
+dynamic_ownership = 0
+security_driver = 'none'
+" | sudo tee -a /etc/libvirt/qemu.conf
+```
+
+* Restart the `libvirtd` service
+
+```bash
+systemctl restart libvirtd
+systemctl status libvirtd
+```
+
+2. Boot TD guest with the provided XML file.
+
+```bash
+cd tdx/guest-tools
+
+# start virsh
+virsh
+
+# load the XML file
+virsh # define td_guest.xml
+
+# start guest
+virsh # start td_guest
+
+# connect to the console
+virsh # console td_guest
+```
+
+## Verify TD Guest
+1. Verify TDX is enabled in the guest.
 
 ```bash
 sudo dmesg | grep -i tdx
@@ -179,7 +227,7 @@ Example output:
 [    0.395218] Memory Encryption Features active: Intel TDX
 ```
 
-4. Verify the `tdx_guest` device exists.
+2. Verify the `tdx_guest` device exists.
 
 ```bash
 ls /dev/tdx_guest 
