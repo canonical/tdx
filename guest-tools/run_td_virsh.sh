@@ -2,7 +2,7 @@
 
 TD_VM="td_guest"
 
-if [ -z "${TD_IMG}" ]; then
+if [ ! -f "${TD_IMG}" ]; then
   echo "Please provide image path by setting TD_IMG variable"
   exit 1
 fi
@@ -15,8 +15,9 @@ virsh destroy --domain ${TD_VM} &> /dev/null
 
 virsh undefine ${TD_VM} &> /dev/null
 
-# copy the image
-cp ${TD_IMG} /tmp/tdx-guest-ubuntu-23.10.qcow2
+# Generate td_guest.xml with the right image path provided by the user
+TD_IMG_PATH=$(realpath ${TD_IMG})
+awk -v img_path=${TD_IMG_PATH} '{gsub("TD_IMG_PATH", img_path, $0); print}' td_guest.xml.template > td_guest.xml
 
 virsh define ${TD_VM}.xml
 virsh start ${TD_VM}
