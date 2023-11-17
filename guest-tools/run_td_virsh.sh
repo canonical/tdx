@@ -10,6 +10,9 @@ fi
 virsh shutdown ${TD_VM} &> /dev/null
 virsh shutdown --domain ${TD_VM} &> /dev/null
 
+echo "Wait for VM to shutdown ..."
+sleep 5
+
 virsh destroy ${TD_VM} &> /dev/null
 virsh destroy --domain ${TD_VM} &> /dev/null
 
