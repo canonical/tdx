@@ -7,7 +7,7 @@ As a result, it enhances a platform user’s control of data security and IP pro
 Cloud Service Providers’ (CSP) ability to provide managed cloud services without exposing tenant data to adversaries.
 For more information see the [Intel article on TDX architecture](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-trust-domain-extensions.html).
 
-This tech preview of TDX 1.0 on Ubuntu 23.10  provides host and guest functionalities. Follow these instructions
+This tech preview of TDX on Ubuntu 23.10 provides base host and guest functionalities. Follow these instructions
 to setup the TDX host, create a TD guest, and boot it.
 
 ## Supported Hardware
