@@ -12,7 +12,7 @@ to setup the TDX host, create a TD guest, and boot it.
 
 ## Supported Hardware
 
-  Sapphire Rapids (SPR) and Emerald Rapids (EMR) (4th Generation Intel® Xeon® Scalable) Processors with Intel® TDX.
+  This release supports 4th Generation Intel® Xeon® Scalable Processors with Intel® TDX and all 5th Generation Intel®  Xeon® Scalable Processors.
 
 ## Setup TDX Host
 
