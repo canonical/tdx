@@ -194,7 +194,10 @@ NOTE: The example below uses the credentials for a TD guest created from scratch
 If you converted your own guest, please use your original credentials.
 
 ```bash
+# From localhost
 ssh -p 10022 root@localhost
+# From remote host
+ssh -p 10022 root@<host_ip>
 ```
 
 2. Verify TDX is enabled in the guest.
