@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
 apt install --yes software-properties-common
 add-apt-repository -y ppa:kobuk-team/tdx
 
