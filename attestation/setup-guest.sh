@@ -9,7 +9,7 @@ apt install --yes software-properties-common
 add-apt-repository -y ppa:kobuk-team/tdx
 
 apt update
-apt install --yes libtdx-attest-dev
+apt install --yes libtdx-attest-dev trustauthority-cli
 
 # compile tdx-attest source
 (cd /usr/share/doc/libtdx-attest-dev/examples/ && make)
