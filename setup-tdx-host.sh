@@ -19,7 +19,7 @@ apt update
 
 # --allow-downgrades : if kobuk-tdx-host is already installed
 apt install --yes --allow-downgrades kobuk-tdx-host
-apt upgrade --yes kobuk-tdx-host
+apt upgrade --yes --allow-downgrades kobuk-tdx-host
 
 # update cmdline to add tdx=1 to kvm_intel
 grep -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub &> /dev/null
