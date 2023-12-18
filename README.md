@@ -3,16 +3,16 @@
 Intel® TDX is a confidential computing technology which deploys hardware-isolated,
 Virtual Machines (VMs) called Trust Domains (TDs). It protects TD VMs from a broad range of software attacks by
 isolating them from the Virtual-Machine Manager (VMM), hypervisor and other non-TD software on the host platform.
-As a result, it enhances a platform user’s control of data security and IP protection.  Also, it enhances the
+As a result, it enhances a platform user’s control of data security and IP protection. Also, it enhances the
 Cloud Service Providers’ (CSP) ability to provide managed cloud services without exposing tenant data to adversaries.
-For more information see the [Intel article on TDX architecture](https://www.intel.com/content/www/us/en/developer/articles/technical/intel-trust-domain-extensions.html).
+For more information see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
 
 This tech preview of TDX on Ubuntu 23.10 provides base host and guest functionalities. Follow these instructions
 to setup the TDX host, create a TD guest, and boot it.
 
 ## Supported Hardware
 
-  This release supports 4th Generation Intel® Xeon® Scalable Processors with Intel® TDX and all 5th Generation Intel®  Xeon® Scalable Processors.
+This release supports 4th Generation Intel® Xeon® Scalable Processors with Intel® TDX and all 5th Generation Intel®  Xeon® Scalable Processors.
 
 ## Setup TDX Host
 
@@ -141,7 +141,7 @@ sudo ./setup-tdx-guest.sh
 
 ## Boot TD Guest
 
-Now that you have a TD guest image, let’s boot it.  There are two ways to boot it:
+Now that you have a TD guest image, let’s boot it. There are two ways to boot it:
 * Boot using QEMU
 * Boot using virsh
 
