@@ -230,3 +230,49 @@ Example output:
 ## Additional Sanity and Functional Test Cases
 
 If you're interested in doing additional sanity and functional testing of TDX, see this [wiki](https://github.com/intel/tdx/wiki/Tests).
+
+## Build packages from source
+
+Despite the fact that TDX components live in a separate PPA from the rest of the Ubuntu packages,
+they follow the Ubuntu standards and offer users the same facilities for code source access and building.
+
+You can find generic instructions on how to build a package from source here : https://wiki.debian.org/BuildingTutorial
+
+Here are the example intructions for building qemu:
+
+1. Install Ubuntu 23.10
+
+You can install Ubuntu 23.10 or use an existing Ubuntu 23.10 system.
+
+2. Install components for build:
+
+```
+sudo apt update
+sudo apt install --no-install-recommends --yes software-properties-common \
+		build-essential \
+		fakeroot \
+		devscripts \
+		wget \
+		git \
+		equivs \
+		liblz4-tool \
+		sudo \
+		unzip \
+		curl \
+		xz-utils \
+		cpio \
+		gawk
+```
+
+3. Download source and rebuild
+
+```
+sudo add-apt-repository -S ppa:kobuk-team/tdx-release
+apt source qemu
+cd <qemu-source-code>
+sudo apt build-dep ./
+debuild -us -uc -b
+```
+
+The resulting debian packages are available in the parent folder.
+
