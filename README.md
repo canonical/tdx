@@ -238,7 +238,7 @@ they follow the Ubuntu standards and offer users the same facilities for code so
 
 You can find generic instructions on how to build a package from source here : https://wiki.debian.org/BuildingTutorial
 
-Here are the example intructions for building qemu:
+Here are the example intructions for building qemu (for normal user with sudo rights):
 
 1. Install Ubuntu 23.10
 
@@ -246,7 +246,7 @@ You can install Ubuntu 23.10 or use an existing Ubuntu 23.10 system.
 
 2. Install components for build:
 
-```
+```bash
 sudo apt update
 sudo apt install --no-install-recommends --yes software-properties-common \
 		build-essential \
@@ -264,11 +264,18 @@ sudo apt install --no-install-recommends --yes software-properties-common \
 		gawk
 ```
 
-3. Download source and rebuild
+3. Download package's source
 
-```
+```bash
 sudo add-apt-repository -s ppa:kobuk-team/tdx-release
 apt source qemu
+```
+
+This command will create several files and a folder, the folder is the qemu source code.
+
+4. Rebuild
+
+```bash
 cd <qemu-source-code>
 sudo apt build-dep ./
 debuild -us -uc -b
@@ -276,3 +283,10 @@ debuild -us -uc -b
 
 The resulting debian packages are available in the parent folder.
 
+5. Install the packages
+
+You can refer to https://wiki.debian.org/BuildingTutorial#Installing_and_testing_the_modified_package
+
+### Modify source code
+
+The core idea of building a package from source code is to be able to edit the source code. The instructions can be found at https://wiki.debian.org/BuildingTutorial#Edit_the_source_code
