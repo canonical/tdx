@@ -267,7 +267,7 @@ sudo apt install --no-install-recommends --yes software-properties-common \
 3. Download source and rebuild
 
 ```
-sudo add-apt-repository -S ppa:kobuk-team/tdx-release
+sudo add-apt-repository -s ppa:kobuk-team/tdx-release
 apt source qemu
 cd <qemu-source-code>
 sudo apt build-dep ./
