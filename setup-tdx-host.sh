@@ -1,8 +1,8 @@
 #!/bin/bash
 
 _error() {
-		echo "Error : $1"
-		exit 1
+  echo "Error : $1"
+  exit 1
 }
 
 apt update
