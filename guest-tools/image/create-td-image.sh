@@ -130,13 +130,21 @@ create_guest_image() {
     download_image
 
     cp ${CURR_DIR}/${CLOUD_IMG} /tmp/${GUEST_IMG}
-    ok "Copy the ${CLOUD_IMG} => /tmp/${GUEST_IMG}"
+    if [ $? -eq 0 ]; then
+        ok "Copy the ${CLOUD_IMG} => /tmp/${GUEST_IMG}"
+    else
+        error "Failed to copy ${CLOUD_IMG} to /tmp"
+    fi
 }
 
 config_guest_env() {
     virt-customize -a /tmp/${GUEST_IMG} \
         --copy-in /etc/environment:/etc
-    ok "Copy host's environment file to guest for http_proxy"
+    if [ $? -eq 0 ]; then
+        ok "Copy host's environment file to guest for http_proxy"
+    else
+        warn "Failed to Copy host's environment file to guest for http_proxy"
+    fi
 }
 
 resize_guest_image() {
@@ -145,7 +153,11 @@ resize_guest_image() {
         --run-command 'growpart /dev/sda 1' \
         --run-command 'resize2fs /dev/sda1' \
         --run-command 'systemctl mask pollinate.service'
-    ok "Resize the guest image to ${SIZE}G"
+    if [ $? -eq 0 ]; then
+        ok "Resize the guest image to ${SIZE}G"
+    else
+        warn "Failed to resize guest image to ${SIZE}G"
+    fi
 }
 
 config_cloud_init() {
@@ -182,8 +194,12 @@ EOT
         --graphics none \
         --import \
         --wait=3
-    ok "Complete cloud-init..."
-    sleep 1
+    if [ $? -eq 0 ]; then
+        ok "Complete cloud-init..."
+        sleep 1
+    else
+        error "Failed to configure cloud init"
+    fi
 
     virsh destroy tdx-config-cloud-init || true
     virsh undefine tdx-config-cloud-init || true
@@ -196,7 +212,11 @@ setup_guest_image() {
         --copy-in ${CURR_DIR}/../../setup-tdx-guest.sh:/tmp/
     virt-customize -a /tmp/${GUEST_IMG} \
         --run-command "/tmp/setup.sh"
-    ok "Setup guest image..."
+    if [ $? -eq 0 ]; then
+        ok "Setup guest image..."
+    else
+        error "Failed to setup guest image"
+    fi
 }
 
 cleanup() {
