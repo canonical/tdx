@@ -182,7 +182,7 @@ EOT
 
     ok "Generate configuration for cloud-init..."
     genisoimage -output /tmp/ciiso.iso -volid cidata -joliet -rock user-data meta-data
-    ok "Generate the cloud-init ISO image..."
+    ok "Generate the cloud-init ISO image, please wait for some minutes ..."
     popd
 
     virt-install --memory 4096 --vcpus 4 --name tdx-config-cloud-init \
@@ -193,16 +193,14 @@ EOT
         --virt-type kvm \
         --graphics none \
         --import \
-        --wait=3
+        --wait=10 > /dev/null 2>&1
     if [ $? -eq 0 ]; then
         ok "Complete cloud-init..."
         sleep 1
+        cleanup
     else
         error "Failed to configure cloud init"
     fi
-
-    virsh destroy tdx-config-cloud-init || true
-    virsh undefine tdx-config-cloud-init || true
 }
 
 setup_guest_image() {
@@ -223,8 +221,17 @@ cleanup() {
     if [[ -f ${CURR_DIR}/"SHA256SUMS" ]]; then
         rm ${CURR_DIR}/"SHA256SUMS"
     fi
+    virsh shutdown tdx-config-cloud-init > /dev/null 2>&1
+    sleep 1
+    virsh destroy tdx-config-cloud-init  > /dev/null 2>&1
+    virsh undefine tdx-config-cloud-init > /dev/null 2>&1
     ok "Cleanup!"
 }
+
+virsh shutdown tdx-config-cloud-init > /dev/null 2>&1
+sleep 1
+virsh destroy tdx-config-cloud-init  > /dev/null 2>&1
+virsh undefine tdx-config-cloud-init > /dev/null 2>&1
 
 # install required tools
 echo "Installing required tools ..."
