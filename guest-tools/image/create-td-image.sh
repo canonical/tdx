@@ -225,6 +225,12 @@ cleanup() {
     ok "Cleanup!"
 }
 
+# sanity cleanup
+virsh shutdown tdx-config-cloud-init &> /dev/null
+sleep 1
+virsh destroy tdx-config-cloud-init &> /dev/null
+virsh undefine tdx-config-cloud-init &> /dev/null
+
 # install required tools
 echo "Installing required tools ..."
 apt install --yes qemu-utils libguestfs-tools virtinst genisoimage
