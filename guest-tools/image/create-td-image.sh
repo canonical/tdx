@@ -188,7 +188,6 @@ EOT
     virt-install --memory 4096 --vcpus 4 --name tdx-config-cloud-init \
         --disk /tmp/${GUEST_IMG} \
         --disk /tmp/ciiso.iso,device=cdrom \
-        --os-type Linux \
         --os-variant ubuntu24.04 \
         --virt-type kvm \
         --graphics none \
