@@ -10,6 +10,10 @@ For more information see the [Intel TDX overview](https://www.intel.com/content/
 This tech preview of TDX on Ubuntu 23.10 provides base host and guest functionalities. Follow these instructions
 to setup the TDX host, create a TD guest, and boot it.
 
+## Report an Issue
+
+Please submit an issue [here](https://github.com/canonical/tdx/issues) and we'll get back to you ASAP.
+
 ## Supported Hardware
 
 This release supports 4th Generation Intel® Xeon® Scalable Processors with Intel® TDX and all 5th Generation Intel®  Xeon® Scalable Processors.
@@ -290,3 +294,5 @@ You can refer to https://wiki.debian.org/BuildingTutorial#Installing_and_testing
 ### Modify source code
 
 The core idea of building a package from source code is to be able to edit the source code. The instructions can be found at https://wiki.debian.org/BuildingTutorial#Edit_the_source_code
+
+
