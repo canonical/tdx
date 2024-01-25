@@ -24,7 +24,9 @@ if [ "$1" = "clean" ]; then
     exit 0
 fi
 
-TD_IMG=${TD_IMG:-${PWD}/image/tdx-guest-ubuntu-23.10.qcow2}
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+TD_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-23.10.qcow2}
 TDVF_FIRMWARE=/usr/share/ovmf/OVMF.fd
 
 if ! groups | grep -qw "kvm"; then
