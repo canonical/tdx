@@ -1,5 +1,12 @@
 #!/bin/bash
 
+on_exit() {
+    if [ $? -ne 0 ]; then
+        echo "The script failed..."
+        cat /tmp/tdx-guest-td.log || true
+    fi
+}
+
 cleanup() {
     rm -f /tmp/tdx-guest-*.log &> /dev/null
     rm -f /tmp/tdx-demo-*-monitor.sock &> /dev/null
@@ -10,12 +17,16 @@ cleanup() {
     sleep 3
 }
 
+trap "on_exit" EXIT
+
 cleanup
 if [ "$1" = "clean" ]; then
     exit 0
 fi
 
-TD_IMG=${TD_IMG:-${PWD}/ubuntu-23.10-td.qcow2}
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+TD_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-23.10.qcow2}
 TDVF_FIRMWARE=/usr/share/ovmf/OVMF.fd
 
 if ! groups | grep -qw "kvm"; then
