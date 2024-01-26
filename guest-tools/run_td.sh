@@ -36,8 +36,7 @@ qemu-system-x86_64 -D /tmp/tdx-guest-td.log \
 		   -name ${PROCESS_NAME},process=${PROCESS_NAME},debug-threads=on \
 		   -cpu host \
 		   -object tdx-guest,id=tdx \
-		   -machine q35,hpet=off,kernel_irqchip=split,memory-encryption=tdx,memory-backend=ram1 \
-		   -object memory-backend-ram,id=ram1,size=2G,private=on \
+		   -machine q35,hpet=off,kernel_irqchip=split,confidential-guest-support=tdx \
 		   -bios ${TDVF_FIRMWARE} \
 		   -nographic -daemonize \
 		   -nodefaults \
