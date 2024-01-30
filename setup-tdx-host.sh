@@ -5,6 +5,8 @@ _error() {
   exit 1
 }
 
+set -e
+
 apt update
 apt install --yes software-properties-common &> /dev/null
 
