@@ -53,15 +53,6 @@ if [ $? -ne 0 ]; then
   grub-install
 fi
 
-# FIXME : with the current kernel, we do not have login prompt with getty
-# as a work around, use nomodeset to tell kernel to use BIOS mode
-grep -E "GRUB_CMDLINE_LINUX.*=.*\".*nomodeset.*\"" /etc/default/grub &> /dev/null
-if [ $? -ne 0 ]; then
-  sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 nomodeset\"/g" /etc/default/grub
-  update-grub
-  grub-install
-fi
-
 echo "========================================================================"
 echo "The setup has been done successfully. Please enable now TDX in the BIOS."
 echo "========================================================================"
