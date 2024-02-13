@@ -44,7 +44,8 @@ linux	/boot/vmlinuz-6.5.0-10-generic nomodeset root=UUID=c5605a23-05ae-4d9d-b65f
 git clone https://github.com/canonical/tdx.git
 ```
 
-3. Run the script.
+3. Run the script. <br>
+Note: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx
@@ -112,7 +113,8 @@ export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/mantic/re
 export CLOUD_IMG="ubuntu-23.10-server-cloudimg-amd64.img"
 ```
 
-1. Generate a TD guest image.
+1. Generate a TD guest image. <br>
+Note: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx/guest-tools/image/
@@ -135,7 +137,7 @@ If you have an existing Ubuntu 23.10 non-TD guest, you can enable the TDX featur
 git clone https://github.com/canonical/tdx.git
 ```
 
-3. Run the script.
+3. Run the script. 
 
 ```bash
 cd tdx
