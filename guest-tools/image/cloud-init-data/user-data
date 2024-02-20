@@ -29,11 +29,6 @@ packages:
   - golang-doc
   - ntp
 
-runcmd:
-  - apt install --fix-broken
-  - sed -i 's/GRUB_CMDLINE_LINUX_DEFAULT="[^"]*/& ima_hash=sha384 ima_policy=critical_data/' /etc/default/grub.d/50-cloudimg-settings.cfg
-  - update-grub2
-
 # HACK way to set root password
 # https://github.com/vmware/photon/issues/931
 # set root password to 123456
