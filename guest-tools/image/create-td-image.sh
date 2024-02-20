@@ -129,7 +129,10 @@ create_guest_image() {
 
     download_image
 
-    cp ${CURR_DIR}/${CLOUD_IMG} /tmp/${GUEST_IMG}
+    # this image will need to be customized both by virt-customize and virt-install
+    # virt-install will interact with libvirtd and if the latter runs in normal user mode
+    # we have to make sure that guest image is writable for normal user
+    install -m 0777 ${CURR_DIR}/${CLOUD_IMG} /tmp/${GUEST_IMG}
     if [ $? -eq 0 ]; then
         ok "Copy the ${CLOUD_IMG} => /tmp/${GUEST_IMG}"
     else
