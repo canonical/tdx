@@ -50,7 +50,7 @@
   </devices>
   <allowReboot value='no'/>
   <launchSecurity type='tdx'>
-    <policy>0x10000001</policy>
+    <policy>0x10000000</policy>
   </launchSecurity>
   <qemu:commandline>
     <qemu:arg value='-cpu'/>
