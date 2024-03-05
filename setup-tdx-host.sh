@@ -5,8 +5,6 @@ _error() {
   exit 1
 }
 
-set -e
-
 apt update
 apt install --yes software-properties-common &> /dev/null
 
@@ -29,7 +27,8 @@ apt install --yes --allow-downgrades kobuk-tdx-host || _error "Cannot install TD
 apt upgrade --yes --allow-downgrades kobuk-tdx-host || _error "Cannot upgrade TDX components !"
 
 # for now, use the preview kernel in the PPA
-apt install --yes linux-image-unsigned-6.7.0-7-generic
+#apt install --yes linux-image-unsigned-6.7.0-7-generic
+apt install --yes linux-image-unsigned-6.7.0-1001-intel
 
 # update cmdline to add tdx=1 to kvm_intel
 grep -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub &> /dev/null
