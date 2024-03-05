@@ -5,6 +5,19 @@ _error() {
   exit 1
 }
 
+# grub: switch to kernel version
+grub_switch_kernel() {
+    KERNELVER=$1
+    MID=$(awk '/Advanced options for Ubuntu/{print $(NF-1)}' /boot/grub/grub.cfg | cut -d\' -f2)
+    KID=$(awk "/with Linux $KERNELVER/"'{print $(NF-1)}' /boot/grub/grub.cfg | cut -d\' -f2 | head -n1)
+    cat > /etc/default/grub.d/99-tdx-kernel.cfg <<EOF
+GRUB_DEFAULT=saved
+GRUB_SAVEDEFAULT=true
+EOF
+    grub-editenv /boot/grub/grubenv set saved_entry="${MID}>${KID}"
+    update-grub
+}
+
 apt update
 apt install --yes software-properties-common &> /dev/null
 
@@ -29,6 +42,8 @@ apt upgrade --yes --allow-downgrades kobuk-tdx-host || _error "Cannot upgrade TD
 # for now, use the preview kernel in the PPA
 #apt install --yes linux-image-unsigned-6.7.0-7-generic
 apt install --yes linux-image-unsigned-6.7.0-1001-intel
+
+grub_switch_kernel 6.7.0-1001-intel
 
 # update cmdline to add tdx=1 to kvm_intel
 grep -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub &> /dev/null
