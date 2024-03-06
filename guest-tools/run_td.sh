@@ -15,7 +15,7 @@ if [ "$1" = "clean" ]; then
     exit 0
 fi
 
-TD_IMG=${TD_IMG:-${PWD}/ubuntu-23.10-td.qcow2}
+TD_IMG=${TD_IMG:-${PWD}/ubuntu-24.04-td.qcow2}
 TDVF_FIRMWARE=/usr/share/ovmf/OVMF.fd
 
 if ! groups | grep -qw "kvm"; then
