@@ -1,5 +1,5 @@
 This source code is a modified copy of https://github.com/intel/tdx-tools.git
-to add the support for Ubuntu 23.10 and add support for TDX enablement. 
+to add the support for Ubuntu 24.04 and add support for TDX enablement. 
 
 
                                  Apache License

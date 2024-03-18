@@ -14,7 +14,7 @@ write_files:
   path: /etc/netplan/netplan.yaml
 - content: |
     ===========================================================================
-    Welcome to Ubuntu mantic (23.10) TDX guest.
+    Welcome to Ubuntu noble (24.04)
     Created by Kobuk team
     ===========================================================================
   path: /etc/motd
