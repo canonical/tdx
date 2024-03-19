@@ -38,11 +38,7 @@ linux	/boot/vmlinuz-6.5.0-10-generic nomodeset root=UUID=c5605a23-05ae-4d9d-b65f
 ```
 * Step #3 below will automatically add `nomodeset` to the GRUB config so that no additional intervention is needed
 
-2. Clone this repo to get scripts that will be used throughout this README.
-
-```bash
-git clone https://github.com/canonical/tdx.git
-```
+2. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning it at the appropriate tag.
 
 3. Run the script. <br>
 Note: If you're behind a proxy, use `sudo -E` to preserve user environment.
@@ -131,11 +127,7 @@ If you have an existing Ubuntu 23.10 non-TD guest, you can enable the TDX featur
 
 1. Boot up your guest.
 
-2. Clone this repo.
-
-```bash
-git clone https://github.com/canonical/tdx.git
-```
+2. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning it at the appropriate tag.
 
 3. Run the script. 
 
