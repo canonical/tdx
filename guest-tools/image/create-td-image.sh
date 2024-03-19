@@ -233,7 +233,7 @@ virsh undefine tdx-config-cloud-init &> /dev/null
 
 # install required tools
 echo "Installing required tools ..."
-apt install --yes qemu-utils libguestfs-tools virtinst genisoimage
+apt install --yes qemu-utils libguestfs-tools virtinst genisoimage libvirt-daemon-system
 
 check_tool qemu-img
 check_tool virt-customize
