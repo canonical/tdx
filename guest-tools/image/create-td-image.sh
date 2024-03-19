@@ -238,7 +238,7 @@ virsh undefine tdx-config-cloud-init > /dev/null 2>&1
 
 # install required tools
 echo "Installing required tools ..."
-apt install --yes qemu-utils libguestfs-tools virtinst genisoimage
+apt install --yes qemu-utils libguestfs-tools virtinst genisoimage libvirt-daemon-system
 
 # to allow virt-customize to have name resolution, dhclient should be available
 # on the host system. that is because virt-customize will create an appliance (with supermin)
