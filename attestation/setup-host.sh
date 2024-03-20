@@ -9,9 +9,14 @@ apt install --yes software-properties-common
 add-apt-repository -y ppa:kobuk-team/tdx
 
 apt update
-apt install --yes sgx-dcap-pccs \
-    sgx-pck-id-retrieval-tool  \
-    tdx-qgs
+
+apt install --yes sgx-dcap-pccs tdx-qgs
+
+# using RA registration (direct registration method)
+apt install --yes sgx-ra-service
+
+# using indirect registration method
+apt install --yes sgx-pck-id-retrieval-tool
 
 # add qgsd user to group  sgx_prv to allow to use /dev sgx
 #ubuntu@sysid-739457:~/tdx$ ls -la /dev/sgx_*
