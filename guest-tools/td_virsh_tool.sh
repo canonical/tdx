@@ -19,8 +19,8 @@ MAX_DOMAINS=${MAX_DOMAINS:-"20"}
 # Global variables
 #
 n_instances=1
-domain=${DOMAIN_PREFIX}-"1"
 overlay_image_path=/tmp/overlay.${domain}.qcow2
+domain=""
 base_img_path=""
 xml_template_path=""
 domain_to_clean=""
@@ -40,7 +40,7 @@ main() {
     trap "on_exit" EXIT
 
     for ((i = 0; i < ${n_instances}; i++)); do
-        set_domain
+        check_domain_count
         create_overlay_image
         create_domain_xml
         boot_vm
@@ -115,22 +115,19 @@ set_input_paths() {
     fi
 }
 
-set_domain() {
-    local domain_id=1
-    while $(virsh list --state-running --name |
-        grep -q "\-${domain_id}"); do
-        domain_id=$((domain_id + 1))
-        if [ ${domain_id} -gt ${MAX_DOMAINS} ]; then
-            echo "Error: exceeded max allowed guests."
-            domain="" # avoid destroying latest domain on_exit
-            exit 1
-        fi
-    done
-    domain=${DOMAIN_PREFIX}-${domain_id}
+check_domain_count() {
+    local n_domains_running=$(virsh list --state-running |
+        grep -c ${DOMAIN_PREFIX})
+    if [ ${n_domains_running} -ge ${MAX_DOMAINS} ]; then
+        echo "Error: exceeded max allowed guests."
+        domain="" # avoid destroying latest domain on_exit
+        exit 1
+    fi
 }
 
 create_overlay_image() {
-    overlay_image_path=/tmp/overlay.${domain}.qcow2
+    local rand_str=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c15)
+    overlay_image_path=/tmp/overlay.${rand_str}.qcow2
     qemu-img create \
         -f qcow2 \
         -F qcow2 \
@@ -140,7 +137,7 @@ create_overlay_image() {
 
 create_domain_xml() {
     awk -v img_path=${base_img_path} \
-        -v domain=${domain} \
+        -v domain=${DOMAIN_PREFIX} \
         -v overlay_path=${overlay_image_path} '
         {
 	gsub("BASE_IMG_PATH", img_path, $0); 
@@ -148,11 +145,14 @@ create_domain_xml() {
 	gsub("OVERLAY_IMG_PATH", overlay_path, $0); 
 	print;
         }
-	' ${xml_template_path} >/tmp/${domain}.xml
+	' ${xml_template_path} >/tmp/${DOMAIN_PREFIX}.xml
 }
 
 boot_vm() {
-    virsh define /tmp/${domain}.xml >/dev/null
+    virsh define /tmp/${DOMAIN_PREFIX}.xml >/dev/null
+    domain=${DOMAIN_PREFIX}-$(virsh domuuid ${DOMAIN_PREFIX})
+    mv /tmp/{${DOMAIN_PREFIX}.xml,${domain}.xml} &>/dev/null || true
+    virsh domrename ${DOMAIN_PREFIX} ${domain} >/dev/null
     virsh start ${domain} >/dev/null
 }
 
@@ -175,6 +175,8 @@ echo_ssh_cmd() {
 
 destroy() {
     local domain_to_destroy="${1}"
+    local qcow2_overlay_path=$(virsh dumpxml ${domain_to_destroy} |
+        grep -o "\/tmp\/overlay\.[A-Za-z0-9]*\.qcow2")
 
     echo "Destroying domain ${domain_to_destroy}."
 
@@ -188,7 +190,7 @@ destroy() {
     virsh destroy --domain ${domain_to_destroy} &>/dev/null
     virsh undefine ${domain_to_destroy} &>/dev/null
 
-    rm -f /tmp/{overlay.${domain_to_destroy}.qcow2,${domain_to_destroy}.xml}
+    rm -f ${qcow2_overlay_path} /tmp/${domain_to_destroy}.xml
 }
 
 clean_one() {
