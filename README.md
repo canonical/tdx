@@ -1,47 +1,68 @@
-## Intel® Trust Domain Extensions (TDX)
+# Intel® Trust Domain Extensions (TDX) on Ubuntu
 
+### Table of Contents:
+* [1. Introduction](#introduction)
+* [2. Report an Issue](#report-an-issue)
+* [3. Supported Hardware](#supported-hardware)
+* [4. Setup TDX Host](#setup-tdx-host)
+* [5. Setup TD Guest](#setup-td-guest)
+* [6. Boot TD Guest](#boot-td-guest)
+* [7. Verify TD Guest](#verify-td-guest)
+* [8. Setup Remote Attestation on Host and TD Guest](#setup-remote-attestation)
+* [9. Perform Attestation](#attest)
+* [10. Build Packages From Source](#build-packages-from-source)
+* [11. Additional Sanity and Functional Test Cases](#sanity-functional-tests)
+
+<!-- headings -->
+<a id="introduction"></a>
+## 1. Introduction
 Intel® TDX is a confidential computing technology which deploys hardware-isolated,
 Virtual Machines (VMs) called Trust Domains (TDs). It protects TD VMs from a broad range of software attacks by
 isolating them from the Virtual-Machine Manager (VMM), hypervisor and other non-TD software on the host platform.
 As a result, it enhances a platform user’s control of data security and IP protection. Also, it enhances the
 Cloud Service Providers’ (CSP) ability to provide managed cloud services without exposing tenant data to adversaries.
-For more information see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
+For more information, see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
 
 This tech preview of TDX on Ubuntu 23.10 provides base host and guest functionalities. Follow these instructions
 to setup the TDX host, create a TD guest, and boot it.
 
-## Report an Issue
-
+<a id="report-an-issue"></a>
+## 2. Report an Issue
 Please submit an issue [here](https://github.com/canonical/tdx/issues) and we'll get back to you ASAP.
 
-## Supported Hardware
-
+<a id="supported-hardware"></a>
+## 3. Supported Hardware
 This release supports 4th Generation Intel® Xeon® Scalable Processors with Intel® TDX and all 5th Generation Intel®  Xeon® Scalable Processors.
 
-## Setup TDX Host
-
-In this section, you will install a generic Ubuntu 23.10 server, install necessary packages to turn the host
-into a TDX host, and enable TDX settings in the BIOS.
+<a id="setup-tdx-host"></a>
+## 4. Setup TDX Host
+In this section, you will install a generic Ubuntu 23.10 server, install necessary packages to turn 
+the host into a TDX host, and enable TDX settings in the BIOS.
 
 1. Download and install [Ubuntu 23.10 server](https://releases.ubuntu.com/23.10/ubuntu-23.10-live-server-amd64.iso) on the host machine.
 
 NOTE: Although rare, the installer may hang during its bootup on some systems, which is caused by a kernel graphics driver issue.  The workaround is to add the `nomodeset` parameter to the kernel command-line.  Follow these steps:
 * At the `GRUB` boot menu, press `e`
 * Add `nomodeset` to linux line, like the example below:
+
 ```bash
 linux	/casper/vmlinuz nomodeset ---
 ```
+
 * Press `Ctrl-x` to continue the boot process
 * After installation is complete, reboot, use `nomodeset` again, like the example below:
+
 ```bash
 linux	/boot/vmlinuz-6.5.0-10-generic nomodeset root=UUID=c5605a23-05ae-4d9d-b65f-e47ba48b7560 ro
 ```
+
 * Step #3 below will automatically add `nomodeset` to the GRUB config so that no additional intervention is needed
 
 2. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning it at the appropriate tag.
 
 3. Run the script. <br>
-Note: If you're behind a proxy, use `sudo -E` to preserve user environment.
+
+NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx
@@ -80,9 +101,9 @@ NOTE: The following is a sample BIOS configuration.  It may vary slightly from o
 sudo dmesg | grep -i tdx
 ```
 
-Example output:
+An example output:
 
-```bash
+```
 ...
 [    5.300843] tdx: BIOS enabled: private KeyID range [16, 32)
 [   15.960876] tdx: TDX module: attributes 0x0, vendor_id 0x8086, major_version 1, minor_version 5, build_date 20230323, build_num 481
@@ -95,8 +116,8 @@ Example output:
 [   18.150000] tdx: module initialized.
 ...
 ```
-
-## Setup TDX Guest
+<a id="setup-td-guest"></a>
+## 5. Setup TD Guest
 
 In this section, you will create an Ubuntu 23.10-based TD guest from scratch or convert an existing non-TD guest into one. This can be performed on any Ubuntu 22.04 or newer system and a TDX-specific environment is not required.
 
@@ -110,7 +131,7 @@ export CLOUD_IMG="ubuntu-23.10-server-cloudimg-amd64.img"
 ```
 
 1. Generate a TD guest image. <br>
-Note: If you're behind a proxy, use `sudo -E` to preserve user environment.
+NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx/guest-tools/image/
@@ -137,7 +158,8 @@ sudo ./setup-tdx-guest.sh
 ```
 4. Shutdown the guest.
 
-## Boot TD Guest
+<a id="boot-td-guest"></a>
+## 6. Boot TD Guest
 
 Now that you have a TD guest image, let’s boot it. There are two ways to boot it:
 * Boot using QEMU
@@ -162,7 +184,13 @@ cd tdx/guest-tools
 TD_IMG=<path_to_td_qcow2_image> ./run_td.sh
 ```
 
-### Boot TD Guest with virsh (Libvirt)
+An example output:
+
+```bash
+TD VM, PID: 111924, SSH : ssh -p 10022 root@localhost
+```
+
+### Boot TD Guest with virsh (libvirt)
 
 1. Configure the libvirt.
 
@@ -210,7 +238,8 @@ for destroying and cleaning up unwanted TDs.
 ./td_virsh_tool.sh -c all
 ```
 
-## Verify TD Guest
+<a id="verify-td-guest"></a>
+## 7. Verify TD Guest
 
 1. Log into the guest.
 
@@ -224,19 +253,20 @@ after it has successfully booted the TD.
 ```bash
 # From localhost
 ssh -p 10022 root@localhost
+
 # From remote host
 ssh -p 10022 root@<host_ip>
 ```
 
-2. Verify TDX is enabled in the guest.
+3. Verify TDX is enabled in the guest.
 
 ```bash
 sudo dmesg | grep -i tdx
 ```
 
-Example output:
+An example output:
 
-```bash
+```
 [    0.000000] tdx: Guest detected
 [    0.000000] DMI: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 2023.05-2+tdx1.0~ubuntu23.10.1 10/17/2023
 [    0.395218] process: using TDX aware idle routine
@@ -249,22 +279,222 @@ Example output:
 ls /dev/tdx_guest
 ```
 
-Example output:
+An example output:
 
-```bash
+```
 /dev/tdx_guest
 ```
 
-## Additional Sanity and Functional Test Cases
+<a id="setup-remote-attestation"></a>
+## 8. Setup Remote Attestation on Host and TD Guest
+Attestation is a process in which the attester requests the verifier (Intel Trust Authority Service) to confirm that it is operating in a secure and trusted environment.  This process involves the attester generating a "quote", which contains trusted execution environment (TEE) measurements and other cryptographic evidence.  The quote is sent to the verifier who then confirms its validity against reference values and policies.  If confirmed, the verifier returns an attestation token.  The attester can then send the token to a reply party who will validate it.  For more on the basics of attestation, see [Attestation overview](https://docs.trustauthority.intel.com/main/articles/concept-attestation-overview.html).
 
-If you're interested in doing additional sanity and functional testing of TDX, see this [wiki](https://github.com/intel/tdx/wiki/Tests).
+### Verify Hardware
+For attestation to work, you need _Production_ hardware. Run this script to verify.
 
-## Build packages from source
+```bash
+cd tdx/attestation
+sudo ./check-production.sh
+```
+
+### Setup Intel® SGX Data Center Attestation Primitives (Intel® SGX DCAP) on the Host
+
+1. Install the required DCAP packages on the host. <br>
+
+NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
+
+```bash
+cd tdx/attestation
+sudo ./setup-attestation-host.sh
+```
+
+2. Verify the QGS service is running properly.
+
+```bash
+sudo systemctl status qgsd
+```
+
+3. Verify the PCCS service is running properly.
+```bash
+sudo systemctl status pccs
+```
+
+4. Obtain an [Intel PCS API key](https://api.portal.trustedservices.intel.com/provisioning-certification).  This is needed to configure the PCCS service in the next step. 
+
+5. Configure the PCCS service.  
+
+```bash
+sudo /usr/bin/pccs-configure
+```
+
+An example configuration you can use:
+
+```
+Checking nodejs version ...
+nodejs is installed, continue...
+Checking cracklib-runtime ...
+Set HTTPS listening port [8081] (1024-65535) :
+Set the PCCS service to accept local connections only? [Y] (Y/N) :
+Set your Intel PCS API key (Press ENTER to skip) : <Enter your Intel PCS API key here>
+You didn't set Intel PCS API key. You can set it later in config/default.json.  
+Choose caching fill method : [LAZY] (LAZY/OFFLINE/REQ) :
+Set PCCS server administrator password: <PCCS-ADMIN-PASSWORD>
+Re-enter administrator password: <PCCS-ADMIN-PASSWORD>
+Set PCCS server user password: <PCCS-SERVER-USER-PASSWORD>
+Re-enter user password: <PCCS-SERVER-USER-PASSWORD>
+Do you want to generate insecure HTTPS key and cert for PCCS service? [Y] (Y/N) :N
+```
+
+6. Restart the PCCS service.
+
+```bash
+sudo systemctl restart pccs
+```
+
+7. Verify the PCCS service is running properly.
+
+```bash
+sudo systemctl status pccs
+```
+8. Register the platdform.
+
+```bash
+sudo PCKIDRetrievalTool -f retrieval_result.csv -url https://localhost:8081 -user_token <PCCS-SERVER-USER-PASSWORD> -use_secure_cert false
+```
+
+An example output of successful registration:
+
+```
+Intel(R) Software Guard Extensions PCK Cert ID Retrieval Tool Version 1.18.100.1
+
+Registration status has been set to completed status.
+the data has been sent to cache server successfully and retrieval_result.csv has been generated successfully!
+```
+
+An example output of failed registration:
+
+```
+Error: unexpected error occurred while sending data to cache server.
+retrieval_result.csv has been generated successfully, however the data couldn't be sent to cache server!
+```
+
+If the failure occurred, you must boot into the BIOS and perform `SGX Factory Reset` (go to `Socket Configuration > Processor Configuration`) and execute the registration process again.  
+
+### Setup [Intel Trust Authority (ITA) Client](https://github.com/intel/trustauthority-client-for-go) on Guest 
+1. Boot a TD guest and connect to it.
+
+2. Clone this repo.
+
+```bash
+git clone https://github.com/canonical/tdx.git
+```
+
+2. Install the ITA client. <br>
+
+NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
+
+```bash
+cd tdx/attestation
+sudo ./setup-attestation-guest.sh
+```
+
+3. Verify the ITA client version.
+
+```bash
+trustauthority-cli version
+```
+
+An example output:
+
+```
+Intel® Trust Authority CLI for TDX
+Version: 1.0.1-
+Build Date: 2023-10-20T09:45:41+00:00
+```
+
+<a id="attest"></a>
+## 9. Perform Attestation
+1. Inside the TD guest, generate a sample TD quote to prove the quote generation service is working properly.
+
+```bash
+cd /usr/share/doc/libtdx-attest-dev/examples/
+./test_tdx_attest
+```
+
+An example output of a successful quote generation:
+
+```
+		TDX report data
+
+00000000: 1a d0 79 02 45 df 7e 77 2b 9f a2 43 8c 69 4f 8a
+00000010: f3 0b 53 44 01 87 15 e1 44 1b 27 f1 c0 eb 14 da
+00000020: bb 8d dd 00 6c 5b 78 97 fa 1a da 86 83 2a 10 76
+00000030: 35 63 bb 36 ea d0 17 2f eb 3e 20 ab 2a 34 86 e5
+		
+		TDX report
+
+00000000: 81 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00000010: 06 06 16 18 03 ff 00 04 00 00 00 00 00 00 00 00
+00000020: ae ef a8 61 f5 b5 f0 4f b5 ad 95 8c 1b ae f7 5f
+00000030: 2c 05 e0 e1 5e cd 5f 87 96 85 0a 10 cf ca a7 58
+ ....
+ ....
+ 
+Successfully get the TD Quote
+Wrote TD Quote to quote.dat
+[../tdx_attest.c:537] Inappropriate ioctl for device
+Failed to extend rtmr[2]
+[../tdx_attest.c:537] Inappropriate ioctl for device
+Failed to extend rtmr[3]
+```
+
+NOTE: You can ignore the `Failed to extend rtmr` messages.
+
+You should also find a `quote.dat` file generated.
+
+2. Next step is to attest with the [Intel Trust Authority](https://www.intel.com/content/www/us/en/security/trust-authority.html) service.  For this, you will need to subscribe and obtain an API key. See this [tutorial](https://docs.trustauthority.intel.com/main/articles/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client) for how to create a key.
+
+3. Once you have an API key, create a config.json like the example below:
+
+```
+{
+    "trustauthority_url": "https://portal.trustauthority.intel.com"
+    "trustauthority_api_url": "https://api.trustauthority.intel.com",
+    "trustauthority_api_key": "djE6ZWQ1ZDU2MGEtZDcyMi00ODBmLWJkMGYtMTc3OTNjNjM2ZGY5Onc0cHM3QXV4RDE3U0dHOFZUcjNLQzYyTXpkQXhVNDlVNWtDN3JwVzI="
+}
+```
+
+4. Finally, attest with the Intel Trust Authority service.
+
+```bash
+trustauthority-cli token -c config.json
+```
+
+An example of a successful attestation:
+
+```
+2024/03/19 23:59:09 [DEBUG] GET https://api.trustauthority.intel.com/appraisal/v1/nonce
+
+Get the vsock port number [4050]
+
+Reply message body is 5030 bytes
+2024/03/19 23:59:13 [DEBUG] POST https://api.trustauthority.intel.com/appraisal/v1/attest
+Trace Id: U5sA2GNVoAMEPkQ=
+eyJhbGciOiJQUzM4NCIsImprdSI6Imh0dHBzOi8vYW1iZXItdGVzdDEtdXNlcjEucHJvamVjdC1hbWJlci1zbWFzLmN
+.....
+.....
+.....
+DRctLIeN4MioXztymyK7qsT1p7n7Dh56-HmDQH47MVgrEL_S-wRYDQioEkUvtuA_3pGk
+
+```
+
+<a id="build-packages-from-source"></a>
+## 10. Build Packages From Source
 
 Despite the fact that TDX components live in a separate PPA from the rest of the Ubuntu packages,
 they follow the Ubuntu standards and offer users the same facilities for code source access and building.
 
-You can find generic instructions on how to build a package from source here : https://wiki.debian.org/BuildingTutorial
+You can find generic instructions on how to build a package from source here: https://wiki.debian.org/BuildingTutorial
 
 Here are the example intructions for building qemu (for normal user with sudo rights):
 
@@ -319,4 +549,7 @@ You can refer to https://wiki.debian.org/BuildingTutorial#Installing_and_testing
 
 The core idea of building a package from source code is to be able to edit the source code. The instructions can be found at https://wiki.debian.org/BuildingTutorial#Edit_the_source_code
 
+<a id="sanity-functional-tests"></a>
+## 11. Additional Sanity and Functional Test Cases
 
+If you're interested in doing additional sanity and functional testing of TDX, see this [wiki](https://github.com/intel/tdx/wiki/Tests).
