@@ -143,6 +143,9 @@ Now that you have a TD guest image, let’s boot it. There are two ways to boot 
 * Boot using QEMU
 * Boot using virsh
 
+NOTE: the virsh method supports running multiple TDs simultaneously, while the QEMU method
+supports running only a single instance.
+
 ### Boot TD Guest with QEMU
 
 1. Boot TD Guest with the provided script.
@@ -181,7 +184,30 @@ systemctl restart libvirtd
 
 ```bash
 cd tdx/guest-tools
-TD_IMG=<path_to_td_qcow2_image> ./run_td_virsh.sh
+./td_virsh_tool.sh
+```
+
+If you are running the script outside the `tdx/guest-tools` directory, you should set the
+shell variables TD_IMG and/or XML_TEMPLATE to specifiy the paths to the base .qcow2 image
+and the libvirt guest XML template file, respectively. For example:
+
+```bash
+TD_IMG=/tmp/myimage.qcow2 XML_TEMPLATE=../myguest.xml ./td_virsh_tool.sh
+```
+
+Note that `td_virsh_tool.sh` also supports running multiple TDs simultaneously. This can
+be accomplished either by running the script multiple times or by passing the `-n N` command
+line option (where N is the number of instances you wish to launch). `td_virsh_tool.sh`
+also accepts a `-c D` option (where D is either the domain name or "all" for all domains)
+for destroying and cleaning up unwanted TDs.
+
+```bash
+# launch two TDs
+./td_virsh_tool.sh -n 2
+# clean/destroy td_guest-1 domain
+./td_virsh_tool.sh -c td_guest-1
+# clean/destroy all domains containing "td_guest" in name
+./td_virsh_tool.sh -c all
 ```
 
 ## Verify TD Guest
@@ -190,6 +216,10 @@ TD_IMG=<path_to_td_qcow2_image> ./run_td_virsh.sh
 
 NOTE: The example below uses the credentials for a TD guest created from scratch.
 If you converted your own guest, please use your original credentials.
+
+Also note that if you booted your guest with `td_virsh_tool.sh` that you will likely need
+a different port number from the one below. The tool will print the appropriate port to use
+after it has successfully booted the TD.
 
 ```bash
 # From localhost
