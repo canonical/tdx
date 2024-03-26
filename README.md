@@ -7,7 +7,7 @@ As a result, it enhances a platform user’s control of data security and IP pro
 Cloud Service Providers’ (CSP) ability to provide managed cloud services without exposing tenant data to adversaries.
 For more information see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
 
-This tech preview of TDX on Ubuntu 23.10 provides base host and guest functionalities. Follow these instructions
+This tech preview of TDX on Ubuntu 24.04 provides base host and guest functionalities. Follow these instructions
 to setup the TDX host, create a TD guest, and boot it.
 
 ## Report an Issue
@@ -20,10 +20,10 @@ This release supports 4th Generation Intel® Xeon® Scalable Processors with Int
 
 ## Setup TDX Host
 
-In this section, you will install a generic Ubuntu 23.10 server, install necessary packages to turn the host
+In this section, you will install a generic Ubuntu 24.04 server, install necessary packages to turn the host
 into a TDX host, and enable TDX settings in the BIOS.
 
-1. Download and install [Ubuntu 23.10 server](https://releases.ubuntu.com/23.10/ubuntu-23.10-live-server-amd64.iso) on the host machine.
+1. Download and install [Ubuntu 24.04 server](https://cdimage.ubuntu.com/ubuntu-server/daily-live/pending/noble-live-server-amd64.iso) on the host machine.
 
 NOTE: Although rare, the installer may hang during its bootup on some systems, which is caused by a kernel graphics driver issue.  The workaround is to add the `nomodeset` parameter to the kernel command-line.  Follow these steps:
 * At the `GRUB` boot menu, press `e`
@@ -101,11 +101,11 @@ Example output:
 
 ## Setup TDX Guest
 
-In this section, you will create an Ubuntu 23.10-based TD guest from scratch or convert an existing non-TD guest into one. This can be performed on any Ubuntu 22.04 or newer system and a TDX-specific environment is not required.
+In this section, you will create an Ubuntu 24.04-based TD guest from scratch or convert an existing non-TD guest into one. This can be performed on any Ubuntu 22.04 or newer system and a TDX-specific environment is not required.
 
 ### Create a New TD Guest Image
 
-The base image is an Ubuntu 23.10 cloud image [`ubuntu-23.10-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/releases/mantic/release/). You can be customized your preferences by setting these two environment variables before running the script:
+The base image is an Ubuntu 24.04 cloud image [`ubuntu-24.04-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img). You can be customized your preferences by setting these two environment variables before running the script:
 
 ```bash
 export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/mantic/release/"
@@ -119,13 +119,13 @@ cd tdx/guest-tools/image/
 sudo ./create-td-image.sh
 ```
 
-The produced TD guest image is `tdx-guest-ubuntu-23.10.qcow2`.
+The produced TD guest image is `tdx-guest-ubuntu-24.04.qcow2`.
 
 The root password is set to `123456`.
 
 ### Convert a Non-TD Guest into a TD Guest
 
-If you have an existing Ubuntu 23.10 non-TD guest, you can enable the TDX feature by following these steps.
+If you have an existing Ubuntu 24.04 non-TD guest, you can enable the TDX feature by following these steps.
 
 1. Boot up your guest.
 
@@ -214,7 +214,7 @@ Example output:
 
 ```bash
 [    0.000000] tdx: Guest detected
-[    0.000000] DMI: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 2023.05-2+tdx1.0~ubuntu23.10.1 10/17/2023
+[    0.000000] DMI: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 2023.05-2+tdx1.0~ubuntu24.04.1 10/17/2023
 [    0.395218] process: using TDX aware idle routine
 [    0.395218] Memory Encryption Features active: Intel TDX
 ```
@@ -244,9 +244,9 @@ You can find generic instructions on how to build a package from source here : h
 
 Here are the example intructions for building qemu (for normal user with sudo rights):
 
-1. Install Ubuntu 23.10
+1. Install Ubuntu 24.04
 
-You can install Ubuntu 23.10 or use an existing Ubuntu 23.10 system.
+You can install Ubuntu 24.04 or use an existing Ubuntu 24.04 system.
 
 2. Install components for build:
 
