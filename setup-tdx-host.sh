@@ -35,15 +35,15 @@ EOF
 
 apt update
 
-# --allow-downgrades : if kobuk-tdx-host is already installed
-apt install --yes --allow-downgrades kobuk-tdx-host || _error "Cannot install TDX components !"
-apt upgrade --yes --allow-downgrades kobuk-tdx-host || _error "Cannot upgrade TDX components !"
+apt install --yes --allow-downgrades \
+    linux-image-unsigned-6.8.0-7-generic \
+    qemu-system-x86 \
+    libvirt-daemon-system \
+    libvirt-clients \
+    ovmf \
+    tdx-tools-host
 
-# for now, use the preview kernel in the PPA
-#apt install --yes linux-image-unsigned-6.7.0-7-generic
-apt install --yes linux-image-unsigned-6.7.0-1001-intel
-
-grub_switch_kernel 6.7.0-1001-intel
+grub_switch_kernel 6.8.0-7-generic
 
 # update cmdline to add tdx=1 to kvm_intel
 grep -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub &> /dev/null
