@@ -275,7 +275,7 @@ NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx/attestation
-sudo ./setup-attestation-host.sh
+sudo ./setup-host.sh
 ```
 
 2. Verify the QGS service is running properly.
@@ -289,7 +289,7 @@ sudo systemctl status qgsd
 sudo systemctl status pccs
 ```
 
-4. Obtain an [Intel PCS API key](https://api.portal.trustedservices.intel.com/provisioning-certification).  This is needed to configure the PCCS service in the next step. 
+4. Obtain an [Intel PCS API key](https://api.portal.trustedservices.intel.com/provisioning-certification).  This is needed to configure the PCCS service in the next step.  Specifically, you should subscribe to the Provisioning Certification Service.
 
 5. Configure the PCCS service.  
 
@@ -315,6 +315,8 @@ Re-enter user password: <PCCS-SERVER-USER-PASSWORD>
 Do you want to generate insecure HTTPS key and cert for PCCS service? [Y] (Y/N) :N
 ```
 
+NOTE: You may answer "Y" to the last question if you would like to generate a self-signed cert for testing purposes. Otherwise, you should install a certificate that is signed by a recognized certificate authority.
+
 6. Restart the PCCS service.
 
 ```bash
@@ -326,7 +328,7 @@ sudo systemctl restart pccs
 ```bash
 sudo systemctl status pccs
 ```
-8. Register the platdform.
+8. Register the platform.
 
 ```bash
 sudo PCKIDRetrievalTool -f retrieval_result.csv -url https://localhost:8081 -user_token <PCCS-SERVER-USER-PASSWORD> -use_secure_cert false
@@ -348,10 +350,40 @@ Error: unexpected error occurred while sending data to cache server.
 retrieval_result.csv has been generated successfully, however the data couldn't be sent to cache server!
 ```
 
-If the failure occurred, you must boot into the BIOS and perform `SGX Factory Reset` (go to `Socket Configuration > Processor Configuration`) and execute the registration process again.  
+If the failure occurred, you must boot into the BIOS and perform `SGX Factory Reset` (go to `Socket Configuration > Processor Configuration`) and execute the registration process again.
+
+9. (Optional) Edit SGX configuration file
+
+If you configured PCCS with a self-signed certificate, edit `/etc/sgx_default_qcnl.conf` on the host and change the following line:
+
+```
+,"use_secure_cert": true
+```
+
+to:
+
+```
+,"use_secure_cert": false
+```
+
+Now restart the qgsd and pccs services:
+
+```
+sudo systemctl restart qgsd
+sudo systemctl restart pccs
+```
+
+and verify they are running properly:
+
+```
+sudo systemctl status qgsd
+sudo systemctl status pccs
+```
 
 ### Setup [Intel Trust Authority (ITA) Client](https://github.com/intel/trustauthority-client-for-go) on Guest 
-1. Boot a TD guest and connect to it.
+1. [Boot a TD guest](#boot-td-guest) and connect to it.
+
+NOTE: The commands below assume you are a non-root user; `sudo` may be dropped if you are running as the root user.
 
 2. Clone this repo.
 
@@ -365,7 +397,7 @@ NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx/attestation
-sudo ./setup-attestation-guest.sh
+sudo ./setup-guest.sh
 ```
 
 3. Verify the ITA client version.
@@ -388,7 +420,7 @@ Build Date: 2023-10-20T09:45:41+00:00
 
 ```bash
 cd /usr/share/doc/libtdx-attest-dev/examples/
-./test_tdx_attest
+sudo ./test_tdx_attest
 ```
 
 An example output of a successful quote generation:
@@ -437,7 +469,7 @@ You should also find a `quote.dat` file generated.
 4. Finally, attest with the Intel Trust Authority service.
 
 ```bash
-trustauthority-cli token -c config.json
+sudo trustauthority-cli token -c config.json
 ```
 
 An example of a successful attestation:
