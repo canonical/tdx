@@ -275,7 +275,7 @@ NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx/attestation
-sudo ./setup-host.sh
+sudo ./setup-attestation-host.sh
 ```
 
 2. Verify the QGS service is running properly.
@@ -366,7 +366,7 @@ to:
 ,"use_secure_cert": false
 ```
 
-Now restart the qgsd and pccs services:
+Now restart the `qgsd` and `pccs` services:
 
 ```
 sudo systemctl restart qgsd
@@ -397,7 +397,7 @@ NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx/attestation
-sudo ./setup-guest.sh
+sudo ./setup-attestation-guest.sh
 ```
 
 3. Verify the ITA client version.
