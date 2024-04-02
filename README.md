@@ -231,7 +231,7 @@ ssh -p 10022 root@<host_ip>
 3. Verify TDX is enabled in the guest.
 
 ```bash
-sudo dmesg | grep -i tdx
+dmesg | grep -i tdx
 ```
 
 An example output:
@@ -383,8 +383,6 @@ sudo systemctl status pccs
 ### Setup [Intel Trust Authority (ITA) Client](https://github.com/intel/trustauthority-client-for-go) on Guest 
 1. [Boot a TD guest](#boot-td-guest) and connect to it.
 
-NOTE: The commands below assume you are a non-root user; `sudo` may be dropped if you are running as the root user.
-
 2. Clone this repo.
 
 ```bash
@@ -393,11 +391,9 @@ git clone https://github.com/canonical/tdx.git
 
 2. Install the ITA client. <br>
 
-NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
-
 ```bash
 cd tdx/attestation
-sudo ./setup-attestation-guest.sh
+./setup-attestation-guest.sh
 ```
 
 3. Verify the ITA client version.
@@ -420,7 +416,7 @@ Build Date: 2023-10-20T09:45:41+00:00
 
 ```bash
 cd /usr/share/doc/libtdx-attest-dev/examples/
-sudo ./test_tdx_attest
+./test_tdx_attest
 ```
 
 An example output of a successful quote generation:
@@ -469,7 +465,7 @@ You should also find a `quote.dat` file generated.
 4. Finally, attest with the Intel Trust Authority service.
 
 ```bash
-sudo trustauthority-cli token -c config.json
+trustauthority-cli token -c config.json
 ```
 
 An example of a successful attestation:
