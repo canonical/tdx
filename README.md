@@ -261,7 +261,7 @@ ssh -p 10022 root@<host_ip>
 3. Verify TDX is enabled in the guest.
 
 ```bash
-sudo dmesg | grep -i tdx
+dmesg | grep -i tdx
 ```
 
 An example output:
@@ -319,7 +319,7 @@ sudo systemctl status qgsd
 sudo systemctl status pccs
 ```
 
-4. Obtain an [Intel PCS API key](https://api.portal.trustedservices.intel.com/provisioning-certification).  This is needed to configure the PCCS service in the next step. 
+4. Obtain an [Intel PCS API key](https://api.portal.trustedservices.intel.com/provisioning-certification).  This is needed to configure the PCCS service in the next step.  Specifically, you should subscribe to the Provisioning Certification Service.
 
 5. Configure the PCCS service.  
 
@@ -345,6 +345,8 @@ Re-enter user password: <PCCS-SERVER-USER-PASSWORD>
 Do you want to generate insecure HTTPS key and cert for PCCS service? [Y] (Y/N) :N
 ```
 
+NOTE: You may answer "Y" to the last question if you would like to generate a self-signed cert for testing purposes. Otherwise, you should install a certificate that is signed by a recognized certificate authority.
+
 6. Restart the PCCS service.
 
 ```bash
@@ -356,7 +358,7 @@ sudo systemctl restart pccs
 ```bash
 sudo systemctl status pccs
 ```
-8. Register the platdform.
+8. Register the platform.
 
 ```bash
 sudo PCKIDRetrievalTool -f retrieval_result.csv -url https://localhost:8081 -user_token <PCCS-SERVER-USER-PASSWORD> -use_secure_cert false
@@ -378,10 +380,38 @@ Error: unexpected error occurred while sending data to cache server.
 retrieval_result.csv has been generated successfully, however the data couldn't be sent to cache server!
 ```
 
-If the failure occurred, you must boot into the BIOS and perform `SGX Factory Reset` (go to `Socket Configuration > Processor Configuration`) and execute the registration process again.  
+If the failure occurred, you must boot into the BIOS and perform `SGX Factory Reset` (go to `Socket Configuration > Processor Configuration`) and execute the registration process again.
+
+9. (Optional) Edit SGX configuration file
+
+If you configured PCCS with a self-signed certificate, edit `/etc/sgx_default_qcnl.conf` on the host and change the following line:
+
+```
+,"use_secure_cert": true
+```
+
+to:
+
+```
+,"use_secure_cert": false
+```
+
+Now restart the `qgsd` and `pccs` services:
+
+```
+sudo systemctl restart qgsd
+sudo systemctl restart pccs
+```
+
+and verify they are running properly:
+
+```
+sudo systemctl status qgsd
+sudo systemctl status pccs
+```
 
 ### Setup [Intel Trust Authority (ITA) Client](https://github.com/intel/trustauthority-client-for-go) on Guest 
-1. Boot a TD guest and connect to it.
+1. [Boot a TD guest](#boot-td-guest) and connect to it.
 
 2. Clone this repo.
 
@@ -391,11 +421,9 @@ git clone https://github.com/canonical/tdx.git
 
 2. Install the ITA client. <br>
 
-NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
-
 ```bash
 cd tdx/attestation
-sudo ./setup-attestation-guest.sh
+./setup-attestation-guest.sh
 ```
 
 3. Verify the ITA client version.
