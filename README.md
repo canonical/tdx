@@ -308,6 +308,15 @@ cd tdx/attestation
 sudo ./setup-attestation-host.sh
 ```
 
+`Reboot` the system and verify that sgx devices have proper user and group.
+
+```bash
+$ ls -l /dev/sgx_*
+crw-rw-rw- 1 root sgx     10, 125 Apr  3 21:14 /dev/sgx_enclave
+crw-rw---- 1 root sgx_prv 10, 126 Apr  3 21:14 /dev/sgx_provision
+crw-rw---- 1 root sgx     10, 124 Apr  3 21:14 /dev/sgx_vepc
+```
+
 2. Verify the QGS service is running properly.
 
 ```bash
