@@ -30,8 +30,6 @@ apt install --yes libsgx-ae-id-enclave \
 
 # libsgx-enclave-common/etc/udev/rules.d/94-sgx-enclave.rules
 
-chown root:sgx /dev/sgx_provision
-chmod g+rw /dev/sgx_provision
-
 usermod -aG sgx_prv qgsd
+
 

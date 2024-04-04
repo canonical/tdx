@@ -308,6 +308,15 @@ cd tdx/attestation
 sudo ./setup-attestation-host.sh
 ```
 
+`Reboot` the system and verify that sgx devices have proper user and group.
+
+```bash
+$ ls -l /dev/sgx_*
+crw-rw-rw- 1 root sgx     10, 125 Apr  3 21:14 /dev/sgx_enclave
+crw-rw---- 1 root sgx_prv 10, 126 Apr  3 21:14 /dev/sgx_provision
+crw-rw---- 1 root sgx     10, 124 Apr  3 21:14 /dev/sgx_vepc
+```
+
 2. Verify the QGS service is running properly.
 
 ```bash
@@ -345,8 +354,6 @@ Re-enter user password: <PCCS-SERVER-USER-PASSWORD>
 Do you want to generate insecure HTTPS key and cert for PCCS service? [Y] (Y/N) :N
 ```
 
-NOTE: You may answer "Y" to the last question if you would like to generate a self-signed cert for testing purposes. Otherwise, you should install a certificate that is signed by a recognized certificate authority.
-
 6. Restart the PCCS service.
 
 ```bash
@@ -381,34 +388,6 @@ retrieval_result.csv has been generated successfully, however the data couldn't 
 ```
 
 If the failure occurred, you must boot into the BIOS and perform `SGX Factory Reset` (go to `Socket Configuration > Processor Configuration`) and execute the registration process again.
-
-9. (Optional) Edit SGX configuration file
-
-If you configured PCCS with a self-signed certificate, edit `/etc/sgx_default_qcnl.conf` on the host and change the following line:
-
-```
-,"use_secure_cert": true
-```
-
-to:
-
-```
-,"use_secure_cert": false
-```
-
-Now restart the `qgsd` and `pccs` services:
-
-```
-sudo systemctl restart qgsd
-sudo systemctl restart pccs
-```
-
-and verify they are running properly:
-
-```
-sudo systemctl status qgsd
-sudo systemctl status pccs
-```
 
 ### Setup [Intel Trust Authority (ITA) Client](https://github.com/intel/trustauthority-client-for-go) on Guest 
 1. [Boot a TD guest](#boot-td-guest) and connect to it.
