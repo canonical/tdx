@@ -35,8 +35,10 @@ EOF
 
 apt update
 
+# modules-extra is needed (igc for example)
 apt install --yes --allow-downgrades \
     linux-intel-opt \
+    linux-modules-extra-intel-opt \
     qemu-system-x86 \
     libvirt-daemon-system \
     libvirt-clients \
