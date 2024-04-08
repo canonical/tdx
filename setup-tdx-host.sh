@@ -5,6 +5,8 @@ _error() {
   exit 1
 }
 
+KERNEL_RELEASE=6.8.0-7-generic
+
 # grub: switch to kernel version
 grub_switch_kernel() {
     KERNELVER=$1
@@ -35,15 +37,17 @@ EOF
 
 apt update
 
+# install modules-extra to have some necessary modules (igc, ...)
 apt install --yes --allow-downgrades \
-    linux-image-unsigned-6.8.0-7-generic \
+    linux-image-unsigned-${KERNEL_RELEASE} \
+    linux-modules-extra-${KERNEL_RELEASE} \
     qemu-system-x86 \
     libvirt-daemon-system \
     libvirt-clients \
     ovmf \
     tdx-tools-host
 
-grub_switch_kernel 6.8.0-7-generic
+grub_switch_kernel ${KERNEL_RELEASE}
 
 # update cmdline to add tdx=1 to kvm_intel
 grep -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub &> /dev/null
