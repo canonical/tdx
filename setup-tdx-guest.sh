@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# for now, use the generic kernel
+KERNEL_RELEASE=6.8.0-22-generic
 
 # grub: switch to kernel version
 grub_switch_kernel() {
@@ -31,12 +33,15 @@ EOF
 
 apt update
 
-# for now, use the generic kernel
-#apt install --allow-downgrades --yes linux-image-unsigned-6.7.0-1001-intel
-#grub_switch_kernel 6.7.0-1001-intel
-
-# install modules-extra to have tdx_guest module
-apt install -y linux-modules-extra-$(uname -r)
-
 # install TDX feature
-apt install -y kobuk-tdx-guest
+# install modules-extra to have tdx_guest module
+apt install --yes --allow-downgrades \
+   linux-image-unsigned-${KERNEL_RELEASE} \
+   linux-modules-extra-${KERNEL_RELEASE} \
+   shim-signed \
+   grub-efi-amd64-signed \
+   grub-efi-amd64-bin \
+   tdx-tools-guest \
+   python3-pytdxmeasure
+
+grub_switch_kernel ${KERNEL_RELEASE}
