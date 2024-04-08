@@ -1,5 +1,8 @@
 #!/bin/bash
 
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 _error() {
   echo "Error : $1"
   exit 1
@@ -70,6 +73,9 @@ if [ $? -ne 0 ]; then
   update-grub
   grub-install
 fi
+
+# setup attestation
+${SCRIPT_DIR}/attestation/setup-host.sh
 
 echo "========================================================================"
 echo "The setup has been done successfully. Please enable now TDX in the BIOS."

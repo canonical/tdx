@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 # for now, use the generic kernel
 KERNEL_RELEASE=6.8.0-22-generic
 
@@ -45,3 +47,6 @@ apt install --yes --allow-downgrades \
    python3-pytdxmeasure
 
 grub_switch_kernel ${KERNEL_RELEASE}
+
+# setup attestation
+${SCRIPT_DIR}/attestation/setup-guest.sh
