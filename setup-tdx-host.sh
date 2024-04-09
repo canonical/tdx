@@ -23,11 +23,15 @@ EOF
     update-grub
 }
 
+# preparation
 apt update
 apt install --yes software-properties-common &> /dev/null
 
 # cleanup
 rm -f /etc/apt/preferences.d/kobuk-team-tdx-*
+
+# stop at error
+set -e
 
 add-apt-repository -y ppa:kobuk-team/tdx
 
@@ -37,8 +41,6 @@ Package: *
 Pin: release o=LP-PPA-kobuk-team-tdx
 Pin-Priority: 4000
 EOF
-
-apt update
 
 # install modules-extra to have some necessary modules (igc, ...)
 apt install --yes --allow-downgrades \
