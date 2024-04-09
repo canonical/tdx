@@ -8,7 +8,7 @@ _error() {
   exit 1
 }
 
-KERNEL_RELEASE=6.8.0-7-generic
+KERNEL_RELEASE=6.8.0-1001-intel
 
 # grub: switch to kernel version
 grub_switch_kernel() {
