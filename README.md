@@ -382,7 +382,7 @@ If the failure occurred, you might want to boot into the BIOS and perform `SGX F
 2. Clone this repo.
 
 ```bash
-git clone https://github.com/canonical/tdx.git
+git clone -b noble-24.04 https://github.com/canonical/tdx.git
 ```
 
 2. Install the ITA client. <br>
