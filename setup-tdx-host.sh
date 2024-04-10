@@ -42,10 +42,8 @@ Pin: release o=LP-PPA-kobuk-team-tdx
 Pin-Priority: 4000
 EOF
 
-# install modules-extra to have some necessary modules (igc, ...)
 apt install --yes --allow-downgrades \
     linux-image-unsigned-${KERNEL_RELEASE} \
-    linux-modules-extra-${KERNEL_RELEASE} \
     qemu-system-x86 \
     libvirt-daemon-system \
     libvirt-clients \
