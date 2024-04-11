@@ -44,7 +44,7 @@ main() {
         create_overlay_image
         create_domain_xml
         boot_vm
-        echo_ssh_cmd
+        echo_ssh_cmd ${domain}
     done
 }
 
@@ -59,6 +59,7 @@ Available options:
 -h,   --help            Print this help and exit
 -c D, --clean D         Clean domain with name D (use "all" to clean all)
 -n N, --n_instances N   Launch N instances
+-l,   --list            List VMs
 
 Environment variables:
 
@@ -73,6 +74,10 @@ parse_params() {
         case "${1-}" in
         -h | --help)
             usage
+            exit 0
+            ;;
+        -l | --list)
+            print_all
             exit 0
             ;;
         -n | --n_instances)
@@ -157,19 +162,20 @@ boot_vm() {
 }
 
 echo_ssh_cmd() {
+    _domain=$1
     local host_port=$(
         virsh \
-            qemu-monitor-command ${domain} \
+            qemu-monitor-command ${_domain} \
             --hmp info usernet |
             awk '/HOST_FORWARD/ {print $4}'
     )
     local guest_cid=$(
         virsh \
-            qemu-monitor-command ${domain} \
+            qemu-monitor-command ${_domain} \
             --hmp info qtree |
             awk '/guest-cid/ {print $3}'
     )
-    echo "Domain ${domain} running with vsock CID: ${guest_cid}," \
+    echo "Domain ${_domain} running with vsock CID: ${guest_cid}," \
         "ssh -p ${host_port} root@localhost"
 }
 
@@ -210,6 +216,12 @@ clean_all() {
         destroy ${domain_to_clean}
     done
     exit 0
+}
+
+print_all() {
+    for domain_to_print in $(virsh list --state-running --name | grep ${DOMAIN_PREFIX}); do
+        echo_ssh_cmd ${domain_to_print}
+    done
 }
 
 on_exit() {
