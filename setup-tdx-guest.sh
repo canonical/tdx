@@ -20,6 +20,22 @@ EOF
     update-grub
 }
 
+# select the kernel release for next boot
+# if KERNEL_RELEASE is specified, we use it
+# if not, select the latest generic kernel available on the system
+grub_set_kernel() {
+   if [ -z "${KERNEL_RELEASE}" ]; then
+      KERNEL_RELEASE=$(ls /boot/vmlinuz-*-generic 2>&1 | \
+                      /usr/lib/grub/grub-sort-version -r 2>&1 | \
+                      gawk 'match($0 , /^\/boot\/vmlinuz-(.*)/, a) {print a[1];exit}')
+    fi
+    if [ -z "${KERNEL_RELEASE}" ]; then
+      echo "ERROR : unable to determine kernel release"
+      exit 1
+    fi
+    grub_switch_kernel ${KERNEL_RELEASE}
+}
+
 apt update
 apt install --yes software-properties-common &> /dev/null
 
@@ -52,8 +68,10 @@ apt install --yes --allow-downgrades \
 if [ ! -z "${KERNEL_RELEASE}" ]; then
   apt install --yes --allow-downgrades \
     linux-image-unsigned-${KERNEL_RELEASE}
-  grub_switch_kernel ${KERNEL_RELEASE}
 fi
+
+# select the right kernel for next boot
+grub_set_kernel
 
 # setup attestation
 ${SCRIPT_DIR}/attestation/setup-guest.sh
