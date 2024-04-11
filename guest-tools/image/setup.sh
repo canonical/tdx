@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# caller can set a list of environment variables by putting them into the file /tmp/tdx-guest-setup-env
+if [ -f /tmp/tdx-guest-setup-env ]; then
+  source /tmp/tdx-guest-setup-env
+fi
+
 apt update
 
 # Utilities packages for automated testing

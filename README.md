@@ -138,6 +138,13 @@ cd tdx/guest-tools/image/
 sudo ./create-td-image.sh
 ```
 
+The TD guest image uses the Ubuntu generic kernel by default, intel kernel can be selected by using
+the environment variable `TDX_GUEST_SETUP_INTEL_KERNEL`.
+
+```bash
+sudo TDX_GUEST_SETUP_INTEL_KERNEL=1 ./create-td-image.sh
+```
+
 The produced TD guest image is `tdx-guest-ubuntu-24.04.qcow2`.
 
 The root password is set to `123456`.
