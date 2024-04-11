@@ -23,6 +23,32 @@ EOF
     update-grub
 }
 
+grub_cmdline_kvm() {
+  # update cmdline to add tdx=1 to kvm_intel
+  grep -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub &> /dev/null
+  if [ $? -ne 0 ]; then
+    sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 kvm_intel.tdx=1\"/g" /etc/default/grub
+    update-grub
+    grub-install
+  fi
+}
+
+grub_cmdline_nohibernate() {
+  # nohibernate
+  # TDX cannot survive from S3 and deeper states.  The hardware resets and
+  # disables TDX completely when platform goes to S3 and deeper.  Both TDX
+  # guests and the TDX module get destroyed permanently.
+  # The kernel uses S3 for suspend-to-ram, and use S4 and deeper states for
+  # hibernation.  Currently, for simplicity, the kernel chooses to make TDX
+  # mutually exclusive with S3 and hibernation.
+  grep -E "GRUB_CMDLINE_LINUX.*=.*\".*nohibernate.*\"" /etc/default/grub &> /dev/null
+  if [ $? -ne 0 ]; then
+    sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 nohibernate\"/g" /etc/default/grub
+    update-grub
+    grub-install
+  fi
+}
+
 # preparation
 apt update
 apt install --yes software-properties-common &> /dev/null
@@ -52,27 +78,8 @@ apt install --yes --allow-downgrades \
 
 grub_switch_kernel ${KERNEL_RELEASE}
 
-# update cmdline to add tdx=1 to kvm_intel
-grep -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub &> /dev/null
-if [ $? -ne 0 ]; then
-  sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 kvm_intel.tdx=1\"/g" /etc/default/grub
-  update-grub
-  grub-install
-fi
-
-# nohibernate
-# TDX cannot survive from S3 and deeper states.  The hardware resets and
-# disables TDX completely when platform goes to S3 and deeper.  Both TDX
-# guests and the TDX module get destroyed permanently.
-# The kernel uses S3 for suspend-to-ram, and use S4 and deeper states for
-# hibernation.  Currently, for simplicity, the kernel chooses to make TDX
-# mutually exclusive with S3 and hibernation.
-grep -E "GRUB_CMDLINE_LINUX.*=.*\".*nohibernate.*\"" /etc/default/grub &> /dev/null
-if [ $? -ne 0 ]; then
-  sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 nohibernate\"/g" /etc/default/grub
-  update-grub
-  grub-install
-fi
+grub_cmdline_kvm || true
+grub_cmdline_nohibernate || true
 
 # setup attestation
 ${SCRIPT_DIR}/attestation/setup-host.sh
