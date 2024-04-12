@@ -3,10 +3,22 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+on_exit() {
+    rc=$?
+    if [ ${rc} -ne 0 ]; then
+        echo "====================================="
+        echo "ERROR : The script failed..."
+        echo "====================================="
+    fi
+    return ${rc}
+}
+
 _error() {
   echo "Error : $1"
   exit 1
 }
+
+trap "on_exit" EXIT
 
 KERNEL_RELEASE=6.8.0-1001-intel
 
