@@ -41,23 +41,6 @@ the host into a TDX host, and enable TDX settings in the BIOS.
 
 1. Download and install [Ubuntu 24.04 server](https://cdimage.ubuntu.com/ubuntu-server/daily-live/pending/noble-live-server-amd64.iso) on the host machine.
 
-NOTE: Although rare, the installer may hang during its bootup on some systems, which is caused by a kernel graphics driver issue.  The workaround is to add the `nomodeset` parameter to the kernel command-line.  Follow these steps:
-* At the `GRUB` boot menu, press `e`
-* Add `nomodeset` to linux line, like the example below:
-
-```bash
-linux	/casper/vmlinuz nomodeset ---
-```
-
-* Press `Ctrl-x` to continue the boot process
-* After installation is complete, reboot, use `nomodeset` again, like the example below:
-
-```bash
-linux	/boot/vmlinuz-6.5.0-10-generic nomodeset root=UUID=c5605a23-05ae-4d9d-b65f-e47ba48b7560 ro
-```
-
-* Step #3 below will automatically add `nomodeset` to the GRUB config so that no additional intervention is needed
-
 2. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning it at the appropriate tag.
 
 3. Run the script. <br>
