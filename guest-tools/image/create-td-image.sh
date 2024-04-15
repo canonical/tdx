@@ -218,7 +218,7 @@ setup_guest_image() {
        --copy-in ${CURR_DIR}/setup.sh:/tmp/ \
        --copy-in ${CURR_DIR}/../../setup-tdx-guest.sh:/tmp/ \
        --copy-in ${CURR_DIR}/../../attestation/:/tmp/ \
-       --copy-in ${CURR_DIR}/tdx-guest-setup-env:/tmp/
+       --copy-in ${CURR_DIR}/tdx-guest-setup-env:/tmp/ \
        --run-command "/tmp/setup.sh"
     if [ $? -eq 0 ]; then
         ok "Setup guest image..."
