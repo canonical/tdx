@@ -19,7 +19,7 @@ EOF
 }
 
 apt update
-apt install --yes software-properties-common &> /dev/null
+apt install --yes software-properties-common gawk &> /dev/null
 
 # cleanup
 rm -f /etc/apt/preferences.d/kobuk-team-tdx-*
