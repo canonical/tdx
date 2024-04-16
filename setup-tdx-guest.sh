@@ -24,7 +24,7 @@ EOF
 # if KERNEL_RELEASE is specified, we use it
 # if not, select the latest generic kernel available on the system
 grub_set_kernel() {
-   if [ -z "${KERNEL_RELEASE}" ]; then
+    if [ -z "${KERNEL_RELEASE}" ]; then
       KERNEL_RELEASE=$(ls /boot/vmlinuz-*-generic 2>&1 | \
                       /usr/lib/grub/grub-sort-version -r 2>&1 | \
                       gawk 'match($0 , /^\/boot\/vmlinuz-(.*)/, a) {print a[1];exit}')
@@ -63,7 +63,7 @@ apt install --yes --allow-downgrades \
    tdx-tools-guest \
    python3-pytdxmeasure
 
-# if a specific kernel has to be used
+# if a specific kernel has to be used instead of generic
 # TODO : install linux-modules-extra
 if [ ! -z "${KERNEL_RELEASE}" ]; then
   apt install --yes --allow-downgrades \
@@ -72,6 +72,13 @@ fi
 
 # select the right kernel for next boot
 grub_set_kernel
+
+# install modules-extra for generic kernel because the tdx-guest module
+# is still in modules-extra only
+# NB: grub_set_kernel updates kernel release that will be used, just check if it is generic
+if [[ "$KERNEL_RELEASE" == *-generic ]]; then
+  apt install --yes linux-modules-extra-${KERNEL_RELEASE}
+fi
 
 # setup attestation
 ${SCRIPT_DIR}/attestation/setup-guest.sh
