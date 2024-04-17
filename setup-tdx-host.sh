@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 on_exit() {
@@ -19,6 +18,8 @@ _error() {
 }
 
 trap "on_exit" EXIT
+
+source ${SCRIPT_DIR}/setup-tdx-common
 
 KERNEL_RELEASE=6.8.0-1001-intel
 
@@ -67,18 +68,13 @@ apt install --yes software-properties-common gawk &> /dev/null
 
 # cleanup
 rm -f /etc/apt/preferences.d/kobuk-team-tdx-*
+rm -f /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
 
 # stop at error
 set -e
 
-add-apt-repository -y ppa:kobuk-team/tdx
-
-# PPA pinning
-cat <<EOF | tee /etc/apt/preferences.d/kobuk-team-tdx-pin-4000
-Package: *
-Pin: release o=LP-PPA-kobuk-team-tdx
-Pin-Priority: 4000
-EOF
+# add kobuk PPA
+add_kobuk_ppa
 
 apt install --yes --allow-downgrades \
     linux-image-unsigned-${KERNEL_RELEASE} \

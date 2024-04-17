@@ -217,6 +217,7 @@ setup_guest_image() {
     virt-customize -a /tmp/${GUEST_IMG} \
        --copy-in ${CURR_DIR}/setup.sh:/tmp/ \
        --copy-in ${CURR_DIR}/../../setup-tdx-guest.sh:/tmp/ \
+       --copy-in ${CURR_DIR}/../../setup-tdx-common:/tmp/ \
        --copy-in ${CURR_DIR}/../../attestation/:/tmp/ \
        --copy-in ${CURR_DIR}/tdx-guest-setup-env:/tmp/ \
        --run-command "/tmp/setup.sh"

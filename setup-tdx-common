@@ -1,0 +1,30 @@
+# Pinning the packages of specific PPA
+#
+# unattended-upgrade:
+# unattended-upgrade will temporarily set APT pinning for the archives
+# it will ignore the pinning configuration for PPAs that are not listed
+# in the Allowed-Origins list
+# we have to add the PPA into this list to prevent unattended from
+# setting its pinning priority to -32768
+# we also need to tell unattended-upgrade to allow the downgrade
+# in case the packages in the PPA have older versions than the ones
+# from Ubuntu archive
+add_kobuk_ppa() {
+  distro_id=LP-PPA-kobuk-team-tdx
+  distro_codename=noble
+
+  add-apt-repository -y ppa:kobuk-team/tdx
+
+  cat <<EOF | tee /etc/apt/preferences.d/kobuk-team-tdx-pin-4000
+Package: *
+Pin: release o=${distro_id}
+Pin-Priority: 4000
+EOF
+  cat <<EOF | tee /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
+Unattended-Upgrade::Allowed-Origins·{
+··"${distro_id}:${distro_codename}";
+};
+Unattended-Upgrade::Allow-downgrade·"true";
+}
+EOF
+}
