@@ -121,8 +121,7 @@ set_input_paths() {
 }
 
 check_domain_count() {
-    local n_domains_running
-    n_domains_running=$(virsh list --state-running |
+    local n_domains_running=$(virsh list --state-running |
         grep -c ${DOMAIN_PREFIX})
     if [ ${n_domains_running} -ge ${MAX_DOMAINS} ]; then
         echo "Error: exceeded max allowed guests."
@@ -132,8 +131,7 @@ check_domain_count() {
 }
 
 create_overlay_image() {
-    local rand_str
-    rand_str=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c15)
+    local rand_str=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c15)
     overlay_image_path=/tmp/overlay.${rand_str}.qcow2
     qemu-img create \
         -f qcow2 \
