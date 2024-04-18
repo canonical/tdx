@@ -37,8 +37,7 @@ EOF
 
 grub_cmdline_kvm() {
   # update cmdline to add tdx=1 to kvm_intel
-  grep -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub &> /dev/null
-  if [ $? -ne 0 ]; then
+  if ! grep -q -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub; then
     sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 kvm_intel.tdx=1\"/g" /etc/default/grub
     update-grub
     grub-install
@@ -53,8 +52,7 @@ grub_cmdline_nohibernate() {
   # The kernel uses S3 for suspend-to-ram, and use S4 and deeper states for
   # hibernation.  Currently, for simplicity, the kernel chooses to make TDX
   # mutually exclusive with S3 and hibernation.
-  grep -E "GRUB_CMDLINE_LINUX.*=.*\".*nohibernate.*\"" /etc/default/grub &> /dev/null
-  if [ $? -ne 0 ]; then
+  if ! grep -q -E "GRUB_CMDLINE_LINUX.*=.*\".*nohibernate.*\"" /etc/default/grub; then
     sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 nohibernate\"/g" /etc/default/grub
     update-grub
     grub-install
@@ -94,7 +92,7 @@ grub_cmdline_kvm || true
 grub_cmdline_nohibernate || true
 
 # setup attestation
-${SCRIPT_DIR}/attestation/setup-host.sh
+"${SCRIPT_DIR}"/attestation/setup-host.sh
 
 echo "========================================================================"
 echo "The setup has been done successfully. Please enable now TDX in the BIOS."
