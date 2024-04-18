@@ -7,6 +7,8 @@ if [ -n "${TDX_GUEST_SETUP_INTEL_KERNEL}" ]; then
    KERNEL_RELEASE=6.8.0-1001-intel
 fi
 
+source ${SCRIPT_DIR}/setup-tdx-common
+
 # grub: switch to kernel version
 grub_switch_kernel() {
     KERNELVER=$1
@@ -41,15 +43,9 @@ apt install --yes software-properties-common &> /dev/null
 
 # cleanup
 rm -f /etc/apt/preferences.d/kobuk-team-tdx-*
+rm -f /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
 
-add-apt-repository -y ppa:kobuk-team/tdx
-
-# PPA pinning
-cat <<EOF | tee /etc/apt/preferences.d/kobuk-team-tdx-pin-4000
-Package: *
-Pin: release o=LP-PPA-kobuk-team-tdx
-Pin-Priority: 4000
-EOF
+add_kobuk_ppa
 
 # upgrade the system to have the latest components (mostly generic kernel)
 apt upgrade --yes
