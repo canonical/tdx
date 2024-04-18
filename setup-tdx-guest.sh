@@ -45,7 +45,6 @@ apt install --yes software-properties-common &> /dev/null
 rm -f /etc/apt/preferences.d/kobuk-team-tdx-*
 rm -f /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
 
-# add kobuk PPA
 add_kobuk_ppa
 
 # upgrade the system to have the latest components (mostly generic kernel)

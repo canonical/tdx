@@ -73,7 +73,6 @@ rm -f /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
 # stop at error
 set -e
 
-# add kobuk PPA
 add_kobuk_ppa
 
 apt install --yes --allow-downgrades \
