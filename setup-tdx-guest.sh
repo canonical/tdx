@@ -3,7 +3,7 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # use can use -intel kernel by setting TDX_GUEST_SETUP_INTEL_KERNEL
-if [ ! -z "${TDX_GUEST_SETUP_INTEL_KERNEL}" ]; then
+if [ -n "${TDX_GUEST_SETUP_INTEL_KERNEL}" ]; then
    KERNEL_RELEASE=6.8.0-1001-intel
 fi
 
@@ -25,7 +25,7 @@ EOF
 # if not, select the latest generic kernel available on the system
 grub_set_kernel() {
     if [ -z "${KERNEL_RELEASE}" ]; then
-      KERNEL_RELEASE=$(ls /boot/vmlinuz-*-generic 2>&1 | \
+      KERNEL_RELEASE=$(find /boot/vmlinuz-*-generic 2>&1 | \
                       /usr/lib/grub/grub-sort-version -r 2>&1 | \
                       gawk 'match($0 , /^\/boot\/vmlinuz-(.*)/, a) {print a[1];exit}')
     fi
@@ -33,7 +33,7 @@ grub_set_kernel() {
       echo "ERROR : unable to determine kernel release"
       exit 1
     fi
-    grub_switch_kernel ${KERNEL_RELEASE}
+    grub_switch_kernel "${KERNEL_RELEASE}"
 }
 
 apt update
@@ -65,9 +65,9 @@ apt install --yes --allow-downgrades \
 
 # if a specific kernel has to be used instead of generic
 # TODO : install linux-modules-extra
-if [ ! -z "${KERNEL_RELEASE}" ]; then
+if [ -n "${KERNEL_RELEASE}" ]; then
   apt install --yes --allow-downgrades \
-    linux-image-unsigned-${KERNEL_RELEASE}
+    "linux-image-unsigned-${KERNEL_RELEASE}"
 fi
 
 # select the right kernel for next boot
@@ -77,8 +77,8 @@ grub_set_kernel
 # is still in modules-extra only
 # NB: grub_set_kernel updates kernel release that will be used, just check if it is generic
 if [[ "$KERNEL_RELEASE" == *-generic ]]; then
-  apt install --yes linux-modules-extra-${KERNEL_RELEASE}
+  apt install --yes "linux-modules-extra-${KERNEL_RELEASE}"
 fi
 
 # setup attestation
-${SCRIPT_DIR}/attestation/setup-guest.sh
+"${SCRIPT_DIR}"/attestation/setup-guest.sh
