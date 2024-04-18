@@ -121,7 +121,8 @@ set_input_paths() {
 }
 
 check_domain_count() {
-    local n_domains_running=$(virsh list --state-running |
+    local n_domains_running
+    n_domains_running=$(virsh list --state-running |
         grep -c ${DOMAIN_PREFIX})
     if [ ${n_domains_running} -ge ${MAX_DOMAINS} ]; then
         echo "Error: exceeded max allowed guests."
@@ -131,7 +132,8 @@ check_domain_count() {
 }
 
 create_overlay_image() {
-    local rand_str=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c15)
+    local rand_str
+    rand_str=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c15)
     overlay_image_path=/tmp/overlay.${rand_str}.qcow2
     qemu-img create \
         -f qcow2 \
@@ -163,13 +165,15 @@ boot_vm() {
 
 echo_ssh_cmd() {
     _domain=$1
-    local host_port=$(
+    local host_port
+    host_port=$(
         virsh \
             qemu-monitor-command ${_domain} \
             --hmp info usernet |
             awk '/HOST_FORWARD/ {print $4}'
     )
-    local guest_cid=$(
+    local guest_cid
+    guest_cid=$(
         virsh \
             qemu-monitor-command ${_domain} \
             --hmp info qtree |
@@ -181,7 +185,8 @@ echo_ssh_cmd() {
 
 destroy() {
     local domain_to_destroy="${1}"
-    local qcow2_overlay_path=$(virsh dumpxml ${domain_to_destroy} |
+    local qcow2_overlay_path
+    qcow2_overlay_path=$(virsh dumpxml ${domain_to_destroy} |
         grep -o "\/tmp\/overlay\.[A-Za-z0-9]*\.qcow2")
 
     echo "Destroying domain ${domain_to_destroy}."
