@@ -20,11 +20,11 @@ Package: *
 Pin: release o=${distro_id}
 Pin-Priority: 4000
 EOF
+
   cat <<EOF | tee /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
-Unattended-Upgrade::Allowed-Origins·{
-··"${distro_id}:${distro_codename}";
+Unattended-Upgrade::Allowed-Origins {
+  "${distro_id}:${distro_codename}";
 };
-Unattended-Upgrade::Allow-downgrade·"true";
-}
+Unattended-Upgrade::Allow-downgrade "true";
 EOF
 }
