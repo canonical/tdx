@@ -32,7 +32,7 @@ PROCESS_NAME=td
 QUOTE_ARGS="-device vhost-vsock-pci,guest-cid=3"
 qemu-system-x86_64 -D /tmp/tdx-guest-td.log \
 		   -accel kvm \
-		   -m 2G -smp 64 \
+		   -m 2G -smp 16 \
 		   -name ${PROCESS_NAME},process=${PROCESS_NAME},debug-threads=on \
 		   -cpu host \
 		   -object tdx-guest,id=tdx \
