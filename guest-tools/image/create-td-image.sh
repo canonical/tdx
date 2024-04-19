@@ -199,11 +199,12 @@ EOT
         --virt-type kvm \
         --graphics none \
         --import \
-        --wait=3 &>> $LOGFILE
+        --wait=12 &>> $LOGFILE
     if [ $? -eq 0 ]; then
         ok "Complete cloud-init..."
         sleep 1
     else
+        warn "Please increase wait time(--wait=12) above and try again..."
         error "Failed to configure cloud init"
     fi
 
