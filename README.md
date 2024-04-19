@@ -88,15 +88,9 @@ An example output:
 
 ```
 ...
-[    5.300843] tdx: BIOS enabled: private KeyID range [16, 32)
-[   15.960876] tdx: TDX module: attributes 0x0, vendor_id 0x8086, major_version 1, minor_version 5, build_date 20230323, build_num 481
-[   15.960879] tdx: CMR: [0x100000, 0x77800000)
-[   15.960881] tdx: CMR: [0x100000000, 0x407a000000)
-[   15.960882] tdx: CMR: [0x4080000000, 0x807c000000)
-[   15.960883] tdx: CMR: [0x8080000000, 0xc07c000000)
-[   15.960884] tdx: CMR: [0xc080000000, 0x1007c000000)
-[   18.149996] tdx: 4202516 KBs allocated for PAMT.
-[   18.150000] tdx: module initialized.
+[    5.205693] virt/tdx: BIOS enabled: private KeyID range [64, 128)
+[   29.884504] virt/tdx: 1050644 KB allocated for PAMT
+[   29.884513] virt/tdx: module initialized
 ...
 ```
 <a id="setup-td-guest"></a>
