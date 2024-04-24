@@ -156,12 +156,7 @@ supports running only a single instance.
 
 1. Boot TD Guest with the provided script.
 
-NOTE: It is recommended that you run the script as a non-root user. To do this, add the current user to the `kvm` group:
-
-```bash
-sudo usermod -aG kvm $USER
-```
-Close the current shell and open a new one to apply this group settings.
+NOTE: It is recommended that you run the script as a non-root user.
 
 ```bash
 cd tdx/guest-tools
