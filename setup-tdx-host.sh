@@ -23,6 +23,16 @@ source ${SCRIPT_DIR}/setup-tdx-common
 
 KERNEL_RELEASE=6.8.0-1001-intel
 
+# add the login user to kvm group
+# the idea is that the login user will be the one who will run the guest (qemu)
+# so skip adding root
+add_user_to_kvm() {
+    LOG_USER=$(logname)
+    if [ -n "$LOG_USER" ] && [ "$LOG_USER" != "root" ]; then
+        usermod -aG kvm $LOG_USER
+    fi
+}
+
 # grub: switch to kernel version
 grub_switch_kernel() {
     KERNELVER=$1
@@ -85,6 +95,7 @@ grub_switch_kernel ${KERNEL_RELEASE}
 
 grub_cmdline_kvm || true
 grub_cmdline_nohibernate || true
+add_user_to_kvm || true
 
 # setup attestation
 "${SCRIPT_DIR}"/attestation/setup-host.sh
