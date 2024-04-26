@@ -28,3 +28,44 @@ Unattended-Upgrade::Allowed-Origins {
 Unattended-Upgrade::Allow-downgrade "true";
 EOF
 }
+
+# get the current kernel version from the kernel flavour/type
+# we are using
+# the input will be the kernel meta package name of type : linux-image-<flavour|type>
+# examples : linux-image-intel, linux-image-generic, linux-image-aws, ...
+get_kernel_version() {
+    local kernel_flavour=$1
+    local kernel_version
+    kernel_version=$(apt show ${kernel_flavour} 2>&1 | gawk 'match($0, /Depends:.* linux-image-([^, ]+)/, a) {print a[1]}')
+    echo $kernel_version
+}
+
+# grub: switch to kernel version
+grub_switch_kernel() {
+    KERNELVER=$1
+    MID=$(awk '/Advanced options for Ubuntu/{print $(NF-1)}' /boot/grub/grub.cfg | cut -d\' -f2)
+    KID=$(awk "/with Linux $KERNELVER/"'{print $(NF-1)}' /boot/grub/grub.cfg | cut -d\' -f2 | head -n1)
+    cat > /etc/default/grub.d/99-tdx-kernel.cfg <<EOF
+GRUB_DEFAULT=saved
+GRUB_SAVEDEFAULT=true
+EOF
+    grub-editenv /boot/grub/grubenv set saved_entry="${MID}>${KID}"
+    update-grub
+}
+
+# select the kernel release for next boot
+# NB : this function will read/write the global variable KERNEL_RELEASE
+# if KERNEL_RELEASE is specified, we use it
+# if not, select the latest generic kernel available on the system and update the KERNEL_RELEASE var
+grub_set_kernel() {
+    if [ -z "${KERNEL_RELEASE}" ]; then
+      KERNEL_RELEASE=$(find /boot/vmlinuz-*-generic 2>&1 | \
+                      /usr/lib/grub/grub-sort-version -r 2>&1 | \
+                      gawk 'match($0 , /^\/boot\/vmlinuz-(.*)/, a) {print a[1];exit}')
+    fi
+    if [ -z "${KERNEL_RELEASE}" ]; then
+      echo "ERROR : unable to determine kernel release"
+      exit 1
+    fi
+    grub_switch_kernel "${KERNEL_RELEASE}"
+}
