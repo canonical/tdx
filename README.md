@@ -368,7 +368,7 @@ git clone -b noble-24.04 https://github.com/canonical/tdx.git
 
 ```bash
 cd tdx/attestation
-./setup-attestation-guest.sh
+./setup-guest.sh
 ```
 
 3. Verify the ITA client version.
