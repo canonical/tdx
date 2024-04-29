@@ -21,7 +21,8 @@ trap "on_exit" EXIT
 
 source ${SCRIPT_DIR}/setup-tdx-common
 
-KERNEL_RELEASE=6.8.0-1001-intel
+# the kernel flavour/type we want to use
+KERNEL_TYPE=linux-image-intel
 
 # add the login user to kvm group
 # the idea is that the login user will be the one who will run the guest (qemu)
@@ -31,19 +32,6 @@ add_user_to_kvm() {
     if [ -n "$LOG_USER" ] && [ "$LOG_USER" != "root" ]; then
         usermod -aG kvm $LOG_USER
     fi
-}
-
-# grub: switch to kernel version
-grub_switch_kernel() {
-    KERNELVER=$1
-    MID=$(awk '/Advanced options for Ubuntu/{print $(NF-1)}' /boot/grub/grub.cfg | cut -d\' -f2)
-    KID=$(awk "/with Linux $KERNELVER/"'{print $(NF-1)}' /boot/grub/grub.cfg | cut -d\' -f2 | head -n1)
-    cat > /etc/default/grub.d/99-tdx-kernel.cfg <<EOF
-GRUB_DEFAULT=saved
-GRUB_SAVEDEFAULT=true
-EOF
-    grub-editenv /boot/grub/grubenv set saved_entry="${MID}>${KID}"
-    update-grub
 }
 
 grub_cmdline_kvm() {
@@ -84,14 +72,16 @@ set -e
 add_kobuk_ppa
 
 apt install --yes --allow-downgrades \
-    linux-image-unsigned-${KERNEL_RELEASE} \
+    ${KERNEL_TYPE} \
     qemu-system-x86 \
     libvirt-daemon-system \
     libvirt-clients \
     ovmf \
     tdx-tools-host
 
-grub_switch_kernel ${KERNEL_RELEASE}
+KERNEL_RELEASE=$(get_kernel_version "$KERNEL_TYPE")
+# select the right kernel for next boot
+grub_set_kernel
 
 grub_cmdline_kvm || true
 grub_cmdline_nohibernate || true
