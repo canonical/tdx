@@ -30,7 +30,7 @@ TD_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-23.10.qcow2}
 TDVF_FIRMWARE=/usr/share/ovmf/OVMF.fd
 
 if ! groups | grep -qw "kvm"; then
-    echo "Please add user $USER to kvm group to run this script (usermod -aG kvm $USER, log out current termianl and log in again)."
+    echo "Please add user $USER to kvm group to run this script (usermod -aG kvm $USER, log out current terminal and log in again)."
     exit 1
 fi
 
