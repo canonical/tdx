@@ -11,7 +11,7 @@
 #
 DOMAIN_PREFIX="td_guest"
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-BASE_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04.qcow2}
+BASE_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04-generic.qcow2}
 XML_TEMPLATE=${XML_TEMPLATE:-${SCRIPT_DIR}/td_guest.xml.template}
 MAX_DOMAINS=${MAX_DOMAINS:-"20"}
 

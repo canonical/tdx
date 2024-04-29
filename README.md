@@ -112,6 +112,7 @@ NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx/guest-tools/image/
+# create tdx-guest-ubuntu-24.04-generic.qcow2
 sudo ./create-td-image.sh
 ```
 
@@ -119,10 +120,11 @@ The TD guest image uses the Ubuntu generic kernel by default, intel kernel can b
 the environment variable `TDX_GUEST_SETUP_INTEL_KERNEL`.
 
 ```bash
+# create tdx-guest-ubuntu-24.04-intel.qcow2
 sudo TDX_GUEST_SETUP_INTEL_KERNEL=1 ./create-td-image.sh
 ```
 
-The produced TD guest image is `tdx-guest-ubuntu-24.04.qcow2`.
+Note that the kernel type (`generic` or `intel`) is automatically included in the image name so it is easy to distinguish.
 
 The root password is set to `123456`.
 
@@ -163,6 +165,9 @@ cd tdx/guest-tools
 TD_IMG=<path_to_td_qcow2_image> ./run_td.sh
 ```
 
+Without setting TD_IMG the script will default to an image with a generic kernel located at
+`./image/tdx-guest-ubuntu-24.04-generic.qcow2`.
+
 An example output:
 
 ```bash
@@ -191,8 +196,11 @@ systemctl restart libvirtd
 
 ```bash
 cd tdx/guest-tools
-./td_virsh_tool.sh
+TD_IMG=<path_to_td_qcow2_image> ./td_virsh_tool.sh
 ```
+
+Without setting TD_IMG the script will default to an image with a generic kernel located at
+`./image/tdx-guest-ubuntu-24.04-generic.qcow2`.
 
 If you are running the script outside the `tdx/guest-tools` directory, you should set the
 shell variables TD_IMG and/or XML_TEMPLATE to specifiy the paths to the base .qcow2 image
