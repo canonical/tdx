@@ -217,6 +217,17 @@ shell variable.
 ./tdvirsh list --all
 ```
 
+Example of output:
+
+```
+$ ./tdvirsh list --all
+Id   Name                                            State 
+--------------------------------------------------------------- 
+1    td_guest-2598a419-fe21-425c-b44f-56bff21377b3   running (ssh:35967, cid:3)
+```
+
+`ssh:35967` displays the port user can use to connect to the VM via `ssh`. 
+
 * To remove TD VM:
 
 ```

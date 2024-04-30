@@ -8,7 +8,7 @@
 #
 DOMAIN_PREFIX="td_guest"
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-BASE_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04.qcow2}
+BASE_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04-generic.qcow2}
 XML_TEMPLATE=${XML_TEMPLATE:-${SCRIPT_DIR}/td_guest.xml.template}
 WORKDIR_PATH=/var/tmp/tdvirsh/
 
@@ -18,6 +18,7 @@ WORKDIR_PATH=/var/tmp/tdvirsh/
 overlay_image_path=${WORKDIR_PATH}/overlay.${domain}.qcow2
 base_img_path=""
 xml_template_path=""
+created_domain=""
 
 usage() {
     cat <<EOM
@@ -28,24 +29,25 @@ Run TD VMs managed by libvirt.
 Available options:
 
 new                          Run a TD VM
-delete          [domain]     Stop and delete TD VM (if empty, delete all)
+delete          <domain|all> Stop and delete TD VM
+                               <domain> should be a valid domain name
+                               <all> delete all VMs
 -h,   --help                 Print this help and exit
+
+All other options will be passed to virsh. To see virsh usage run:
+    virsh --help
 
 Environment variables:
 
-TD_IMG         TDX image path (default: ./image/tdx-guest-ubuntu-24.04.qcow2)
+TD_IMG         TDX image path (default: ./image/tdx-guest-ubuntu-24.04-generic.qcow2)
 XML_TEMPLATE   Path to virsh guest XML template (default: ./td_guest.xml.template)
-
-All other options will be passed to virsh.
-Here is the its usage:
----
 EOM
-    exec virsh --help
 }
 
 set_input_paths() {
     base_img_path=$(realpath ${BASE_IMG})
     if [ $? -ne 0 ] || [ ! -f ${base_img_path} ]; then
+        echo "Image ${base_img_path} not found."
         echo "Set base TD qcow2 image path with TD_IMG"
         exit 1
     fi
@@ -82,10 +84,10 @@ create_domain_xml() {
 
 boot_vm() {
     virsh define ${WORKDIR_PATH}/${DOMAIN_PREFIX}.xml >/dev/null
-    domain=${DOMAIN_PREFIX}-$(virsh domuuid ${DOMAIN_PREFIX})
-    mv ${WORKDIR_PATH}/{${DOMAIN_PREFIX}.xml,${domain}.xml} &>/dev/null || true
-    virsh domrename ${DOMAIN_PREFIX} ${domain} >/dev/null
-    virsh start ${domain} >/dev/null
+    created_domain=${DOMAIN_PREFIX}-$(virsh domuuid ${DOMAIN_PREFIX})
+    mv ${WORKDIR_PATH}/{${DOMAIN_PREFIX}.xml,${created_domain}.xml} &>/dev/null || true
+    virsh domrename ${DOMAIN_PREFIX} ${created_domain} >/dev/null
+    virsh start ${created_domain} >/dev/null
 }
 
 destroy() {
@@ -120,7 +122,7 @@ print_all() {
     while read -r line
     do
         local extra_info=""
-        local td_domain=$(echo $line | grep -oP " ${DOMAIN_PREFIX}-[^ ]+")
+        local td_domain=$(echo $line | grep -oP "${DOMAIN_PREFIX}-[^ ]+")
         if [ ! -z "$td_domain" ]; then
             host_port=$(
                 virsh \
@@ -142,16 +144,17 @@ print_all() {
 
 run_td() {
     echo "Create and run new TD ..."
+    echo "---"
     create_overlay_image
     create_domain_xml
     boot_vm
-    print_all list
+    print_all dominfo "${created_domain}"
 }
 
 parse_params() {
     while :; do
         case "${1-}" in
-        -h | --help)
+        "" | -h | --help)
             usage
             exit 0
             ;;
@@ -165,22 +168,25 @@ parse_params() {
             ;;
         delete)
             domain_to_clean="${2-}"
-            if [ -z ${domain_to_clean} ]; then
+            if [[ ! "${domain_to_clean}" =~ ^${DOMAIN_PREFIX}-[^\ ]+$ ]]; then
+                usage
+                exit 0
+            fi
+            if [ "${domain_to_clean}" == "all" ]; then
                 clean_all
             else
                 destroy ${domain_to_clean}
             fi
             exit 0
             ;;
-        *) break ;;
+        *)
+            # call virsh for everything else
+            exec virsh "$@"
+            ;;
         esac
         shift
     done
 }
 
 set_input_paths
-
 parse_params "$@"
-
-# call virsh for everything else
-exec virsh "$@"
