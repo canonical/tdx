@@ -1,0 +1,186 @@
+#!/bin/bash
+#
+# Wrapper around virsh to ease the creation of TD VMs
+#
+
+##
+# Global constants
+#
+DOMAIN_PREFIX="td_guest"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+BASE_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04.qcow2}
+XML_TEMPLATE=${XML_TEMPLATE:-${SCRIPT_DIR}/td_guest.xml.template}
+WORKDIR_PATH=/var/tmp/tdvirsh/
+
+##
+# Global variables
+#
+overlay_image_path=${WORKDIR_PATH}/overlay.${domain}.qcow2
+base_img_path=""
+xml_template_path=""
+
+usage() {
+    cat <<EOM
+Usage: ./$(basename "${BASH_SOURCE[0]}") [-h] [delete D]
+
+Run TD VMs managed by libvirt.
+
+Available options:
+
+new                          Run a TD VM
+delete          [domain]     Stop and delete TD VM (if empty, delete all)
+-h,   --help                 Print this help and exit
+
+Environment variables:
+
+TD_IMG         TDX image path (default: ./image/tdx-guest-ubuntu-24.04.qcow2)
+XML_TEMPLATE   Path to virsh guest XML template (default: ./td_guest.xml.template)
+
+All other options will be passed to virsh.
+Here is the its usage:
+---
+EOM
+    exec virsh --help
+}
+
+set_input_paths() {
+    base_img_path=$(realpath ${BASE_IMG})
+    if [ $? -ne 0 ] || [ ! -f ${base_img_path} ]; then
+        echo "Set base TD qcow2 image path with TD_IMG"
+        exit 1
+    fi
+    xml_template_path=$(realpath ${XML_TEMPLATE})
+    if [ $? -ne 0 ] || [ ! -f ${xml_template_path} ]; then
+        echo "Set libvirt guest XML template path with XML_TEMPLATE"
+        exit 1
+    fi
+}
+
+create_overlay_image() {
+    local rand_str=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c15)
+    mkdir -p $WORKDIR_PATH || true
+    overlay_image_path=${WORKDIR_PATH}/overlay.${rand_str}.qcow2
+    qemu-img create \
+        -f qcow2 \
+        -F qcow2 \
+        -b ${base_img_path} \
+        ${overlay_image_path} >/dev/null
+}
+
+create_domain_xml() {
+    awk -v img_path=${base_img_path} \
+        -v domain=${DOMAIN_PREFIX} \
+        -v overlay_path=${overlay_image_path} '
+        {
+  gsub("BASE_IMG_PATH", img_path, $0);
+  gsub("DOMAIN", domain, $0);
+  gsub("OVERLAY_IMG_PATH", overlay_path, $0);
+  print;
+        }
+  ' ${xml_template_path} > ${WORKDIR_PATH}/${DOMAIN_PREFIX}.xml
+}
+
+boot_vm() {
+    virsh define ${WORKDIR_PATH}/${DOMAIN_PREFIX}.xml >/dev/null
+    domain=${DOMAIN_PREFIX}-$(virsh domuuid ${DOMAIN_PREFIX})
+    mv ${WORKDIR_PATH}/{${DOMAIN_PREFIX}.xml,${domain}.xml} &>/dev/null || true
+    virsh domrename ${DOMAIN_PREFIX} ${domain} >/dev/null
+    virsh start ${domain} >/dev/null
+}
+
+destroy() {
+    local domain_to_destroy="${1}"
+    local qcow2_overlay_path
+    qcow2_overlay_path=$(virsh dumpxml ${domain_to_destroy} |
+        grep -o "${WORKDIR_PATH}\/overlay\.[A-Za-z0-9]*\.qcow2")
+
+    echo "Destroying domain ${domain_to_destroy}"
+
+    virsh shutdown ${domain_to_destroy} &>/dev/null
+    virsh shutdown --domain ${domain_to_destroy} &>/dev/null
+
+    echo "Waiting for VM to shutdown ..."
+    sleep 5
+
+    virsh destroy ${domain_to_destroy} &>/dev/null
+    virsh destroy --domain ${domain_to_destroy} &>/dev/null
+    virsh undefine ${domain_to_destroy} &>/dev/null
+
+    rm -f ${qcow2_overlay_path} ${WORKDIR_PATH}/${domain_to_destroy}.xml
+}
+
+clean_all() {
+    for domain_to_clean in $(virsh list --all --name | grep ${DOMAIN_PREFIX}); do
+        destroy ${domain_to_clean}
+    done
+    rm -rf ${WORKDIR_PATH}
+}
+
+print_all() {
+    while read -r line
+    do
+        local extra_info=""
+        local td_domain=$(echo $line | grep -oP " ${DOMAIN_PREFIX}-[^ ]+")
+        if [ ! -z "$td_domain" ]; then
+            host_port=$(
+                virsh \
+                    qemu-monitor-command ${td_domain} \
+                    --hmp info usernet 2>&1 |
+                    awk '/HOST_FORWARD/ {print $4}'
+                     )
+            guest_cid=$(
+                virsh \
+                    qemu-monitor-command ${td_domain} \
+                    --hmp info qtree 2>&1 |
+                    awk '/guest-cid/ {print $3}'
+                     )
+            extra_info="(ssh:$host_port, cid:${guest_cid})"
+        fi
+        echo "$line $extra_info"
+    done < <(virsh "$@")
+}
+
+run_td() {
+    echo "Create and run new TD ..."
+    create_overlay_image
+    create_domain_xml
+    boot_vm
+    print_all list
+}
+
+parse_params() {
+    while :; do
+        case "${1-}" in
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        new)
+            run_td
+            exit 0
+            ;;
+        list)
+            print_all "$@"
+            exit 0
+            ;;
+        delete)
+            domain_to_clean="${2-}"
+            if [ -z ${domain_to_clean} ]; then
+                clean_all
+            else
+                destroy ${domain_to_clean}
+            fi
+            exit 0
+            ;;
+        *) break ;;
+        esac
+        shift
+    done
+}
+
+set_input_paths
+
+parse_params "$@"
+
+# call virsh for everything else
+exec virsh "$@"
