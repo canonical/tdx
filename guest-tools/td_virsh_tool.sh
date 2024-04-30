@@ -63,7 +63,7 @@ Available options:
 
 Environment variables:
 
-TD_IMG         TDX image path (default: ./image/tdx-guest-ubuntu-24.04.qcow2)
+TD_IMG         TDX image path (default: ./image/tdx-guest-ubuntu-24.04-generic.qcow2)
 XML_TEMPLATE   Path to virsh guest XML template (default: ./td_guest.xml.template)
 MAX_DOMAINS    Maximum allowed domains running (default: 20)
 EOM

@@ -116,7 +116,7 @@ cd tdx/guest-tools/image/
 sudo ./create-td-image.sh
 ```
 
-The TD guest image uses the Ubuntu generic kernel by default, intel kernel can be selected by using
+The TD guest image uses the Ubuntu generic kernel by default, the intel kernel can be selected by using
 the environment variable `TDX_GUEST_SETUP_INTEL_KERNEL`.
 
 ```bash
@@ -162,11 +162,13 @@ NOTE: It is recommended that you run the script as a non-root user.
 
 ```bash
 cd tdx/guest-tools
-TD_IMG=<path_to_td_qcow2_image> ./run_td.sh
+./run_td.sh
 ```
 
-Without setting TD_IMG the script will default to an image with a generic kernel located at
-`./image/tdx-guest-ubuntu-24.04-generic.qcow2`.
+By default the script will use an image with a generic kernel located at
+`./image/tdx-guest-ubuntu-24.04-generic.qcow2`. A different qcow2
+image (e.g. one with an intel kernel) can be used by setting the TD_IMG
+shell variable.
 
 An example output:
 
@@ -176,7 +178,7 @@ TD VM, PID: 111924, SSH : ssh -p 10022 root@localhost
 
 ### Boot TD Guest with virsh (libvirt)
 
-1. Configure the libvirt.
+1. Configure libvirt
 
 NOTE: It is recommended that you run virsh as a non-root user. To do that, please apply these settings to `/etc/libvirt/qemu.conf`.
 
@@ -196,14 +198,16 @@ systemctl restart libvirtd
 
 ```bash
 cd tdx/guest-tools
-TD_IMG=<path_to_td_qcow2_image> ./td_virsh_tool.sh
+./td_virsh_tool.sh
 ```
 
-Without setting TD_IMG the script will default to an image with a generic kernel located at
-`./image/tdx-guest-ubuntu-24.04-generic.qcow2`.
+By default the script will use an image with a generic kernel located at
+`./image/tdx-guest-ubuntu-24.04-generic.qcow2`. A different qcow2
+image (e.g. one with an intel kernel) can be used by setting the TD_IMG
+shell variable.
 
 If you are running the script outside the `tdx/guest-tools` directory, you should set the
-shell variables TD_IMG and/or XML_TEMPLATE to specifiy the paths to the base .qcow2 image
+shell variables TD_IMG and/or XML_TEMPLATE to specify the paths to the base .qcow2 image
 and the libvirt guest XML template file, respectively. For example:
 
 ```bash
@@ -342,8 +346,8 @@ sudo systemctl status pccs
 ```
 8. Platform registration.
 
-The platformation registration is done with `mpa_registration_tool`, the service is run on system start up,
-registers the platform and gets desactivated. Please check the service does not output any error message:
+The platform registration is done with `mpa_registration_tool`, the service is run on system start up,
+registers the platform and gets deactivated. Please check the service does not output any error message:
 
 ```bash
 sudo systemctl status mpa_registration_tool
@@ -475,7 +479,7 @@ they follow the Ubuntu standards and offer users the same facilities for code so
 
 You can find generic instructions on how to build a package from source here: https://wiki.debian.org/BuildingTutorial
 
-Here are the example intructions for building qemu (for normal user with sudo rights):
+Here are the example instructions for building qemu (for normal user with sudo rights):
 
 1. Install Ubuntu 24.04
 
