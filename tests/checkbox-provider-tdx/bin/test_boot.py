@@ -32,6 +32,7 @@ class TdxBoot(unittest.TestCase):
     """
     def setUp(self):
         self.qm = Qemu.QemuMachine()
+        #self.qm.qcmd.plugins['boot'].kernel='/boot/vmlinuz-6.8.0-31-generic'
         self.qm.run()
 
     def tearDown(self):

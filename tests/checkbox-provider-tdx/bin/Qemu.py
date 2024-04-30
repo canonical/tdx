@@ -174,23 +174,23 @@ class QemuMachineType:
 
 class QemuBootType:
     def __init__(self,
-                 direct=False,
                  image_path=None,
                  kernel=None,
                  initrd=None):
-        self.direct_boot = direct
         self.image_path = image_path
         self.kernel = kernel
         self.initrd = initrd
 
     def args(self):
         _args = []
-        if self.direct_boot:
-            pass
-        else:
-            _args.extend([
-                '-drive', f'file={self.image_path},if=none,id=virtio-disk0',
-                '-device', 'virtio-blk-pci,drive=virtio-disk0'])
+        if self.kernel:
+            _args.extend(['-kernel', self.kernel])
+            _args.extend(['-append', '"root=/dev/vda1 console=ttyS0"'])
+        if self.initrd:
+            _args.extend(['-initrd', self.initrd])
+        _args.extend([
+            '-drive', f'file={self.image_path},if=none,id=virtio-disk0',
+            '-device', 'virtio-blk-pci,drive=virtio-disk0'])
         return _args
 
 class QemuCommand:
