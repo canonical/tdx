@@ -23,8 +23,7 @@ As a result, it enhances a platform user’s control of data security and IP pro
 Cloud Service Providers’ (CSP) ability to provide managed cloud services without exposing tenant data to adversaries.
 For more information, see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
 
-This tech preview of TDX on Ubuntu 24.04 provides base host and guest functionalities. Follow these instructions
-to setup the TDX host, create a TD guest, and boot it.
+This tech preview of TDX on Ubuntu 24.04 provides base host, guest, and remote attestation functionalities. Follow these instructions to setup the TDX host, create a TD guest, boot it, and attest the integrity of its execution environment.  
 
 <a id="report-an-issue"></a>
 ## 2. Report an Issue
@@ -103,8 +102,8 @@ In this section, you will create an Ubuntu 24.04-based TD guest from scratch or 
 The base image is an Ubuntu 24.04 cloud image [`ubuntu-24.04-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img). You can be customized your preferences by setting these two environment variables before running the script:
 
 ```bash
-export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/mantic/release/"
-export CLOUD_IMG="ubuntu-23.10-server-cloudimg-amd64.img"
+export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/noble/release/"
+export CLOUD_IMG="ubuntu-24.04-server-cloudimg-amd64.img"
 ```
 
 1. Generate a TD guest image. <br>
@@ -297,7 +296,18 @@ cd tdx/attestation
 sudo ./check-production.sh
 ```
 
-1. Verify that sgx devices have proper user and group.
+### Setup Intel® SGX Data Center Attestation Primitives (Intel® SGX DCAP) on the Host
+
+1. Install the required DCAP packages on the host. <br>
+
+NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
+
+```bash
+cd tdx/attestation
+sudo ./setup-attestation-host.sh
+```
+
+`Reboot` the system and verify that sgx devices have proper user and group.
 
 ```bash
 $ ls -l /dev/sgx_*
@@ -390,7 +400,7 @@ git clone -b noble-24.04 https://github.com/canonical/tdx.git
 
 ```bash
 cd tdx/attestation
-./setup-guest.sh
+./setup-attestation-guest.sh
 ```
 
 3. Verify the ITA client version.
@@ -403,8 +413,8 @@ An example output:
 
 ```
 Intel® Trust Authority CLI for TDX
-Version: 1.0.1-
-Build Date: 2023-10-20T09:45:41+00:00
+Version: 1.2.0-
+Build Date: 2024-03-07T17:35:34+00:00
 ```
 
 <a id="attest"></a>
@@ -451,7 +461,7 @@ You should also find a `quote.dat` file generated.
 
 ```
 {
-    "trustauthority_url": "https://portal.trustauthority.intel.com"
+    "trustauthority_url": "https://portal.trustauthority.intel.com",
     "trustauthority_api_url": "https://api.trustauthority.intel.com",
     "trustauthority_api_key": "djE6ZWQ1ZDU2MGEtZDcyMi00ODBmLWJkMGYtMTc3OTNjNjM2ZGY5Onc0cHM3QXV4RDE3U0dHOFZUcjNLQzYyTXpkQXhVNDlVNWtDN3JwVzI="
 }
@@ -466,12 +476,8 @@ trustauthority-cli token -c config.json
 An example of a successful attestation:
 
 ```
-2024/03/19 23:59:09 [DEBUG] GET https://api.trustauthority.intel.com/appraisal/v1/nonce
-
-Get the vsock port number [4050]
-
-Reply message body is 5030 bytes
-2024/03/19 23:59:13 [DEBUG] POST https://api.trustauthority.intel.com/appraisal/v1/attest
+2024/04/30 22:55:17 [DEBUG] GET https://api.trustauthority.intel.com/appraisal/v1/nonce
+2024/04/30 22:55:18 [DEBUG] POST https://api.trustauthority.intel.com/appraisal/v1/attest
 Trace Id: U5sA2GNVoAMEPkQ=
 eyJhbGciOiJQUzM4NCIsImprdSI6Imh0dHBzOi8vYW1iZXItdGVzdDEtdXNlcjEucHJvamVjdC1hbWJlci1zbWFzLmN
 .....

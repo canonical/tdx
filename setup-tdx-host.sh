@@ -87,9 +87,6 @@ grub_cmdline_kvm || true
 grub_cmdline_nohibernate || true
 add_user_to_kvm || true
 
-# setup attestation
-"${SCRIPT_DIR}"/attestation/setup-host.sh
-
 echo "========================================================================"
 echo "The setup has been done successfully. Please enable now TDX in the BIOS."
 echo "========================================================================"

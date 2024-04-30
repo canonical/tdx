@@ -51,6 +51,3 @@ grub_set_kernel
 if [[ "$KERNEL_RELEASE" == *-generic ]]; then
   apt install --yes "linux-modules-extra-${KERNEL_RELEASE}"
 fi
-
-# setup attestation
-"${SCRIPT_DIR}"/attestation/setup-guest.sh
