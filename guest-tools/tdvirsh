@@ -32,6 +32,7 @@ new                          Run a TD VM
 delete          <domain|all> Stop and delete TD VM
                                <domain> should be a valid domain name
                                <all> delete all VMs
+list                         List all VMs
 -h,   --help                 Print this help and exit
 
 All other options will be passed to virsh. To see virsh usage run:
@@ -163,7 +164,9 @@ parse_params() {
             exit 0
             ;;
         list)
-            print_all "$@"
+            # NB: for the sake of simplicity, just force the list command to --all
+            # do not handle other arguments allowed by virsh
+            print_all "list --all"
             exit 0
             ;;
         delete)
