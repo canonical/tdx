@@ -217,6 +217,16 @@ for destroying and cleaning up unwanted TDs.
 ./td_virsh_tool.sh -c all
 ```
 
+To see all running guests managed by the tool, pass the `--list` flag:
+
+```bash
+./td_virsh_tool.sh --list
+Domain td_guest-123 running with vsock CID: 3, ssh -p 34825 root@localhost
+Domain td_guest-456 running with vsock CID: 4, ssh -p 33789 root@localhost
+```
+
+NOTE: if a guest is powered off (or is in some other non-running state), the `virsh` command should be used directly to put it back into a running state. If a guest is powered off, it is also likely that the host port forwarded to the ssh port on the guest will have changed. Once the guest is running again, use `./td_virsh_tool.sh --list` to determine the new port for accessing the guest over ssh.
+
 <a id="verify-td-guest"></a>
 ## 7. Verify TD Guest
 
