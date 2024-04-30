@@ -1,4 +1,4 @@
-# Intel® Trust Domain Extensions (TDX) on Ubuntu
+# Intel® Trust Domain Extensions (TDX) on Ubuntu 24.04
 
 ### Table of Contents:
 * [1. Introduction](#introduction)
@@ -23,8 +23,7 @@ As a result, it enhances a platform user’s control of data security and IP pro
 Cloud Service Providers’ (CSP) ability to provide managed cloud services without exposing tenant data to adversaries.
 For more information, see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
 
-This tech preview of TDX on Ubuntu 24.04 provides base host and guest functionalities. Follow these instructions
-to setup the TDX host, create a TD guest, and boot it.
+This tech preview of TDX on Ubuntu 24.04 provides base host, guest, and remote attestation functionalities. Follow these instructions to setup the TDX host, create a TD guest, boot it, and attest the integrity of its execution environment.  
 
 <a id="report-an-issue"></a>
 ## 2. Report an Issue
@@ -37,19 +36,23 @@ This release supports 4th Generation Intel® Xeon® Scalable Processors with Int
 <a id="setup-tdx-host"></a>
 ## 4. Setup TDX Host
 In this section, you will install a generic Ubuntu 24.04 server, install necessary packages to turn 
-the host into a TDX host, and enable TDX settings in the BIOS.
+the host into a TDX host, optionally install remote attestation components, and enable TDX settings in the BIOS.
 
 1. Download and install [Ubuntu 24.04 server](https://cdimage.ubuntu.com/ubuntu-server/daily-live/pending/noble-live-server-amd64.iso) on the host machine.
 
 2. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning it at the appropriate tag.
 
+<a id="step-4-3"></a>
 3. Run the script. <br>
 
-NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
+NOTE 1: If you'd like to have the attestation components installed automatically, change the value 
+of `INSTALL_ATTESTATION` from `0` to `1`.
+
+NOTE 2: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx
-sudo ./setup-tdx-host.sh
+sudo INSTALL_ATTESTATION=0 ./setup-tdx-host.sh
 ```
 
 4. Reboot.
@@ -103,17 +106,20 @@ In this section, you will create an Ubuntu 24.04-based TD guest from scratch or 
 The base image is an Ubuntu 24.04 cloud image [`ubuntu-24.04-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img). You can be customized your preferences by setting these two environment variables before running the script:
 
 ```bash
-export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/mantic/release/"
-export CLOUD_IMG="ubuntu-23.10-server-cloudimg-amd64.img"
+export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/noble/release/"
+export CLOUD_IMG="ubuntu-24.04-server-cloudimg-amd64.img"
 ```
 
 1. Generate a TD guest image. <br>
-NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
+
+NOTE 1: If you'd like to have the attestation components installed automatically, change the value 
+of `INSTALL_ATTESTATION` from `0` to `1`.
+NOTE 2: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx/guest-tools/image/
 # create tdx-guest-ubuntu-24.04-generic.qcow2
-sudo ./create-td-image.sh
+sudo INSTALL_ATTESTATION=0 ./create-td-image.sh
 ```
 
 The TD guest image uses the Ubuntu generic kernel by default, the intel kernel can be selected by using
@@ -121,7 +127,7 @@ the environment variable `TDX_GUEST_SETUP_INTEL_KERNEL`.
 
 ```bash
 # create tdx-guest-ubuntu-24.04-intel.qcow2
-sudo TDX_GUEST_SETUP_INTEL_KERNEL=1 ./create-td-image.sh
+sudo INSTALL_ATTESTATION=0 TDX_GUEST_SETUP_INTEL_KERNEL=1 ./create-td-image.sh
 ```
 
 Note that the kernel type (`generic` or `intel`) is automatically included in the image name so it is easy to distinguish.
@@ -138,10 +144,14 @@ If you have an existing Ubuntu 24.04 non-TD guest, you can enable the TDX featur
 
 3. Run the script. 
 
+NOTE: If you'd like to have the attestation components installed automatically, change the value 
+of `INSTALL_ATTESTATION` from `0` to `1`.
+
 ```bash
 cd tdx
-sudo ./setup-tdx-guest.sh
+sudo INSTALL_ATTESTATION=0 ./setup-tdx-guest.sh
 ```
+
 4. Shutdown the guest.
 
 <a id="boot-td-guest"></a>
@@ -290,6 +300,8 @@ An example output:
 ## 8. Setup Remote Attestation on Host and TD Guest
 Attestation is a process in which the attester requests the verifier (Intel Trust Authority Service) to confirm that it is operating in a secure and trusted environment.  This process involves the attester generating a "quote", which contains trusted execution environment (TEE) measurements and other cryptographic evidence.  The quote is sent to the verifier who then confirms its validity against reference values and policies.  If confirmed, the verifier returns an attestation token.  The attester can then send the token to a reply party who will validate it.  For more on the basics of attestation, see [Attestation overview](https://docs.trustauthority.intel.com/main/articles/concept-attestation-overview.html).
 
+### Check Hardware Status
+
 For attestation to work, you need _Production_ hardware. Run this script to verify.
 
 ```bash
@@ -297,7 +309,24 @@ cd tdx/attestation
 sudo ./check-production.sh
 ```
 
-1. Verify that sgx devices have proper user and group.
+### Setup Intel® SGX Data Center Attestation Primitives (Intel® SGX DCAP) on the Host
+
+NOTE: If you have already installed attestation components as part of the TDX host setup earlier in 
+[step 4.3](#step-4-3), you can proceed to [step 8.2](#step-8-2).
+
+1. Install the required DCAP packages on the host. <br>
+
+NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
+
+```bash
+cd tdx/attestation
+sudo ./setup-attestation-host.sh
+```
+
+Reboot the system.
+
+<a id="step-8-2"></a>
+2. Verify that sgx devices have proper user and group.
 
 ```bash
 $ ls -l /dev/sgx_*
@@ -306,20 +335,20 @@ crw-rw---- 1 root sgx_prv 10, 126 Apr  3 21:14 /dev/sgx_provision
 crw-rw---- 1 root sgx     10, 124 Apr  3 21:14 /dev/sgx_vepc
 ```
 
-2. Verify the QGS service is running properly.
+3. Verify the QGS service is running properly.
 
 ```bash
 sudo systemctl status qgsd
 ```
 
-3. Verify the PCCS service is running properly.
+4. Verify the PCCS service is running properly.
 ```bash
 sudo systemctl status pccs
 ```
 
-4. Obtain an [Intel PCS API key](https://api.portal.trustedservices.intel.com/provisioning-certification).  This is needed to configure the PCCS service in the next step.  Specifically, you should subscribe to the Provisioning Certification Service.
+5. Obtain an [Intel PCS API key](https://api.portal.trustedservices.intel.com/provisioning-certification).  This is needed to configure the PCCS service in the next step.  Specifically, you should subscribe to the Provisioning Certification Service.
 
-5. Configure the PCCS service.  
+6. Configure the PCCS service.  
 
 ```bash
 sudo /usr/bin/pccs-configure
@@ -343,18 +372,18 @@ Re-enter user password: <PCCS-SERVER-USER-PASSWORD>
 Do you want to generate insecure HTTPS key and cert for PCCS service? [Y] (Y/N) :N
 ```
 
-6. Restart the PCCS service.
+7. Restart the PCCS service.
 
 ```bash
 sudo systemctl restart pccs
 ```
 
-7. Verify the PCCS service is running properly.
+8. Verify the PCCS service is running properly.
 
 ```bash
 sudo systemctl status pccs
 ```
-8. Platform registration.
+9. Platform registration.
 
 The platform registration is done with `mpa_registration_tool`, the service is run on system start up,
 registers the platform and gets deactivated. Please check the service does not output any error message:
@@ -364,7 +393,7 @@ sudo systemctl status mpa_registration_tool
 ```
 
 ```bash
-○ mpa_registration_tool.service - Intel MPA Registration
+mpa_registration_tool.service - Intel MPA Registration
      Loaded: loaded (/usr/lib/systemd/system/mpa_registration_tool.service; enabled; preset: enabled)
      Active: inactive (dead) since Tue 2024-04-09 22:54:50 UTC; 11h ago
    Duration: 46ms
@@ -378,6 +407,10 @@ Apr 09 22:54:50 right-glider-515046 systemd[1]: mpa_registration_tool.service: D
 If the failure occurred, you might want to boot into the BIOS and perform `SGX Factory Reset` (go to `Socket Configuration > Processor Configuration`).
 
 ### Setup [Intel Trust Authority (ITA) Client](https://github.com/intel/trustauthority-client-for-go) on Guest 
+
+NOTE: If you have already installed the attestation components as part of the TD guest image creation, 
+you can to proceed to [verify the ITA client version](#verify-ita-client-version).
+
 1. [Boot a TD guest](#boot-td-guest) and connect to it.
 
 2. Clone this repo.
@@ -386,14 +419,15 @@ If the failure occurred, you might want to boot into the BIOS and perform `SGX F
 git clone -b noble-24.04 https://github.com/canonical/tdx.git
 ```
 
-2. Install the ITA client. <br>
+3. Install the ITA client. <br>
 
 ```bash
 cd tdx/attestation
-./setup-guest.sh
+./setup-attestation-guest.sh
 ```
 
-3. Verify the ITA client version.
+<a id="verify-ita-client-version"></a>
+4. Verify the ITA client version.
 
 ```bash
 trustauthority-cli version
@@ -403,13 +437,16 @@ An example output:
 
 ```
 Intel® Trust Authority CLI for TDX
-Version: 1.0.1-
-Build Date: 2023-10-20T09:45:41+00:00
+Version: 1.2.0-
+Build Date: 2024-03-07T17:35:34+00:00
 ```
 
 <a id="attest"></a>
 ## 9. Perform Attestation
-1. Inside the TD guest, generate a sample TD quote to prove the quote generation service is working properly.
+
+1. [Boot a TD guest](#boot-td-guest) and connect to it.
+
+2. Inside the TD guest, generate a sample TD quote to prove the quote generation service is working properly.
 
 ```bash
 cd /usr/share/doc/libtdx-attest-dev/examples/
@@ -445,19 +482,19 @@ NOTE: You can ignore the `Failed to extend rtmr` messages.
 
 You should also find a `quote.dat` file generated.
 
-2. Next step is to attest with the [Intel Trust Authority](https://www.intel.com/content/www/us/en/security/trust-authority.html) service.  For this, you will need to subscribe and obtain an API key. See this [tutorial](https://docs.trustauthority.intel.com/main/articles/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client) for how to create a key.
+3. Next step is to attest with the [Intel Trust Authority](https://www.intel.com/content/www/us/en/security/trust-authority.html) service.  For this, you will need to subscribe and obtain an API key. See this [tutorial](https://docs.trustauthority.intel.com/main/articles/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client) for how to create a key.
 
-3. Once you have an API key, create a config.json like the example below:
+4. Once you have an API key, create a config.json like the example below:
 
 ```
 {
-    "trustauthority_url": "https://portal.trustauthority.intel.com"
+    "trustauthority_url": "https://portal.trustauthority.intel.com",
     "trustauthority_api_url": "https://api.trustauthority.intel.com",
     "trustauthority_api_key": "djE6ZWQ1ZDU2MGEtZDcyMi00ODBmLWJkMGYtMTc3OTNjNjM2ZGY5Onc0cHM3QXV4RDE3U0dHOFZUcjNLQzYyTXpkQXhVNDlVNWtDN3JwVzI="
 }
 ```
 
-4. Finally, attest with the Intel Trust Authority service.
+5. Finally, attest with the Intel Trust Authority service.
 
 ```bash
 trustauthority-cli token -c config.json
@@ -466,12 +503,8 @@ trustauthority-cli token -c config.json
 An example of a successful attestation:
 
 ```
-2024/03/19 23:59:09 [DEBUG] GET https://api.trustauthority.intel.com/appraisal/v1/nonce
-
-Get the vsock port number [4050]
-
-Reply message body is 5030 bytes
-2024/03/19 23:59:13 [DEBUG] POST https://api.trustauthority.intel.com/appraisal/v1/attest
+2024/04/30 22:55:17 [DEBUG] GET https://api.trustauthority.intel.com/appraisal/v1/nonce
+2024/04/30 22:55:18 [DEBUG] POST https://api.trustauthority.intel.com/appraisal/v1/attest
 Trace Id: U5sA2GNVoAMEPkQ=
 eyJhbGciOiJQUzM4NCIsImprdSI6Imh0dHBzOi8vYW1iZXItdGVzdDEtdXNlcjEucHJvamVjdC1hbWJlci1zbWFzLmN
 .....

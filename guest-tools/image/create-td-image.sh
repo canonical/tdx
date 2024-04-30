@@ -219,6 +219,7 @@ setup_guest_image() {
     # export environment variables to guest
     # all environment variables with prefix : TDX_GUEST_SETUP_
     declare -px | grep TDX_GUEST_SETUP_ > ${CURR_DIR}/tdx-guest-setup-env
+    declare -px | grep INSTALL_ATTESTATION >> ${CURR_DIR}/tdx-guest-setup-env
     virt-customize -a /tmp/${GUEST_IMG} \
        --copy-in ${CURR_DIR}/setup.sh:/tmp/ \
        --copy-in ${CURR_DIR}/../../setup-tdx-guest.sh:/tmp/ \

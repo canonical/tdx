@@ -53,4 +53,8 @@ if [[ "$KERNEL_RELEASE" == *-generic ]]; then
 fi
 
 # setup attestation
-"${SCRIPT_DIR}"/attestation/setup-guest.sh
+if [[ "${INSTALL_ATTESTATION}" == "1" ]]; then
+  "${SCRIPT_DIR}"/attestation/setup-attestation-guest.sh
+else
+  echo "Skip installing attestation components..."
+fi

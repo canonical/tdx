@@ -88,7 +88,11 @@ grub_cmdline_nohibernate || true
 add_user_to_kvm || true
 
 # setup attestation
-"${SCRIPT_DIR}"/attestation/setup-host.sh
+if [[ "${INSTALL_ATTESTATION}" == "1" ]]; then
+  "${SCRIPT_DIR}"/attestation/setup-attestation-host.sh
+else
+  echo "Skip installing attestation components..."
+fi
 
 echo "========================================================================"
 echo "The setup has been done successfully. Please enable now TDX in the BIOS."
