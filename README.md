@@ -194,11 +194,16 @@ dynamic_ownership = 0
 systemctl restart libvirtd
 ```
 
-2. Boot TD guest with libvirt
+2. Boot TD guest
+
+To manage TD VM lifecycle, we developed a wrapper around the `virsh` tool. This new tool
+`tdvirsh` will extend `virsh` with new capabilities to create/remove TD VM.
+
+* To create and run a TD VM:
 
 ```bash
 cd tdx/guest-tools
-./td_virsh_tool.sh
+./tdvirsh new
 ```
 
 By default the script will use an image with a generic kernel located at
@@ -206,38 +211,28 @@ By default the script will use an image with a generic kernel located at
 image (e.g. one with an intel kernel) can be used by setting the TD_IMG
 shell variable.
 
-If you are running the script outside the `tdx/guest-tools` directory, you should set the
-shell variables TD_IMG and/or XML_TEMPLATE to specify the paths to the base .qcow2 image
-and the libvirt guest XML template file, respectively. For example:
+* To list all VMs:
 
-```bash
-TD_IMG=/tmp/myimage.qcow2 XML_TEMPLATE=../myguest.xml ./td_virsh_tool.sh
+```
+./tdvirsh list --all
 ```
 
-Note that `td_virsh_tool.sh` also supports running multiple TDs simultaneously. This can
-be accomplished either by running the script multiple times or by passing the `-n N` command
-line option (where N is the number of instances you wish to launch). `td_virsh_tool.sh`
-also accepts a `-c D` option (where D is either the domain name or "all" for all domains)
-for destroying and cleaning up unwanted TDs.
+Example of output:
 
-```bash
-# launch two TDs
-./td_virsh_tool.sh -n 2
-# clean/destroy td_guest-1 domain
-./td_virsh_tool.sh -c td_guest-1
-# clean/destroy all domains containing "td_guest" in name
-./td_virsh_tool.sh -c all
+```
+$ ./tdvirsh list --all
+Id   Name                                            State 
+--------------------------------------------------------------- 
+1    td_guest-2598a419-fe21-425c-b44f-56bff21377b3   running (ssh:35967, cid:3)
 ```
 
-To see all running guests managed by the tool, pass the `--list` flag:
+`ssh:35967` displays the port user can use to connect to the VM via `ssh`. 
 
-```bash
-./td_virsh_tool.sh --list
-Domain td_guest-123 running with vsock CID: 3, ssh -p 34825 root@localhost
-Domain td_guest-456 running with vsock CID: 4, ssh -p 33789 root@localhost
+* To remove TD VM:
+
 ```
-
-NOTE: if a guest is powered off (or is in some other non-running state), the `virsh` command should be used directly to put it back into a running state. If a guest is powered off, it is also likely that the host port forwarded to the ssh port on the guest will have changed. Once the guest is running again, use `./td_virsh_tool.sh --list` to determine the new port for accessing the guest over ssh.
+./tdvirsh delete [domain]
+```
 
 <a id="verify-td-guest"></a>
 ## 7. Verify TD Guest
