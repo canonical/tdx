@@ -22,7 +22,7 @@ created_domain=""
 
 usage() {
     cat <<EOM
-Usage: ./$(basename "${BASH_SOURCE[0]}") [-h] [delete D]
+Usage: ./$(basename "${BASH_SOURCE[0]}") [-h] [new] [delete D] [list]
 
 Run TD VMs managed by libvirt.
 
@@ -94,6 +94,13 @@ boot_vm() {
 destroy() {
     local domain_to_destroy="${1}"
     local qcow2_overlay_path
+
+    # sanity check
+    if ! virsh dominfo ${domain_to_destroy} &> /dev/null ; then
+        echo "Problem trying to assess domain : ${domain_to_destroy}"
+        exit 1
+    fi
+
     qcow2_overlay_path=$(virsh dumpxml ${domain_to_destroy} |
         grep -o "${WORKDIR_PATH}\/overlay\.[A-Za-z0-9]*\.qcow2")
 
@@ -140,7 +147,7 @@ print_all() {
             extra_info="(ssh:$host_port, cid:${guest_cid})"
         fi
         echo "$line $extra_info"
-    done < <(virsh "$@")
+    done < <(virsh "list --all")
 }
 
 run_td() {
@@ -149,7 +156,7 @@ run_td() {
     create_overlay_image
     create_domain_xml
     boot_vm
-    print_all dominfo "${created_domain}"
+    virsh dominfo "${created_domain}"
 }
 
 parse_params() {
@@ -164,9 +171,7 @@ parse_params() {
             exit 0
             ;;
         list)
-            # NB: for the sake of simplicity, just force the list command to --all
-            # do not handle other arguments allowed by virsh
-            print_all "list --all"
+            print_all
             exit 0
             ;;
         delete)
