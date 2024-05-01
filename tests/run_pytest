@@ -2,6 +2,10 @@
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
-sudo apt install -y python3-pytest
+install_deps() {
+		sudo apt install -y python3-pytest
+}
+
+install_deps &> /dev/null
 
 python3 -m pytest --junitxml=report.xml $SCRIPT_DIR/checkbox-provider-tdx/bin/test_*.py

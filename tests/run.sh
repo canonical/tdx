@@ -19,6 +19,10 @@ cleanup() {
     done
 }
 
+install_deps() {
+		sudo apt install -y python3-parameterized sshpass
+}
+
 FRONTEND=$1
 
 if [ -z "$FRONTEND" ]; then
@@ -31,6 +35,6 @@ fi
 
 cleanup
 
-sudo apt install -y python3-parameterized sshpass
+install_deps &> /dev/null
 
 $SCRIPT_DIR/run_$FRONTEND

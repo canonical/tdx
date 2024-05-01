@@ -49,14 +49,15 @@ class TdxBenchmark(unittest.TestCase):
                                    memory='32G')
         self.qm.run()
         try:
+            test_profile='tdx_memory'
             m = Qemu.QemuSSH(self.qm)
             script_path=os.path.dirname(os.path.realpath(__file__))
-            m.put(f'{script_path}/benchmark.sh', '/benchmark.sh')
-            m.ssh_conn.exec_command('chmod a+x /benchmark.sh')
-            _, stdout, _ = m.ssh_conn.exec_command(f'/benchmark.sh &> /benchmark-{name}.txt')
+            self.qm.rsync_file(f'{script_path}/pts', '/')
+            m.ssh_conn.exec_command('chmod a+x /pts/benchmark.sh')
+            _, stdout, _ = m.ssh_conn.exec_command(f'/pts/benchmark.sh {test_profile} &> /pts/benchmark-{name}.txt')
             assert (0 == stdout.channel.recv_exit_status()), 'benchmark run failed !'
-            m.get(f'/benchmark-{name}.txt', f'{script_path}/benchmark-{name}.txt')
-            m.get(f'/root/memory-benchmark-raw.csv', f'{script_path}/benchmark-{name}.csv')
+            m.get(f'/pts/benchmark-{name}.txt', f'{script_path}/benchmark-{name}.txt')
+            m.get(f'/pts/benchmark.csv', f'{script_path}/benchmark-{name}.csv')
             m.poweroff()
         except Exception as e:
             self.fail('Error : %s' % (e))

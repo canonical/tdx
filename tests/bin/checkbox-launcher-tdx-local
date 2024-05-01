@@ -1,6 +1,6 @@
 #!/usr/bin/env -S checkbox-cli-wrapper --clear-cache --clear-old-sessions
 [launcher]
-app_id = com.canonical.certification:checkbox
+app_id = com.canonical.pe.tdx:checkbox
 launcher_version = 1
 stock_reports = text, submission_files
 
