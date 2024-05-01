@@ -171,13 +171,13 @@ parse_params() {
             ;;
         delete)
             domain_to_clean="${2-}"
-            if [[ ! "${domain_to_clean}" =~ ^${DOMAIN_PREFIX}-[^\ ]+$ ]]; then
-                usage
-                exit 0
-            fi
             if [ "${domain_to_clean}" == "all" ]; then
                 clean_all
             else
+                if [[ ! "${domain_to_clean}" =~ ^${DOMAIN_PREFIX}-[^\ ]+$ ]]; then
+                    usage
+                    exit 0
+                fi
                 destroy ${domain_to_clean}
             fi
             exit 0
