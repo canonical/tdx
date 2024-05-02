@@ -153,6 +153,7 @@ print_all() {
 run_td() {
     echo "Create and run new TD ..."
     echo "---"
+    set_input_paths
     create_overlay_image
     create_domain_xml
     boot_vm
@@ -196,5 +197,4 @@ parse_params() {
     done
 }
 
-set_input_paths
 parse_params "$@"
