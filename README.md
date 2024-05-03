@@ -10,7 +10,7 @@
 * [7. Verify TD](#verify-td)
 * [8. Setup Remote Attestation on Host OS and inside TD](#setup-remote-attestation)
 * [9. Build Packages From Source](#build-packages-from-source)
-* [10. Additional Sanity and Functional Test Cases](#sanity-functional-tests)
+* [10. Run Tests](#sanity-functional-tests)
 
 <!-- headings -->
 <a id="introduction"></a>
@@ -558,6 +558,6 @@ Here are example instructions for building QEMU (for normal user with sudo right
 
 
 <a id="sanity-functional-tests"></a>
-## 10. Additional Sanity and Functional Test Cases
+## 10. Running Tests
 
-If you're interested in doing additional sanity and functional testing of Intel TDX, see this [wiki](https://github.com/intel/tdx/wiki/Tests).
+Please follow [tests/README](tests/README.md) to run TDX tests.

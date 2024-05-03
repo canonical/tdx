@@ -1,0 +1,34 @@
+[project]
+name = "tdxtools"
+version = "1.0.0"
+description = "Intel Trust eXtension tools"
+readme = "README.rst"
+license = {file = "LICENSE.rst"}
+maintainers = [{name = "Hector Cao", email = "hector.cao@canonical.com"}]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: System Tools",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GPLv3",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Internet :: WWW/HTTP :: WSGI",
+    "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "py-cpuinfo>=9.0.0",
+]
+
+[project.urls]
+"Source Code" = "https://github.com/canonical/tdx/"
+"Issue Tracker" = "https://github.com/canonical/tdx/issues/"
+
+[project.scripts]
+tdreport = "tdxtools.tdxreport:main"
+tdeventlog = "tdxtools.tdeventlog:print_eventlog"
+tdrtmrcheck = "tdxtools.tdrtmrcheck:verify_rtmr"
+tdtsmcheck = "tdxtools.tdquote:verify_tsm"
+tdeventlog_check_initrd = "tdxtools.tdeventlog:check_initrd"

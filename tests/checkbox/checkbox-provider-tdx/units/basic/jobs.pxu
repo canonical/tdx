@@ -1,0 +1,108 @@
+id: tdx-basic/platform-check
+category_id: tdx-basic
+flags: simple
+user: root
+_summary: Check if platform is TDX capable
+depends:
+after:
+requires:
+command:
+  test_host_tdx_hardware.py
+
+id: tdx-basic/tdx-module-check
+category_id: tdx-basic
+flags: simple
+user: root
+_summary: Check if TDX module has been properly initialized
+depends:
+  tdx-basic/platform-check
+after:
+requires:
+command:
+  test_host_tdx_software.py
+
+id: tdx-basic/qemu-basic-td-creation
+category_id: tdx-basic
+flags: simple
+user: root
+_summary: Check if TD guest can be created with QEMU
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  which qemu-system-x86_64
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  qemu-system-x86_64 --version
+
+id: tdx-basic/td-boot
+category_id: tdx-basic
+flags: simple
+_summary: Test TD boot
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  test_boot.py
+
+id: tdx-basic/td-coexist
+category_id: tdx-basic
+flags: simple
+_summary: Test coexistence of TD and VM
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  test_coexist.py
+
+id: tdx-basic/td-creation
+category_id: tdx-basic
+flags: simple
+_summary: Test TD creation
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  test_td_creation.py
+
+id: tdx-basic/td-creation-multiple
+category_id: tdx-basic
+flags: simple
+_summary: Test multiple TD creation
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  test_multiple_vms.py
+
+id: tdx-basic/td-measurement
+category_id: tdx-basic
+flags: simple
+_summary: Test guest measurements
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  test_measurement.py
+
+# id: tdx-basic/perf-boot-time
+# category_id: tdx-basic
+# flags: simple
+# _summary: Measure boot time
+# depends:
+# after:
+# requires:
+#   executable.name == 'qemu-system-x86_64'
+# command:
+#   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+#   perf_boot_time.py

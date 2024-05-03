@@ -1,6 +1,10 @@
 #!/bin/bash
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+CHECKBOX_DIR=${SCRIPT_DIR}/checkbox
+
+echo "Not supported yet"
+exit 1
 
 install_deps() {
 		sudo snap install checkbox22 &> /de
@@ -10,6 +14,12 @@ install_deps() {
 install_deps &> /dev/null
 
 rm -rf /var/tmp/checkbox-providers/checkbox-provider-tdx/
-cp -rf checkbox-provider-tdx /var/tmp/checkbox-providers/
+cp -rf ${CHECKBOX_DIR}/checkbox-provider-tdx /var/tmp/checkbox-providers/
+cp -rf ${SCRIPT_DIR}/bin /var/tmp/checkbox-providers/checkbox-provider-tdx
+cp -rf ${SCRIPT_DIR}/lib /var/tmp/checkbox-providers/checkbox-provider-tdx
 
-PATH=$PATH:${SCRIPT_DIR}/bin ${SCRIPT_DIR}/bin/checkbox-launcher-tdx-local
+# run checkbox in side-provider mode and use the host system python3 libraries
+# checkbox comes with its own python libs and runtime (see checkbox22)
+# check the requirement
+
+PATH=$PATH:${CHECKBOX_DIR}/bin ${CHECKBOX_DIR}/bin/test-runner-automated

@@ -1,0 +1,4 @@
+unit: category
+id: tdx
+_name: Intel TDX basic tests
+
