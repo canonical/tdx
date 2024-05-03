@@ -103,17 +103,17 @@ In this section, you will create an Ubuntu 24.04-based TD guest from scratch or 
 The base image is an Ubuntu 24.04 cloud image [`ubuntu-24.04-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img). You can be customized your preferences by setting these two environment variables before running the script:
 
 ```bash
-export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/mantic/release/"
-export CLOUD_IMG="ubuntu-23.10-server-cloudimg-amd64.img"
+export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/noble/current/"
+export CLOUD_IMG="noble-server-cloudimg-amd64.img"
 ```
 
 1. Generate a TD guest image. <br>
-NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
+NOTE: use `sudo -E` to preserve user environment (proxy configuration or image customizations).
 
 ```bash
 cd tdx/guest-tools/image/
 # create tdx-guest-ubuntu-24.04-generic.qcow2
-sudo ./create-td-image.sh
+sudo -E ./create-td-image.sh
 ```
 
 The TD guest image uses the Ubuntu generic kernel by default, the intel kernel can be selected by using
