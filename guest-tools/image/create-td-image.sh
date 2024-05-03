@@ -1,3 +1,10 @@
+# This source code is a modified copy of https://github.com/intel/tdx-tools.git
+# See LICENSE.apache file for license information.
+
+# Copyright (C) 2024 Canonical Ltd.
+#
+# This file is part of tdx repo. See LICENSE file for license information.
+
 #!/bin/bash
 #
 

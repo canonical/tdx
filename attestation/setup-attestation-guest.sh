@@ -1,3 +1,7 @@
+# Copyright (C) 2024 Canonical Ltd.
+#
+# This file is part of tdx repo. See LICENSE file for license information.
+
 #!/bin/bash
 
 if [ "$EUID" -ne 0 ]
