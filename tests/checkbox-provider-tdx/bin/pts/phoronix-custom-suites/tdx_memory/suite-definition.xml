@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!--Phoronix Test Suite v10.8.4-->
+<PhoronixTestSuite>
+  <SuiteInformation>
+    <Title>tdx_memory</Title>
+    <Version>1.0.0</Version>
+    <TestType>Other</TestType>
+    <Description>A suite for explore performance penalty for TDX</Description>
+    <Maintainer>Hector Cao</Maintainer>
+  </SuiteInformation>  
+  <Execute>
+    <Test>memory</Test>
+    <Description>Type: Memory benchmark</Description>
+  </Execute>
+</PhoronixTestSuite>

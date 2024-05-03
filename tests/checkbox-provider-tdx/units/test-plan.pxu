@@ -1,0 +1,10 @@
+id: intel-tdx
+unit: test plan
+_name: Intel Trusted Domain eXtension (TDX) tests
+include:
+    tdx-basic/.*
+#mandatory_include:
+#    com.canonical.certification::miscellanea/submission-resources
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap

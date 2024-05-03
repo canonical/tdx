@@ -1,0 +1,15 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+
+install_deps() {
+		sudo snap install checkbox22 &> /de
+		sudo snap install checkbox --classic
+}
+
+install_deps &> /dev/null
+
+rm -rf /var/tmp/checkbox-providers/checkbox-provider-tdx/
+cp -rf checkbox-provider-tdx /var/tmp/checkbox-providers/
+
+PATH=$PATH:${SCRIPT_DIR}/bin ${SCRIPT_DIR}/bin/checkbox-launcher-tdx-local
