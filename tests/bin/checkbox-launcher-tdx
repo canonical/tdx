@@ -1,0 +1,17 @@
+#!/usr/bin/env -S checkbox-cli-wrapper --clear-cache --clear-old-sessions control 127.0.0.1
+[launcher]
+app_id = com.canonical.certification:checkbox
+launcher_version = 1
+stock_reports = text, submission_files
+
+[test plan]
+unit = com.canonical.certification::intel-tdx
+forced = yes
+
+[test selection]
+forced = yes
+
+[ui]
+type = silent
+auto_retry = no
+
