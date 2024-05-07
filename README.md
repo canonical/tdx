@@ -46,13 +46,13 @@ the host into a TDX host, optionally install remote attestation components, and 
 3. Run the script. <br>
 
 NOTE 1: If you'd like to have the attestation components installed automatically, change the value 
-of `INSTALL_ATTESTATION` from `0` to `1`.
+of `TDX_SETUP_ATTESTATION` from `0` to `1`.
 
 NOTE 2: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx
-sudo INSTALL_ATTESTATION=0 ./setup-tdx-host.sh
+sudo TDX_SETUP_ATTESTATION=0 ./setup-tdx-host.sh
 ```
 
 4. Reboot.
@@ -113,21 +113,21 @@ export CLOUD_IMG="ubuntu-24.04-server-cloudimg-amd64.img"
 1. Generate a TD guest image. <br>
 
 NOTE 1: If you'd like to have the attestation components installed automatically, change the value 
-of `INSTALL_ATTESTATION` from `0` to `1`.
+of `TDX_SETUP_ATTESTATION` from `0` to `1`.
 NOTE 2: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx/guest-tools/image/
 # create tdx-guest-ubuntu-24.04-generic.qcow2
-sudo INSTALL_ATTESTATION=0 ./create-td-image.sh
+sudo TDX_SETUP_ATTESTATION=0 ./create-td-image.sh
 ```
 
 The TD guest image uses the Ubuntu generic kernel by default, the intel kernel can be selected by using
-the environment variable `TDX_GUEST_SETUP_INTEL_KERNEL`.
+the environment variable `TDX_SETUP_INTEL_KERNEL`.
 
 ```bash
 # create tdx-guest-ubuntu-24.04-intel.qcow2
-sudo INSTALL_ATTESTATION=0 TDX_GUEST_SETUP_INTEL_KERNEL=1 ./create-td-image.sh
+sudo TDX_SETUP_ATTESTATION=0 TDX_SETUP_INTEL_KERNEL=1 ./create-td-image.sh
 ```
 
 Note that the kernel type (`generic` or `intel`) is automatically included in the image name so it is easy to distinguish.
@@ -145,11 +145,11 @@ If you have an existing Ubuntu 24.04 non-TD guest, you can enable the TDX featur
 3. Run the script. 
 
 NOTE: If you'd like to have the attestation components installed automatically, change the value 
-of `INSTALL_ATTESTATION` from `0` to `1`.
+of `TDX_SETUP_ATTESTATION` from `0` to `1`.
 
 ```bash
 cd tdx
-sudo INSTALL_ATTESTATION=0 ./setup-tdx-guest.sh
+sudo TDX_SETUP_ATTESTATION=0 ./setup-tdx-guest.sh
 ```
 
 4. Shutdown the guest.

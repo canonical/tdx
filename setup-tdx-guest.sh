@@ -5,8 +5,8 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 # the kernel flavour/type we want to use
 KERNEL_TYPE=linux-image-generic
 
-# use can use -intel kernel by setting TDX_GUEST_SETUP_INTEL_KERNEL
-if [ -n "${TDX_GUEST_SETUP_INTEL_KERNEL}" ]; then
+# use can use -intel kernel by setting TDX_SETUP_INTEL_KERNEL
+if [ -n "${TDX_SETUP_INTEL_KERNEL}" ]; then
   KERNEL_TYPE=linux-image-intel
 fi
 
@@ -53,7 +53,7 @@ if [[ "$KERNEL_RELEASE" == *-generic ]]; then
 fi
 
 # setup attestation
-if [[ "${INSTALL_ATTESTATION}" == "1" ]]; then
+if [[ "${TDX_SETUP_ATTESTATION}" == "1" ]]; then
   "${SCRIPT_DIR}"/attestation/setup-attestation-guest.sh
 else
   echo "Skip installing attestation components..."

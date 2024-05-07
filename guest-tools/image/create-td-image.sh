@@ -22,7 +22,7 @@ CURR_DIR=$(dirname "$(realpath $0)")
 FORCE_RECREATE=false
 OFFICIAL_UBUNTU_IMAGE=${OFFICIAL_UBUNTU_IMAGE:-"https://cloud-images.ubuntu.com/releases/noble/release/"}
 CLOUD_IMG=${CLOUD_IMG:-"ubuntu-24.04-server-cloudimg-amd64.img"}
-if [[ "${TDX_GUEST_SETUP_INTEL_KERNEL}" == "1" ]]; then
+if [[ "${TDX_SETUP_INTEL_KERNEL}" == "1" ]]; then
     GUEST_IMG="tdx-guest-ubuntu-24.04-intel.qcow2"
 else
     GUEST_IMG="tdx-guest-ubuntu-24.04-generic.qcow2"
@@ -217,9 +217,8 @@ EOT
 
 setup_guest_image() {
     # export environment variables to guest
-    # all environment variables with prefix : TDX_GUEST_SETUP_
-    declare -px | grep TDX_GUEST_SETUP_ > ${CURR_DIR}/tdx-guest-setup-env
-    declare -px | grep INSTALL_ATTESTATION >> ${CURR_DIR}/tdx-guest-setup-env
+    # all environment variables with prefix : TDX_SETUP_
+    declare -px | grep TDX_SETUP_ > ${CURR_DIR}/tdx-guest-setup-env
     virt-customize -a /tmp/${GUEST_IMG} \
        --copy-in ${CURR_DIR}/setup.sh:/tmp/ \
        --copy-in ${CURR_DIR}/../../setup-tdx-guest.sh:/tmp/ \
