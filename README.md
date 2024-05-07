@@ -1,4 +1,4 @@
-# Intel® Trust Domain Extensions (TDX) on Ubuntu
+# Intel® Trust Domain Extensions (TDX) on Ubuntu 23.10
 
 ### Table of Contents:
 * [1. Introduction](#introduction)
@@ -23,8 +23,9 @@ As a result, it enhances a platform user’s control of data security and IP pro
 Cloud Service Providers’ (CSP) ability to provide managed cloud services without exposing tenant data to adversaries.
 For more information, see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
 
-This tech preview of TDX on Ubuntu 23.10 provides base host and guest functionalities. Follow these instructions
-to setup the TDX host, create a TD guest, and boot it.
+This tech preview of TDX on Ubuntu 23.10 provides base host, guest, and remote attestation functionalities. 
+Follow these instructions to setup the TDX host, create a TD guest, boot it, and attest the integrity of its 
+execution environment.
 
 <a id="report-an-issue"></a>
 ## 2. Report an Issue
@@ -465,7 +466,7 @@ You should also find a `quote.dat` file generated.
 
 ```
 {
-    "trustauthority_url": "https://portal.trustauthority.intel.com"
+    "trustauthority_url": "https://portal.trustauthority.intel.com",
     "trustauthority_api_url": "https://api.trustauthority.intel.com",
     "trustauthority_api_key": "djE6ZWQ1ZDU2MGEtZDcyMi00ODBmLWJkMGYtMTc3OTNjNjM2ZGY5Onc0cHM3QXV4RDE3U0dHOFZUcjNLQzYyTXpkQXhVNDlVNWtDN3JwVzI="
 }
