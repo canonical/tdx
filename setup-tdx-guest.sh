@@ -2,11 +2,16 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+# source config file
+if [ -f ${SCRIPT_DIR}/setup-tdx-config ]; then
+    source ${SCRIPT_DIR}/setup-tdx-config
+fi
+
 # the kernel flavour/type we want to use
 KERNEL_TYPE=linux-image-generic
 
 # use can use -intel kernel by setting TDX_SETUP_INTEL_KERNEL
-if [ -n "${TDX_SETUP_INTEL_KERNEL}" ]; then
+if [[ "${TDX_SETUP_INTEL_KERNEL}" == "1" ]]; then
   KERNEL_TYPE=linux-image-intel
 fi
 

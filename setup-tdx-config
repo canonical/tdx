@@ -1,0 +1,42 @@
+################################################################
+# GENERAL                                                      #
+################################################################
+
+################################################################
+# Enable the setup of attestation components
+# Set to 1 to enable
+# By default, the attestation components are not installed
+################################################################
+TDX_SETUP_ATTESTATION=0
+
+################################################################
+# HOST                                                         #
+################################################################
+
+
+################################################################
+# GUEST                                                        #
+################################################################
+
+################################################################
+# Enable the intel optimized kernel for the guest
+# Set to 1 to enable
+# By default, the generic kernel is used
+################################################################
+TDX_SETUP_INTEL_KERNEL=0
+
+################################################################
+# Image configuration
+# The base image is an Ubuntu 24.04 cloud image
+# You can use a different image setting these two environment
+# variables before running the setup script
+################################################################
+OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/noble/release/"
+CLOUD_IMG="ubuntu-24.04-server-cloudimg-amd64.img"
+
+################################################################
+# Configure the guest credentials
+################################################################
+GUEST_USER="tdx"
+GUEST_PASSWORD="123456"
+GUEST_HOSTNAME="tdx-guest"

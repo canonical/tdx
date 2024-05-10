@@ -23,7 +23,10 @@ As a result, it enhances a platform user’s control of data security and IP pro
 Cloud Service Providers’ (CSP) ability to provide managed cloud services without exposing tenant data to adversaries.
 For more information, see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
 
-This tech preview of TDX on Ubuntu 24.04 provides base host, guest, and remote attestation functionalities. Follow these instructions to setup the TDX host, create a TD guest, boot it, and attest the integrity of its execution environment.  
+This tech preview of TDX on Ubuntu 24.04 provides base host, guest, and remote attestation functionalities.
+Follow these instructions to setup the TDX host, create a TD guest, boot it, and attest the integrity of its execution environment.
+
+The setup can be customized by editing the global configuration file : `setup-tdx-config`
 
 <a id="report-an-issue"></a>
 ## 2. Report an Issue
@@ -45,14 +48,11 @@ the host into a TDX host, optionally install remote attestation components, and 
 <a id="step-4-3"></a>
 3. Run the script. <br>
 
-NOTE 1: If you'd like to have the attestation components installed automatically, change the value 
-of `TDX_SETUP_ATTESTATION` from `0` to `1`.
-
-NOTE 2: If you're behind a proxy, use `sudo -E` to preserve user environment.
+NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx
-sudo TDX_SETUP_ATTESTATION=0 ./setup-tdx-host.sh
+sudo ./setup-tdx-host.sh
 ```
 
 4. Reboot.
@@ -87,7 +87,7 @@ NOTE: The following is a sample BIOS configuration.  It may vary slightly from o
 sudo dmesg | grep -i tdx
 ```
 
-An example output:
+The message `virt/tdx: module initialized` proves that the tdx has been properly initialized. Here is an example output:
 
 ```
 ...
@@ -103,31 +103,16 @@ In this section, you will create an Ubuntu 24.04-based TD guest from scratch or 
 
 ### Create a New TD Guest Image
 
-The base image is an Ubuntu 24.04 cloud image [`ubuntu-24.04-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img). You can be customized your preferences by setting these two environment variables before running the script:
-
-```bash
-export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/noble/current/"
-export CLOUD_IMG="noble-server-cloudimg-amd64.img"
-```
+The base image is an Ubuntu 24.04 cloud image.
 
 1. Generate a TD guest image. <br>
 
-NOTE 1: If you'd like to have the attestation components installed automatically, change the value 
-of `TDX_SETUP_ATTESTATION` from `0` to `1`.
-NOTE 2: If you're behind a proxy, use `sudo -E` to preserve user environment.
+NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
 ```bash
 cd tdx/guest-tools/image/
 # create tdx-guest-ubuntu-24.04-generic.qcow2
-sudo -E ./create-td-image.sh
-```
-
-The TD guest image uses the Ubuntu generic kernel by default, the intel kernel can be selected by using
-the environment variable `TDX_SETUP_INTEL_KERNEL`.
-
-```bash
-# create tdx-guest-ubuntu-24.04-intel.qcow2
-sudo TDX_SETUP_ATTESTATION=0 TDX_SETUP_INTEL_KERNEL=1 ./create-td-image.sh
+sudo ./create-td-image.sh
 ```
 
 Note that the kernel type (`generic` or `intel`) is automatically included in the image name so it is easy to distinguish.
@@ -144,12 +129,9 @@ If you have an existing Ubuntu 24.04 non-TD guest, you can enable the TDX featur
 
 3. Run the script. 
 
-NOTE: If you'd like to have the attestation components installed automatically, change the value 
-of `TDX_SETUP_ATTESTATION` from `0` to `1`.
-
 ```bash
 cd tdx
-sudo TDX_SETUP_ATTESTATION=0 ./setup-tdx-guest.sh
+sudo ./setup-tdx-guest.sh
 ```
 
 4. Shutdown the guest.

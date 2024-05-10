@@ -2,6 +2,11 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
+# source config file
+if [ -f ${SCRIPT_DIR}/setup-tdx-config ]; then
+    source ${SCRIPT_DIR}/setup-tdx-config
+fi
+
 on_exit() {
     rc=$?
     if [ ${rc} -ne 0 ]; then
