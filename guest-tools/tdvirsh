@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Wrapper around virsh to ease the creation of TD VMs
+# Wrapper around virsh to ease the creation of TDs
 #
 
 ##
@@ -24,12 +24,12 @@ usage() {
     cat <<EOM
 Usage: ./$(basename "${BASH_SOURCE[0]}") [-h] [new] [delete D] [list]
 
-Run TD VMs managed by libvirt.
+Run TDs managed by libvirt.
 
 Available options:
 
-new                          Run a TD VM
-delete          <domain|all> Stop and delete TD VM
+new                          Run a TD
+delete          <domain|all> Stop and delete TD
                                <domain> should be a valid domain name
                                <all> delete all VMs
 list                         List all VMs

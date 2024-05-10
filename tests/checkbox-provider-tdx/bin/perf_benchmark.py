@@ -42,7 +42,7 @@ class TdxBenchmark(unittest.TestCase):
         ])
     def test_run_perf(self, name, machine):
         """
-        Run benchmark.sh script on TD VM and VM
+        Run benchmark.sh script on TD and VM
         """
         self.qm = Qemu.QemuMachine(name,
                                    machine,
