@@ -10,11 +10,11 @@ add-apt-repository -y ppa:kobuk-team/tdx-release
 
 apt update
 
-apt install --yes sgx-dcap-pccs tdx-qgs
+apt install --yes --allow-downgrades sgx-dcap-pccs tdx-qgs
 
 # using RA registration (direct registration method)
-apt install --yes sgx-ra-service
+apt install --yes --allow-downgrades sgx-ra-service
 
 # using indirect registration method
-apt install --yes sgx-pck-id-retrieval-tool
+apt install --yes --allow-downgrades sgx-pck-id-retrieval-tool
 

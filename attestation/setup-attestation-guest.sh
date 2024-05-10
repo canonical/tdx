@@ -9,7 +9,7 @@ apt install --yes software-properties-common
 add-apt-repository -y ppa:kobuk-team/tdx-release
 
 apt update
-apt install --yes libtdx-attest-dev trustauthority-cli
+apt install --yes --allow-downgrades libtdx-attest-dev trustauthority-cli
 
 # compile tdx-attest source
 apt install --yes build-essential
