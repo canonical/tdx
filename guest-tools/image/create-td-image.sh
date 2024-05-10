@@ -16,9 +16,15 @@
 #
 # TODO : ask cloud init to run the TDX setup script
 
+CURR_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+# source config file
+if [ -f ${CURR_DIR}/../../setup-tdx-config ]; then
+    source ${CURR_DIR}/../../setup-tdx-config
+fi
+
 LOGFILE=/tmp/tdx-guest-setup.txt
 WORK_DIR=${PWD}
-CURR_DIR=$(dirname "$(realpath $0)")
 FORCE_RECREATE=false
 OFFICIAL_UBUNTU_IMAGE=${OFFICIAL_UBUNTU_IMAGE:-"https://cloud-images.ubuntu.com/releases/noble/release/"}
 CLOUD_IMG=${CLOUD_IMG:-"ubuntu-24.04-server-cloudimg-amd64.img"}
@@ -216,16 +222,14 @@ EOT
 }
 
 setup_guest_image() {
-    # export environment variables to guest
-    # all environment variables with prefix : TDX_SETUP_
-    declare -px | grep TDX_SETUP_ > ${CURR_DIR}/tdx-guest-setup-env
     virt-customize -a /tmp/${GUEST_IMG} \
-       --copy-in ${CURR_DIR}/setup.sh:/tmp/ \
-       --copy-in ${CURR_DIR}/../../setup-tdx-guest.sh:/tmp/ \
-       --copy-in ${CURR_DIR}/../../setup-tdx-common:/tmp/ \
-       --copy-in ${CURR_DIR}/../../attestation/:/tmp/ \
-       --copy-in ${CURR_DIR}/tdx-guest-setup-env:/tmp/ \
-       --run-command "/tmp/setup.sh"
+       --mkdir /tmp/tdx/ \
+       --copy-in ${CURR_DIR}/setup.sh:/tmp/tdx/ \
+       --copy-in ${CURR_DIR}/../../setup-tdx-guest.sh:/tmp/tdx/ \
+       --copy-in ${CURR_DIR}/../../setup-tdx-common:/tmp/tdx \
+       --copy-in ${CURR_DIR}/../../setup-tdx-config:/tmp/tdx \
+       --copy-in ${CURR_DIR}/../../attestation/:/tmp/tdx \
+       --run-command "/tmp/tdx/setup.sh"
     if [ $? -eq 0 ]; then
         ok "Setup guest image..."
     else
