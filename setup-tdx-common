@@ -10,12 +10,12 @@
 # in case the packages in the PPA have older versions than the ones
 # from Ubuntu archive
 add_kobuk_ppa() {
-  distro_id=LP-PPA-kobuk-team-tdx
+  distro_id=LP-PPA-kobuk-team-tdx-release
   distro_codename=noble
 
-  add-apt-repository -y ppa:kobuk-team/tdx
+  add-apt-repository -y ppa:kobuk-team/tdx-release
 
-  cat <<EOF | tee /etc/apt/preferences.d/kobuk-team-tdx-pin-4000
+  cat <<EOF | tee /etc/apt/preferences.d/kobuk-team-tdx-release-pin-4000
 Package: *
 Pin: release o=${distro_id}
 Pin-Priority: 4000
