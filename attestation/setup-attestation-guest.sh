@@ -6,7 +6,7 @@ if [ "$EUID" -ne 0 ]
 fi
 
 apt install --yes software-properties-common
-add-apt-repository -y ppa:kobuk-team/tdx
+add-apt-repository -y ppa:kobuk-team/tdx-release
 
 apt update
 apt install --yes libtdx-attest-dev trustauthority-cli
