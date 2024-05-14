@@ -6,11 +6,18 @@
 ##
 # Global constants
 #
-DOMAIN_PREFIX="td_guest"
+DOMAIN_PREFIX="tdvirsh"
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 BASE_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04-generic.qcow2}
 XML_TEMPLATE=${XML_TEMPLATE:-${SCRIPT_DIR}/td_guest.xml.template}
 WORKDIR_PATH=/var/tmp/tdvirsh/
+
+# determine extra domain prefix
+XML_TEMPLATE_FN=${XML_TEMPLATE##*/}
+DOMAIN_PREFIX_EXTRA=${XML_TEMPLATE_FN%.xml*}
+if [ -z "$DOMAIN_PREFIX_EXTRA" ]; then
+    DOMAIN_PREFIX_EXTRA="td_guest"
+fi
 
 ##
 # Global variables
@@ -85,7 +92,7 @@ create_domain_xml() {
 
 boot_vm() {
     virsh define ${WORKDIR_PATH}/${DOMAIN_PREFIX}.xml >/dev/null
-    created_domain=${DOMAIN_PREFIX}-$(virsh domuuid ${DOMAIN_PREFIX})
+    created_domain=${DOMAIN_PREFIX}-${DOMAIN_PREFIX_EXTRA}-$(virsh domuuid ${DOMAIN_PREFIX})
     mv ${WORKDIR_PATH}/{${DOMAIN_PREFIX}.xml,${created_domain}.xml} &>/dev/null || true
     virsh domrename ${DOMAIN_PREFIX} ${created_domain} >/dev/null
     virsh start ${created_domain} >/dev/null
