@@ -45,7 +45,7 @@ class TdxBootTime(unittest.TestCase):
         ])
     def test_boot_time(self, name, machine, memory):
         """
-        Boot time statistics for Normal VM and TD VM
+        Boot time statistics for Normal VM and TD
         """
         self.qm = Qemu.QemuMachine(name,
                                    machine,

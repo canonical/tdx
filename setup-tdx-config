@@ -3,7 +3,9 @@
 ################################################################
 
 ################################################################
-# Enable the setup of attestation components
+# Enable the installation of DCAP packages from Canonical's
+# repository. This flag is considered during host OS and guest
+# OS setup.
 # Set to 1 to enable
 # By default, the attestation components are not installed
 ################################################################

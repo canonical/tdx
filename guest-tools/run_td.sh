@@ -6,7 +6,7 @@ cleanup() {
 
     PID_TD=$(cat /tmp/tdx-demo-td-pid.pid 2> /dev/null)
 
-    [ ! -z "$PID_TD" ] && echo "Cleanup, kill TD vm PID: ${PID_TD}" && kill -TERM ${PID_TD} &> /dev/null
+    [ ! -z "$PID_TD" ] && echo "Cleanup, kill TD with PID: ${PID_TD}" && kill -TERM ${PID_TD} &> /dev/null
     sleep 3
 }
 
@@ -48,4 +48,4 @@ qemu-system-x86_64 -D /tmp/tdx-guest-td.log \
 
 PID_TD=$(cat /tmp/tdx-demo-td-pid.pid)
 
-echo "TD VM, PID: ${PID_TD}, SSH : ssh -p 10022 root@localhost"
+echo "TD, PID: ${PID_TD}, SSH : ssh -p 10022 root@localhost"

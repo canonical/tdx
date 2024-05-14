@@ -100,5 +100,5 @@ else
 fi
 
 echo "========================================================================"
-echo "The setup has been done successfully. Please enable now TDX in the BIOS."
+echo "The host OS setup has been done successfully. Now, please enable Intel TDX in the BIOS."
 echo "========================================================================"
