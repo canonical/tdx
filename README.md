@@ -46,7 +46,7 @@ Download and install [Ubuntu 24.04 server](https://cdimage.ubuntu.com/ubuntu-ser
 
 ### 4.2 Enable Intel TDX in Host OS
 
-1. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning the repository at the appropriate tag.
+1. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning the repository (at the appropriate tag/branch).
 
 2. Run the following script.<a id="step-4-2-2"></a>
 
@@ -122,15 +122,14 @@ sudo ./create-td-image.sh
 
 Important options for TD image creation:
 * If you're behind a proxy, use `sudo -E` to preserve user environment.
-* If you want to adjust the used based image, adjust the following two environment variables before running the script:
+* To adjust the base image, set the following two environment variables before running the script:
 
 	```bash
 	export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/noble/current/"
 	export CLOUD_IMG="noble-server-cloudimg-amd64.img"
 	```
 * By default, the TD image uses Ubuntu's generic kernel.
-	The Intel kernel can be selected by setting the
-	the environment variable `TDX_SETUP_INTEL_KERNEL` to `1`.
+	The Intel kernel can be selected by setting the environment variable `TDX_SETUP_INTEL_KERNEL` to `1`.
 	The used kernel type (`generic` or `intel`) will be reflected in the name of the resulting image so it is easy to distinguish.
 
 
@@ -140,7 +139,7 @@ If you have an existing Ubuntu 24.04 VM image, you can enable the Intel TDX feat
 
 1. Boot up your guest, i.e., your regular VM.
 
-2. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning it at the appropriate tag.
+2. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning the repository (at the appropriate tag/branch).
 
 3. Run the following script.
 
@@ -406,11 +405,7 @@ you proceed to [step 4](#verify-itts-client-version).
 
 1. [Boot a TD](#boot-td) and connect to it.
 
-2. Clone this repository:
-
-	```bash
-	git clone -b noble-24.04 https://github.com/canonical/tdx.git
-	```
+2. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning the repository (at the appropriate tag/branch).
 
 3. Install the Intel Tiber Trust Service CLI.
 
