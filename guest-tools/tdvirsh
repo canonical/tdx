@@ -9,7 +9,7 @@
 DOMAIN_PREFIX="tdvirsh"
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 BASE_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04-generic.qcow2}
-XML_TEMPLATE=${XML_TEMPLATE:-${SCRIPT_DIR}/td_guest.xml.template}
+XML_TEMPLATE=${XML_TEMPLATE:-${SCRIPT_DIR}/trust_domain.xml.template}
 WORKDIR_PATH=/var/tmp/tdvirsh/
 
 # determine extra domain prefix
@@ -48,7 +48,7 @@ All other options will be passed to virsh. To see virsh usage run:
 Environment variables:
 
 TD_IMG         TDX image path (default: ./image/tdx-guest-ubuntu-24.04-generic.qcow2)
-XML_TEMPLATE   Path to virsh guest XML template (default: ./td_guest.xml.template)
+XML_TEMPLATE   Path to virsh guest XML template (default: ./trust_domain.xml.template)
 EOM
 }
 
