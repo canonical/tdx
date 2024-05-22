@@ -31,12 +31,12 @@ usage() {
     cat <<EOM
 Usage: ./$(basename "${BASH_SOURCE[0]}") [-h] [new] [delete D] [list]
 
-Run trust domains (Intel TDX) managed by libvirt.
+Manage Trust Domains (TDs) using libvirt.
 
 Available options:
 
-new                          Run a TD
-delete          <domain|all> Stop and delete TD
+new                          Run a Trust Domain (TD)
+delete          <domain|all> Stop and delete Trust Domain (TD)
                                <domain> should be a valid domain name
                                <all> delete all VMs
 list                         List all VMs
