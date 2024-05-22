@@ -31,7 +31,7 @@ usage() {
     cat <<EOM
 Usage: ./$(basename "${BASH_SOURCE[0]}") [-h] [new] [delete D] [list]
 
-Run TDs managed by libvirt.
+Run trust domains (Intel TDX) managed by libvirt.
 
 Available options:
 
@@ -158,7 +158,7 @@ print_all() {
 }
 
 run_td() {
-    echo "Create and run new TD ..."
+    echo "Create and run new virsh domain from ${XML_TEMPLATE}"
     echo "---"
     set_input_paths
     create_overlay_image
