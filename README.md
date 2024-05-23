@@ -106,7 +106,9 @@ The message `virt/tdx: module initialized` proves that the tdx has been properly
 
 In this section, you will create an Ubuntu 24.04-based TD image from scratch or convert an existing VM image into a TD image. This can be performed on any Ubuntu 22.04 or newer system - an Intel TDX-specific environment is not required.
 
-The base image is an Ubuntu 24.04 cloud image.
+* The base image is an Ubuntu 24.04 cloud image.
+
+* By default, the generic kernel is used for the guest. The Intel kernel can be selected by changing the variable `TDX_SETUP_INTEL_KERNEL` in the configuration file `setup-tdx-config`.
 
 ### 5.1 Create a New TD Image
 
@@ -128,10 +130,7 @@ Important options for TD image creation:
 	export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/noble/current/"
 	export CLOUD_IMG="noble-server-cloudimg-amd64.img"
 	```
-* By default, the TD image uses Ubuntu's generic kernel.
-	The Intel kernel can be selected by setting the environment variable `TDX_SETUP_INTEL_KERNEL` to `1`.
-	The used kernel type (`generic` or `intel`) will be reflected in the name of the resulting image so it is easy to distinguish.
-
+* The used kernel type (`generic` or `intel`) will be reflected in the name of the resulting image so it is easy to distinguish.
 
 ### 5.2 Convert a Regular VM Image into a TD Image
 
