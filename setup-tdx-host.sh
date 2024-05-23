@@ -74,7 +74,7 @@ rm -f /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
 # stop at error
 set -e
 
-add_kobuk_ppa ${TDX_PPA:-tdx}
+add_kobuk_ppa ${TDX_PPA:-tdx-release}
 
 apt install --yes --allow-downgrades \
     ${KERNEL_TYPE} \
