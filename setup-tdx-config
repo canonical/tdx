@@ -3,6 +3,13 @@
 ################################################################
 
 ################################################################
+# The TDX PPA to use
+# By default, this is the release PPA
+# but for development purpose, users can switch to dev PPA: tdx
+################################################################
+TDX_PPA=tdx-release
+
+################################################################
 # Enable the installation of DCAP packages from Canonical's
 # repository. This flag is considered during host OS and guest
 # OS setup.

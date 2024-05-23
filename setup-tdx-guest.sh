@@ -24,7 +24,7 @@ apt install --yes software-properties-common gawk &> /dev/null
 rm -f /etc/apt/preferences.d/kobuk-team-tdx-*
 rm -f /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
 
-add_kobuk_ppa
+add_kobuk_ppa ${TDX_PPA:-tdx}
 
 # upgrade the system to have the latest components (mostly generic kernel)
 apt upgrade --yes
