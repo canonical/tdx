@@ -342,6 +342,10 @@ class TDEventLogActor:
         events = []
         for event_log in self._event_logs:
             if digest == event_log.digests[0].hex():
+                LOG.info("= Found event log with matching digest:")
+                LOG.info(f"== Digest: {digest}")
+                LOG.info("== Matched event log:")
+                event_log.dump()
                 events.append(event_log)
         return events
 

@@ -25,25 +25,7 @@ import util
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
-# def test_guest_eventlog():
-#     """
-#     Dump event log
-#     """
-#     qm = Qemu.QemuMachine()
-#     qm.run()
-
-#     m = Qemu.QemuSSH(qm)
-
-#     m.rsync_file(f'{script_path}/../lib', '/tmp/tdxtest/')
-#     m.check_exec('cd /tmp/tdxtest/lib/tdx-tools/ && python3 -m pip install --break-system-packages ./')
-
-#     stdout, stderr = m.check_exec('tdeventlog')
-#     for l in stderr.readlines():
-#         print(l)
-
-#     qm.stop()
-
-def test_guest_eventlog_initrd():
+def test_guest_eventlog():
     """
     Dump event log
     """
@@ -55,6 +37,26 @@ def test_guest_eventlog_initrd():
     m.rsync_file(f'{script_path}/../lib', '/tmp/tdxtest/')
     m.check_exec('cd /tmp/tdxtest/lib/tdx-tools/ && python3 -m pip install --break-system-packages ./')
 
-    m.check_exec('tdeventlog_check_initrd')
+    stdout, stderr = m.check_exec('tdeventlog')
+    for l in stderr.readlines():
+        print(l.rstrip())
+
+    qm.stop()
+
+def test_guest_eventlog_initrd():
+    """
+    Check presence of event log for initrd measurement
+    """
+    qm = Qemu.QemuMachine()
+    qm.run()
+
+    m = Qemu.QemuSSH(qm)
+
+    m.rsync_file(f'{script_path}/../lib', '/tmp/tdxtest/')
+    m.check_exec('cd /tmp/tdxtest/lib/tdx-tools/ && python3 -m pip install --break-system-packages ./')
+
+    stdout, stderr = m.check_exec('tdeventlog_check_initrd')
+    for l in stderr.readlines():
+        print(l.rstrip())
 
     qm.stop()
