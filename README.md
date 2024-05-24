@@ -216,14 +216,14 @@ A different qcow2 image (e.g., one with an `intel` kernel) can be used by settin
 
 	Example of output:
 
-	```
-	$ ./tdvirsh list --all
-	Id   Name                                            State
-	---------------------------------------------------------------
-	1    td_guest-2598a419-fe21-425c-b44f-56bff21377b3   running (ssh:35967, cid:3)
-	```
+        ```
+        $ ./tdvirsh list --all
+        Id   Name                                                        State
+        ---------------------------------------------------------------------------
+        1    tdvirsh-trust_domain-f7210c2b-2657-4f30-adf3-639b573ea39f   running (ssh:32855, cid:3)
+        ```
 
-	`ssh:35967` represents the configured port number, which can be used to connect to the VM via `ssh`.
+        `ssh:32855` displays the port user can use to connect to the VM via `ssh`.
 * A TD can be removed with the following command:
 	```
 	./tdvirsh delete [domain]

@@ -6,11 +6,18 @@
 ##
 # Global constants
 #
-DOMAIN_PREFIX="td_guest"
+DOMAIN_PREFIX="tdvirsh"
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 BASE_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04-generic.qcow2}
-XML_TEMPLATE=${XML_TEMPLATE:-${SCRIPT_DIR}/td_guest.xml.template}
+XML_TEMPLATE=${XML_TEMPLATE:-${SCRIPT_DIR}/trust_domain.xml.template}
 WORKDIR_PATH=/var/tmp/tdvirsh/
+
+# determine extra domain prefix
+XML_TEMPLATE_FN=${XML_TEMPLATE##*/}
+DOMAIN_PREFIX_EXTRA=${XML_TEMPLATE_FN%.xml*}
+if [ -z "$DOMAIN_PREFIX_EXTRA" ]; then
+    DOMAIN_PREFIX_EXTRA="td_guest"
+fi
 
 ##
 # Global variables
@@ -24,12 +31,12 @@ usage() {
     cat <<EOM
 Usage: ./$(basename "${BASH_SOURCE[0]}") [-h] [new] [delete D] [list]
 
-Run TDs managed by libvirt.
+Manage Trust Domains (TDs) using libvirt.
 
 Available options:
 
-new                          Run a TD
-delete          <domain|all> Stop and delete TD
+new                          Run a Trust Domain (TD)
+delete          <domain|all> Stop and delete Trust Domain (TD)
                                <domain> should be a valid domain name
                                <all> delete all VMs
 list                         List all VMs
@@ -41,7 +48,7 @@ All other options will be passed to virsh. To see virsh usage run:
 Environment variables:
 
 TD_IMG         TDX image path (default: ./image/tdx-guest-ubuntu-24.04-generic.qcow2)
-XML_TEMPLATE   Path to virsh guest XML template (default: ./td_guest.xml.template)
+XML_TEMPLATE   Path to virsh guest XML template (default: ./trust_domain.xml.template)
 EOM
 }
 
@@ -85,7 +92,7 @@ create_domain_xml() {
 
 boot_vm() {
     virsh define ${WORKDIR_PATH}/${DOMAIN_PREFIX}.xml >/dev/null
-    created_domain=${DOMAIN_PREFIX}-$(virsh domuuid ${DOMAIN_PREFIX})
+    created_domain=${DOMAIN_PREFIX}-${DOMAIN_PREFIX_EXTRA}-$(virsh domuuid ${DOMAIN_PREFIX})
     mv ${WORKDIR_PATH}/{${DOMAIN_PREFIX}.xml,${created_domain}.xml} &>/dev/null || true
     virsh domrename ${DOMAIN_PREFIX} ${created_domain} >/dev/null
     virsh start ${created_domain} >/dev/null
@@ -151,7 +158,7 @@ print_all() {
 }
 
 run_td() {
-    echo "Create and run new TD ..."
+    echo "Create and run new virsh domain from ${XML_TEMPLATE}"
     echo "---"
     set_input_paths
     create_overlay_image
