@@ -27,7 +27,7 @@ dependencies = [
 "Issue Tracker" = "https://github.com/canonical/tdx/issues/"
 
 [project.scripts]
-tdreport = "tdxtools.tdxreport:main"
+tdreport = "tdxtools.tdreport:main"
 tdeventlog = "tdxtools.tdeventlog:print_eventlog"
 tdrtmrcheck = "tdxtools.tdrtmrcheck:verify_rtmr"
 tdtsmcheck = "tdxtools.tdquote:verify_tsm"
