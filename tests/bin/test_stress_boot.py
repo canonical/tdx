@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-#
 # Copyright 2024 Canonical Ltd.
 # Authors:
 # - Hector Cao <hector.cao@canonical.com>

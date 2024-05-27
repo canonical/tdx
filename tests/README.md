@@ -15,31 +15,31 @@ This folder contains TDX tests.
 
 ### Run tests with pytest
 
+Go to the `tests` folder.
+
 - Run sanity tests to check the TDX host setup:
 
 ```
-$ cd tests
 $ sudo ./run.sh pytest bin/test_host_*.py
 ```
 
 - Run sanity tests to check the TDX guest boot:
 
 ```
-$ cd tests
 $ sudo ./run.sh pytest bin/test_guest_*.py bin/test_boot_*.py
 ```
 
 - Run all tests except the performance ones:
 
 ```
-$ cd tests
 $ sudo ./run.sh pytest --ignore-glob *perf* bin/test_*.py
 ```
 
 - Run all tests:
 
+Please note that the performance tests can take a long time to run.
+
 ```
-$ cd tests
 $ sudo ./run.sh pytest bin/test_*.py
 ```
 

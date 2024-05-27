@@ -12,10 +12,10 @@ setup_venv() {
   deactivate &> /dev/null || true
   python3 -m venv ${RUN_FOLDER}/venv
   source ${RUN_FOLDER}/venv/bin/activate
-  python3 -m pip install paramiko \
-	  pytest \
-	  parameterized \
-	  py-cpuinfo
+  python3 -m pip install paramiko==3.3.1 \
+	  pytest==8.2.1 \
+	  parameterized==0.9.0 \
+	  py-cpuinfo==9.0.0
 
   (cd ${SCRIPT_DIR}/lib/tdx-tools/ && python3 -m pip install ./)
 }
