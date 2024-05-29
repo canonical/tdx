@@ -50,12 +50,10 @@ KERNEL_RELEASE=$(get_kernel_version "$KERNEL_TYPE")
 # select the right kernel for next boot
 grub_set_kernel
 
-# install modules-extra for generic kernel because the tdx-guest module
-# is still in modules-extra only
-# NB: grub_set_kernel updates kernel release that will be used, just check if it is generic
-if [[ "$KERNEL_RELEASE" == *-generic ]]; then
-  apt install --yes "linux-modules-extra-${KERNEL_RELEASE}"
-fi
+# some kernels (for example -intel) might not be installed with the modules-extra
+# but we need it to support a wider range of hardware (network cards, ...)
+# just force the installation of modules-extra to make sure we have it
+apt install --yes --allow-downgrades linux-modules-extra-${KERNEL_RELEASE}
 
 # setup attestation
 if [[ "${TDX_SETUP_ATTESTATION}" == "1" ]]; then
