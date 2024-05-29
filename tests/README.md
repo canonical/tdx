@@ -32,7 +32,7 @@ $ sudo ./run.sh pytest bin/test_guest_*.py bin/test_boot_*.py
 - Run all tests except the performance ones:
 
 ```
-$ sudo ./run.sh pytest --ignore-glob *perf* bin/test_*.py
+$ ./run.sh pytest --ignore-glob="bin/guest/" --ignore-glob="*perf*" bin/
 ```
 
 - Run all tests:
