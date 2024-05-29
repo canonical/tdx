@@ -560,4 +560,4 @@ Here are example instructions for building QEMU (for normal user with sudo right
 <a id="sanity-functional-tests"></a>
 ## 10. Running Tests
 
-Please follow [tests/README](tests/README.md) to run TDX tests.
+Please follow [tests/README](tests/README.md) to run Intel TDX tests.
