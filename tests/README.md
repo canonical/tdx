@@ -29,10 +29,10 @@ $ sudo ./run.sh pytest bin/test_host_*.py
 $ sudo ./run.sh pytest bin/test_guest_*.py bin/test_boot_*.py
 ```
 
-- Run all tests except the performance ones:
+- Run all tests except the performance and stress ones:
 
 ```
-$ ./run.sh pytest --ignore-glob="bin/guest/" --ignore-glob="*perf*" bin/
+$ ./run.sh pytest --ignore-glob="bin/guest/" --ignore-glob="*test_perf*" --ignore-glob="*test_stress*" bin/
 ```
 
 - Run all tests:
