@@ -331,7 +331,11 @@ sudo ./check-production.sh
 	sudo systemctl status pccs
 	```
 
-5. Obtain an [Intel PCS API key](https://api.portal.trustedservices.intel.com/provisioning-certification).  This is needed to configure the PCCS service in the next step.  Specifically, you should subscribe to the Provisioning Certification Service.
+5. To setup the PCCS in the next step, you need a subscription key for the [Intel PCS](https://api.portal.trustedservices.intel.com/provisioning-certification).
+	* If you did not request such a subscription key before, [subscribe](https://api.portal.trustedservices.intel.com/products#product=liv-intel-software-guard-extensions-provisioning-certification-service) to Intel PCS, which requires to log in (or create an account).
+	Two subscription keys are generated (for key rotation) and both can be used for the following step.
+	* If you did request such a subscription key before, [retrieve](https://api.portal.trustedservices.intel.com/manage-subscriptions) one of your keys, which requires to log in.
+	You have two subscription keys (for key rotation) and both can be used for the following step.
 
 6. Configure the PCCS service:
 
@@ -347,7 +351,7 @@ sudo ./check-production.sh
 	Checking cracklib-runtime ...
 	Set HTTPS listening port [8081] (1024-65535) :
 	Set the PCCS service to accept local connections only? [Y] (Y/N) :
-	Set your Intel PCS API key (Press ENTER to skip) : <Enter your Intel PCS API key here>
+	Set your Intel PCS API key (Press ENTER to skip) : <Enter your Intel PCS subscription key here>
 	You didn't set Intel PCS API key. You can set it later in config/default.json.
 	Choose caching fill method : [LAZY] (LAZY/OFFLINE/REQ) :
 	Set PCCS server administrator password: <PCCS-ADMIN-PASSWORD>
