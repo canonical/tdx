@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+# Copyright 2018-2022 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+#   Sylvain Pineau <sylvain.pineau@canonical.com>
+import os
+import re
+import sys
+
+sys.path.append(os.path.expandvars("$SNAP/usr/lib/python3/dist-packages"))
+sitepkgpath = "$SNAP/lib/python3.10/site-packages"
+sys.path.append(os.path.expandvars(sitepkgpath))
+
+sys.path.append(os.path.expandvars(
+    "/snap/checkbox22/current/usr/lib/python3/dist-packages"))
+runtimepath = "/snap/checkbox22/current/lib/python3.10/site-packages"
+sys.path.append(os.path.expandvars(runtimepath))
+
+try:
+    from checkbox_support.snap_utils.config import update_configuration
+    from checkbox_support.snap_utils.config import print_checkbox_conf
+except ImportError:
+    msg = """
+checkbox-support not found!
+You need to install the checkbox22 snap:
+
+snap install checkbox22
+    """
+    print(os.path.expandvars(msg), file=sys.stderr)
+    sys.exit(1)
+
+
+def main():
+    # we need run as root to be able to write to /var/snap/...
+    if os.geteuid() != 0:
+        print('You have to run this command with sudo')
+        return
+
+    if len(sys.argv) > 1 and sys.argv[1] == '-l':
+        print_checkbox_conf()
+        return
+
+    key_re = re.compile(r"^(?:[A-Z0-9]+_?)*[A-Z](?:_?[A-Z0-9])*$")
+    vars_to_set = dict()
+    for pair in sys.argv[1:]:
+        k, _, v = pair.partition('=')
+        if not key_re.match(k) or not v:
+            raise SystemExit("'%s' is not a valid configuration entry. "
+                             "Should be KEY=val" % pair)
+        k = k.replace('_', '-').lower()
+        vars_to_set[k] = v
+    update_configuration(vars_to_set)
+
+
+if __name__ == '__main__':
+    main()

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "$SNAP_NAME runtime shell, type 'exit' to quit the session"
+exec bash

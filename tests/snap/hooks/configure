@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+# Copyright 2017-2022 Canonical Ltd.
+# All rights reserved.
+
+"""
+This hook reads `config_vars` file from the root of a snap and reenters this
+configuration using snapd's config facilities and rewrites the file to a
+checkbox config format in `$SNAP_DATA/checkbox.conf`.
+
+config_vars should list all the configuration variables in a `key=value`
+syntax. The line can list variable name only, if the variable should not have a
+default value. All keys should comprise of CAPS, numbers and undescores (_).
+E.g.:
+
+OPEN_N_SSID
+OPEN_BG_SSID
+STRESS_S3_WAIT_DELAY=60
+
+To change those values use the configure launcher.
+E.g.
+    $ checkbox-kivu-classic.configure OPEN_N_SSID=my-wifi
+
+If you __really__ need to change those values using `snap set` command,
+you need to change CAPS to lowercase and underscores to dashes (-).
+
+E.g.
+    $ snap set checkbox-kivu-classic open-n-ssid=my-wifi
+"""
+
+import os
+import sys
+
+sys.path.append(os.path.expandvars("$SNAP/usr/lib/python3/dist-packages"))
+sitepkgpath = "$SNAP/lib/python3.10/site-packages"
+sys.path.append(os.path.expandvars(sitepkgpath))
+
+sys.path.append(os.path.expandvars(
+    "/snap/checkbox22/current/usr/lib/python3/dist-packages"))
+runtimepath = "/snap/checkbox22/current/lib/python3.10/site-packages"
+sys.path.append(os.path.expandvars(runtimepath))
+
+try:
+    from checkbox_support.snap_utils.config import refresh_configuration
+except ImportError:
+    msg = """
+checkbox-support not found!
+You need to install the checkbox22 snap:
+
+snap install checkbox22
+    """
+    print(os.path.expandvars(msg), file=sys.stderr)
+    sys.exit(1)
+refresh_configuration()

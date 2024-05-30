@@ -1,0 +1,102 @@
+name: checkbox-tdx-classic
+summary: Checkbox tests for TDX
+description: |
+  Collection of tests for Intel TDX (Trusted Domain eXtension)
+version: '2.0'
+confinement: classic
+grade: stable
+
+base: core24
+
+# Here are the available applications of the TDX checkbox provider snap
+# To run : snap run checkbox-tdx-classic.<app>
+#
+# checkbox-cli:
+#   - checkbox client, can be used to talk to the checkbox daemon
+# configure:
+#   - inject environment variable into checkbox snap environnement
+#     the variable initial list can be found in config/config_vars
+#     use configure -l to get the list of the current variables
+#     For example, a useful use case is to inject environment variable
+#     to enable debugging output (LIBVA_MESSAGING_LEVEL)
+# remote-slave:
+#   - checkbox slave daemon that will the responsible for running the test sesssion
+#     in the remote fashion (through checkbox-cli)
+# test-runner / test-runner-automated:
+#   - execute all provider tests inside the snap environment
+#     the test execution is standalone and does not depend on the remote-slave daemon
+# shell:
+#   - give shell access to the provider snap
+# test-runner-automated-hwdec:
+#   - execute hardware decoding tests
+#     the test execution is standalone and does not depend on the remote-slave daemon
+# install-full-deps:
+#   - install all depedencies needed for provider jobs
+# media-stress-test
+#   - execute hardware decoding tests which max out the video engines
+apps:
+  checkbox-cli:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper
+  configure:
+    command-chain: [bin/wrapper_local]
+    command: bin/configure
+  remote-slave:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper slave
+    daemon: simple
+    restart-condition: always
+  shell:
+    command-chain: [bin/wrapper_local]
+    command: bin/shell-wrapper
+  test-runner:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner
+  test-runner-automated:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner-automated
+  install-full-deps:
+    command: bin/install-full-deps
+
+passthrough:
+  hooks:
+    configure:
+      command-chain: [bin/wrapper_local]
+
+parts:
+  checkbox-provider-tdx:
+    plugin: dump
+    source: ./checkbox/checkbox-provider-tdx
+    source-type: local
+    build-snaps:
+      - checkbox-provider-tools
+      - checkbox22
+    stage-packages:
+      - python3-parameterized
+      - python3-paramiko
+      - sshpass
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "/snap/checkbox22/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      checkbox-provider-tools validate
+      checkbox-provider-tools build
+      checkbox-provider-tools install --layout=relocatable --prefix=/providers/checkbox-provider-tdx --root="$SNAPCRAFT_PART_INSTALL"
+  provider-bin:
+    plugin: dump
+    source: bin
+    organize:
+      '*': providers/checkbox-provider-tdx/bin/
+  lib:
+    plugin: dump
+    source: lib
+    organize:
+      '*': lib/
+  bin:
+    plugin: dump
+    source: checkbox/bin/
+    organize:
+      '*': bin/
+  config-variables:
+    plugin: dump
+    source: checkbox/config/
+

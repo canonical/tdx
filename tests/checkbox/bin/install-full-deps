@@ -1,0 +1,14 @@
+#!/bin/bash
+
+sudo apt install -y gstreamer1.0-vaapi gstreamer1.0-tools vainfo mpv python3-tinydb python3-jinja2 \
+                    wl-clipboard gnome-screensaver gnome-screenshot ffmpeg
+
+# kivu team PPA
+sudo apt-add-repository -y 'ppa:kivuteam/ppa'
+sudo apt update
+
+# ydotool
+sudo apt install -y ydotool ydotoold
+
+# gfxi
+sudo apt install -y gfxi

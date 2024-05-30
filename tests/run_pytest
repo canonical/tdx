@@ -2,10 +2,32 @@
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
+RUN_FOLDER=/var/tmp/tdxtest/
+
 install_deps() {
-		sudo apt install -y python3-pytest
+  sudo apt install -y python3-pip python3-venv
 }
 
-install_deps &> /dev/null
+setup_venv() {
+  deactivate &> /dev/null || true
+  python3 -m venv ${RUN_FOLDER}/venv
+  source ${RUN_FOLDER}/venv/bin/activate
+  python3 -m pip install paramiko==3.3.1 \
+	  pytest==8.2.1 \
+	  parameterized==0.9.0 \
+	  py-cpuinfo==9.0.0
 
-python3 -m pytest --junitxml=report.xml $SCRIPT_DIR/checkbox-provider-tdx/bin/test_*.py
+  (cd ${SCRIPT_DIR}/lib/tdx-tools/ && python3 -m pip install ./)
+}
+
+export PYTHONPATH=$PYTHONPATH:${SCRIPT_DIR}/lib
+
+echo "Install dependencies ..."
+install_deps &> /dev/null
+echo "Setup test environment ..."
+setup_venv &> /dev/null
+
+# TODO: -rP, -rE : print test output on Passed and Error
+# -s : do not capture logs
+# -v : increase verbosity
+python3 -m pytest -s -v --junitxml=report.xml "$@"

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+set -e
+snapctl set slave=enabled
+
+echo "$(id -un 1000 2>/dev/null || id -un 1001 2>/dev/null || echo ubuntu) ALL=(ALL:ALL) NOPASSWD: ALL" > /etc/sudoers.d/checkbox
+
+mkdir -p /etc/polkit-1/localauthority/50-local.d
+cat <<EOF > /etc/polkit-1/localauthority/50-local.d/com.canonical.certification.checkbox.pkla
+[Checkbox]
+Identity=unix-group:sudo
+Action=org.freedesktop.NetworkManager.*
+ResultAny=yes
+ResultInactive=yes
+ResultActive=yes
+EOF

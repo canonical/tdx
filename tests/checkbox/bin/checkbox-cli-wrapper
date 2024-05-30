@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# wrapper around the checkbox-cli
+# use absolute path in order to not use system checkbox-cli (from deb packages)
+exec /snap/checkbox22/current/bin/checkbox-cli "$@"
