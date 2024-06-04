@@ -396,10 +396,20 @@ sudo ./check-production.sh
 	Apr 09 22:54:50 right-glider-515046 systemd[1]: Started mpa_registration_tool.service - Intel MPA Registratio>
 	Apr 09 22:54:50 right-glider-515046 systemd[1]: mpa_registration_tool.service: Deactivated successfully.
 	```
+	Also file `/var/log/mpa_registration.log` is expected to have below logs for
+	successful `Platform registration`:
 
-	If the failure occurred, you might want to boot into the BIOS and perform an Intel SGX Factory reset.
-	This can be done by selecting `SGX Factory Reset` in `Socket Configuration > Processor Configuration`.
+	```bash
+	[04-06-2024 03:05:53] INFO: SGX Registration Agent version: 1.20.100.2
+	[04-06-2024 03:05:53] INFO: Starts Registration Agent Flow.
+	[04-06-2024 03:05:54] INFO: Registration Flow - PLATFORM_ESTABLISHMENT or TCB_RECOVERY passed successfully.
+	[04-06-2024 03:05:54] INFO: Finished Registration Agent Flow.
+    ```
 
+	If the failure occurred, you might want to boot into the BIOS and Go to 
+	`Socket Configuration > Processor Configuration > Software Guard Extension (SGX)` and Set
+	- `SGX factory reset` to `Enabled`
+	- `SGX Auto MP Registration` to `Enabled`
 
 ### 8.3 Setup [Intel Tiber Trust Services CLI](https://github.com/intel/trustauthority-client-for-go) inside TD
 
