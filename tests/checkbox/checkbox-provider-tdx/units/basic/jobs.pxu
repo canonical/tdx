@@ -7,7 +7,7 @@ depends:
 after:
 requires:
 command:
-  test_host_tdx_hardware.py
+  setup-env-and-run test_host_tdx_hardware.py
 
 id: tdx-basic/tdx-module-check
 category_id: tdx-basic
@@ -19,7 +19,7 @@ depends:
 after:
 requires:
 command:
-  test_host_tdx_software.py
+  setup-env-and-run test_host_tdx_software.py
 
 id: tdx-basic/qemu-basic-td-creation
 category_id: tdx-basic
@@ -45,7 +45,7 @@ requires:
   executable.name == 'qemu-system-x86_64'
 command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-  test_boot.py
+  setup-env-and-run test_boot_basic.py
 
 id: tdx-basic/td-coexist
 category_id: tdx-basic
@@ -57,7 +57,7 @@ requires:
   executable.name == 'qemu-system-x86_64'
 command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-  test_coexist.py
+  setup-env-and-run test_boot_coexist.py
 
 id: tdx-basic/td-creation
 category_id: tdx-basic
@@ -69,7 +69,7 @@ requires:
   executable.name == 'qemu-system-x86_64'
 command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-  test_td_creation.py
+  setup-env-and-run test_boot_td_creation.py
 
 id: tdx-basic/td-creation-multiple
 category_id: tdx-basic
@@ -81,7 +81,7 @@ requires:
   executable.name == 'qemu-system-x86_64'
 command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-  test_multiple_vms.py
+  setup-env-and-run test_boot_multiple_vms.py
 
 id: tdx-basic/td-measurement
 category_id: tdx-basic
@@ -93,7 +93,8 @@ requires:
   executable.name == 'qemu-system-x86_64'
 command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-  test_measurement.py
+  setup-env-and-run test_guest_measurement.py
+
 
 # id: tdx-basic/perf-boot-time
 # category_id: tdx-basic

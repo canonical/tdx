@@ -41,6 +41,9 @@ if [ -z "${TDXTEST_IMAGE_FILE}" ]; then
 	_error "Should specify a guest image by setting TDXTEST_IMAGE_FILE"
     fi
 fi
+
+rm -rf /var/tmp/tdxtest
+mkdir -p /var/tmp/tdxtest
 cp ${TDXTEST_IMAGE_FILE} $IMAGE_FILE &> /dev/null
 
 if [ ! -f $IMAGE_FILE ]; then
