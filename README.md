@@ -408,7 +408,7 @@ sudo ./check-production.sh
 
 	If the failure occurred, you might want to boot into the BIOS and Go to 
 	`Socket Configuration > Processor Configuration > Software Guard Extension (SGX)` and Set
-	- `SGX factory reset` to `Enabled`
+	- `SGX Factory Reset` to `Enabled`
 	- `SGX Auto MP Registration` to `Enabled`
 
 ### 8.3 Setup [Intel Tiber Trust Services CLI](https://github.com/intel/trustauthority-client-for-go) inside TD
