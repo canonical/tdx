@@ -406,8 +406,8 @@ sudo ./check-production.sh
 	[04-06-2024 03:05:54] INFO: Finished Registration Agent Flow.
     ```
 
-	If the failure occurred, you might want to boot into the BIOS and Go to 
-	`Socket Configuration > Processor Configuration > Software Guard Extension (SGX)` and Set
+	If an error is reported in one of the logs, boot into the BIOS, go to 
+	`Socket Configuration > Processor Configuration > Software Guard Extension (SGX)`, and set
 	- `SGX Factory Reset` to `Enabled`
 	- `SGX Auto MP Registration` to `Enabled`
 
