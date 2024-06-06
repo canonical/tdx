@@ -22,3 +22,6 @@ chmod a+x /var/tmp/checkbox-providers/checkbox-provider-tdx/bin/*
 # check the requirement
 
 PATH=$PATH:${CHECKBOX_DIR}/bin ${CHECKBOX_DIR}/bin/test-runner-automated
+
+# Reports for checkbox get put here
+echo "Reports can be found at /var/tmp/tdxtest/reports"
