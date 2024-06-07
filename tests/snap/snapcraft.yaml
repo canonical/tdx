@@ -83,7 +83,7 @@ parts:
       checkbox-provider-tools install --layout=relocatable --prefix=/providers/checkbox-provider-tdx --root="$SNAPCRAFT_PART_INSTALL"
   provider-bin:
     plugin: dump
-    source: bin
+    source: pytest
     organize:
       '*': providers/checkbox-provider-tdx/bin/
   lib:
