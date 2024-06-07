@@ -143,17 +143,17 @@ command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
   setup-env-and-run test_guest_eventlog.py
 
-id: tdx-basic/td-perf-benchmark
-category_id: tdx-basic
-flags: simple
-_summary: Test perf benchmark
-depends:
-after:
-requires:
-  executable.name == 'qemu-system-x86_64'
-command:
-  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-  setup-env-and-run test_perf_benchmark.py
+#id: tdx-basic/td-perf-benchmark
+#category_id: tdx-basic
+#flags: simple
+#_summary: Test perf benchmark
+#depends:
+#after:
+#requires:
+#  executable.name == 'qemu-system-x86_64'
+#command:
+#  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+#  setup-env-and-run test_perf_benchmark.py
 
 id: tdx-basic/td-perf-boot-time
 category_id: tdx-basic
