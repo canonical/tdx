@@ -83,6 +83,18 @@ command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
   setup-env-and-run test_boot_multiple_vms.py
 
+id: tdx-basic/td-stress-boot
+category_id: tdx-basic
+flags: simple
+_summary: Test boot stress
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  setup-env-and-run test_stress_boot.py
+
 id: tdx-basic/td-measurement
 category_id: tdx-basic
 flags: simple
@@ -95,15 +107,75 @@ command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
   setup-env-and-run test_guest_measurement.py
 
+id: tdx-basic/td-guest-reboot
+category_id: tdx-basic
+flags: simple
+_summary: Test guest reboot
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  setup-env-and-run test_guest_reboot.py
 
-# id: tdx-basic/perf-boot-time
-# category_id: tdx-basic
-# flags: simple
-# _summary: Measure boot time
-# depends:
-# after:
-# requires:
-#   executable.name == 'qemu-system-x86_64'
-# command:
-#   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-#   perf_boot_time.py
+id: tdx-basic/td-guest-report
+category_id: tdx-basic
+flags: simple
+_summary: Test guest report
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  setup-env-and-run test_guest_report.py
+
+id: tdx-basic/td-guest-eventlog
+category_id: tdx-basic
+flags: simple
+_summary: Test guest eventlog
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  setup-env-and-run test_guest_eventlog.py
+
+#id: tdx-basic/td-perf-benchmark
+#category_id: tdx-basic
+#flags: simple
+#_summary: Test perf benchmark
+#depends:
+#after:
+#requires:
+#  executable.name == 'qemu-system-x86_64'
+#command:
+#  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+#  setup-env-and-run test_perf_benchmark.py
+
+id: tdx-basic/td-perf-boot-time
+category_id: tdx-basic
+flags: simple
+_summary: Test perf boot-time
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  setup-env-and-run test_perf_boot_time.py
+
+id: tdx-basic/td-quote-configfs-tsm
+category_id: tdx-basic
+flags: simple
+_summary: Test quote configfs tsm
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  setup-env-and-run test_quote_configfs_tsm.py
+
