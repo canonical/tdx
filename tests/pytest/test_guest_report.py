@@ -37,6 +37,6 @@ def test_guest_report():
     m.rsync_file(f'{script_path}/guest', '/tmp/tdxtest/')
     m.check_exec('cd /tmp/tdxtest/lib/tdx-tools/ && python3 -m pip install --break-system-packages ./')
 
-    m.check_exec('/tmp/tdxtest/guest/test_tdreport.py')
+    m.check_exec('python3 /tmp/tdxtest/guest/test_tdreport.py')
 
     qm.stop()
