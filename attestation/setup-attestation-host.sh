@@ -1,12 +1,17 @@
 #!/bin/bash
+#
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
 fi
 
+source ${SCRIPT_DIR}/../setup-tdx-config
+source ${SCRIPT_DIR}/../setup-tdx-common
+
 apt install --yes software-properties-common
-add-apt-repository -y ppa:kobuk-team/tdx-release
+add_kobuk_ppa ${TDX_PPA:-tdx-release}
 
 apt update
 
