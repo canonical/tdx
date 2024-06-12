@@ -385,7 +385,7 @@ sudo ./check-production.sh
 		sudo systemctl status mpa_registration_tool
 		```
 
-		An example output:
+		A successful example output:
 
 		```bash
 		mpa_registration_tool.service - Intel MPA Registration
