@@ -398,7 +398,7 @@ sudo ./check-production.sh
 		Apr 09 22:54:50 right-glider-515046 systemd[1]: Started mpa_registration_tool.service - Intel MPA Registratio>
 		Apr 09 22:54:50 right-glider-515046 systemd[1]: mpa_registration_tool.service: Deactivated successfully.
 		```
-	2. Check plateform registration logs with following command:
+	2. Check MPA log file with following command:
 		```bash
 		cat /var/log/mpa_registration.log
 		```
