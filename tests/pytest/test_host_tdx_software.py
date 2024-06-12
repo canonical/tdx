@@ -20,7 +20,12 @@
 import subprocess
 
 def test_host_tdx_software():
+
+    # when TDX is not properly loaded or initialized
+    # this value should by 'N'
+    # otherwise, the value 'Y' means tdx has been successfully initialized
     subprocess.check_call('grep Y /sys/module/kvm_intel/parameters/tdx', shell=True)
+
     subprocess.check_call('grep Y /sys/module/kvm_intel/parameters/sgx', shell=True)
 
 if __name__ == '__main__':
