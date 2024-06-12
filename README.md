@@ -266,16 +266,17 @@ A different qcow2 image (e.g., one with an `intel` kernel) can be used by settin
 	[    0.395218] Memory Encryption Features active: Intel TDX
 	```
 
-3. Verify the `tdx_guest` device exists:
+3. Verify quote generation provider:
 
 	```bash
-	ls /dev/tdx_guest
+	mkdir -p /sys/kernel/config/tsm/report/testreport0
+	cat /sys/kernel/config/tsm/report/testreport0/provider
 	```
 
-	An example output:
+	Should give the following output:
 
 	```
-	/dev/tdx_guest
+	tdx_guest
 	```
 
 <a id="setup-remote-attestation"></a>
