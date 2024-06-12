@@ -377,29 +377,45 @@ sudo ./check-production.sh
 
 	The platform registration is done with the `mpa_registration_tool` tool.
 	This service is executed on system start up, registers the platform, and gets deactivated.
-	Please check the service does not output any error message:
+	Please check the following two logs to confirm successful registration:
 
-	```bash
-	sudo systemctl status mpa_registration_tool
-	```
+	1. Check service logs with following command:
 
-	An example output:
+		```bash
+		sudo systemctl status mpa_registration_tool
+		```
 
-	```bash
-	mpa_registration_tool.service - Intel MPA Registration
-		Loaded: loaded (/usr/lib/systemd/system/mpa_registration_tool.service; enabled; preset: enabled)
-		Active: inactive (dead) since Tue 2024-04-09 22:54:50 UTC; 11h ago
-	Duration: 46ms
-	Main PID: 3409 (code=exited, status=0/SUCCESS)
-			CPU: 21ms
+		A successful example output:
 
-	Apr 09 22:54:50 right-glider-515046 systemd[1]: Started mpa_registration_tool.service - Intel MPA Registratio>
-	Apr 09 22:54:50 right-glider-515046 systemd[1]: mpa_registration_tool.service: Deactivated successfully.
-	```
+		```bash
+		mpa_registration_tool.service - Intel MPA Registration
+			Loaded: loaded (/usr/lib/systemd/system/mpa_registration_tool.service; enabled; preset: enabled)
+			Active: inactive (dead) since Tue 2024-04-09 22:54:50 UTC; 11h ago
+		Duration: 46ms
+		Main PID: 3409 (code=exited, status=0/SUCCESS)
+				CPU: 21ms
 
-	If the failure occurred, you might want to boot into the BIOS and perform an Intel SGX Factory reset.
-	This can be done by selecting `SGX Factory Reset` in `Socket Configuration > Processor Configuration`.
+		Apr 09 22:54:50 right-glider-515046 systemd[1]: Started mpa_registration_tool.service - Intel MPA Registratio>
+		Apr 09 22:54:50 right-glider-515046 systemd[1]: mpa_registration_tool.service: Deactivated successfully.
+		```
+	2. Check MPA log file with following command:
+		```bash
+		cat /var/log/mpa_registration.log
+		```
 
+		A successful example output:
+
+		```bash
+		[04-06-2024 03:05:53] INFO: SGX Registration Agent version: 1.20.100.2
+		[04-06-2024 03:05:53] INFO: Starts Registration Agent Flow.
+		[04-06-2024 03:05:54] INFO: Registration Flow - PLATFORM_ESTABLISHMENT or TCB_RECOVERY passed successfully.
+		[04-06-2024 03:05:54] INFO: Finished Registration Agent Flow.
+		```
+
+	If an error is reported in one of the logs, boot into the BIOS, go to 
+	`Socket Configuration > Processor Configuration > Software Guard Extension (SGX)`, and set
+	- `SGX Factory Reset` to `Enabled`
+	- `SGX Auto MP Registration` to `Enabled`
 
 ### 8.3 Setup [Intel Tiber Trust Services CLI](https://github.com/intel/trustauthority-client-for-go) inside TD
 
