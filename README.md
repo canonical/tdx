@@ -403,7 +403,7 @@ sudo ./check-production.sh
 		cat /var/log/mpa_registration.log
 		```
 
-		An example output:
+		A successful example output:
 
 		```bash
 		[04-06-2024 03:05:53] INFO: SGX Registration Agent version: 1.20.100.2
