@@ -36,16 +36,14 @@ def test_run_perf(name, machine):
                                machine,
                                memory='32G')
     qm.run()
-    try:
-        test_profile='tdx_memory'
-        m = Qemu.QemuSSH(qm)
-        script_path=os.path.dirname(os.path.realpath(__file__))
-        qm.rsync_file(f'{script_path}/../lib/pts', '/')
-        m.ssh_conn.exec_command('chmod a+x /pts/benchmark.sh')
-        _, stdout, _ = m.ssh_conn.exec_command(f'/pts/benchmark.sh {test_profile} &> /pts/benchmark-{name}.txt')
-        assert (0 == stdout.channel.recv_exit_status()), 'benchmark run failed !'
-        m.get(f'/pts/benchmark-{name}.txt', f'{script_path}/benchmark-{name}.txt')
-        m.get(f'/pts/benchmark.csv', f'{script_path}/benchmark-{name}.csv')
-        m.poweroff()
-    except Exception as e:
-        pytest.fail('Error : %s' % (e))
+
+    test_profile='tdx_memory'
+    m1 = Qemu.QemuSSH(qm)
+    script_path=os.path.dirname(os.path.realpath(__file__))
+    qm.rsync_file(f'{script_path}/../lib/pts', '/')
+    m.ssh_conn.exec_command('chmod a+x /pts/benchmark.sh')
+    _, stdout, _ = m.ssh_conn.exec_command(f'/pts/benchmark.sh {test_profile} &> /pts/benchmark-{name}.txt')
+    assert (0 == stdout.channel.recv_exit_status()), 'benchmark run failed !'
+    m.get(f'/pts/benchmark-{name}.txt', f'{script_path}/benchmark-{name}.txt')
+    m.get(f'/pts/benchmark.csv', f'{script_path}/benchmark-{name}.csv')
+    m.poweroff()
