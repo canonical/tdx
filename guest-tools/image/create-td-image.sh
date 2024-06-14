@@ -215,7 +215,7 @@ EOT
         sleep 1
     else
         warn "Please increase wait time(--wait=12) above and try again..."
-        error "Failed to configure cloud init"
+        error "Failed to configure cloud init. Please check logfile \"$LOGFILE\" for more information."
     fi
 
     config_cloud_init_cleanup
