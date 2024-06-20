@@ -23,14 +23,13 @@ if ! groups | grep -qw "kvm"; then
     exit 1
 fi
 
-set -e
-
 ###################### RUN VM WITH TDX SUPPORT ##################################
 SSH_PORT=10022
 PROCESS_NAME=td
+LOGFILE='/tmp/tdx-guest-td.log'
 # approach 1 : talk to QGS directly
 QUOTE_ARGS="-device vhost-vsock-pci,guest-cid=3"
-qemu-system-x86_64 -D /tmp/tdx-guest-td.log \
+qemu-system-x86_64 -D $LOGFILE \
 		   -accel kvm \
 		   -m 2G -smp 16 \
 		   -name ${PROCESS_NAME},process=${PROCESS_NAME},debug-threads=on \
@@ -45,6 +44,12 @@ qemu-system-x86_64 -D /tmp/tdx-guest-td.log \
 		   -device virtio-blk-pci,drive=virtio-disk0 \
 		   ${QUOTE_ARGS} \
 		   -pidfile /tmp/tdx-demo-td-pid.pid
+
+ret=$?
+if [ $ret -ne 0 ]; then
+	echo "Error: Failed to create TD VM. Please check logfile \"$LOGFILE\" for more information."
+	exit $ret
+fi
 
 PID_TD=$(cat /tmp/tdx-demo-td-pid.pid)
 
