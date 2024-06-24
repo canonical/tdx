@@ -20,27 +20,27 @@ Go to the `tests` folder.
 - Run sanity tests to check the host setup:
 
 ```
-$ sudo ./run.sh pytest bin/test_host_*.py
+$ sudo ./run.sh pytest pytest/test_host_*.py
 ```
 
 - Run sanity tests to check the guest boot:
 
 ```
-$ sudo ./run.sh pytest bin/test_guest_*.py bin/test_boot_*.py
+$ sudo ./run.sh pytest pytest/test_guest_*.py bin/test_boot_*.py
 ```
 
 - Run all tests except the performance and stress ones:
 
 ```
-$ sudo ./run.sh pytest --ignore-glob="bin/guest/" --ignore-glob="*test_perf*" --ignore-glob="*test_stress*" bin/
+$ sudo ./run.sh pytest --ignore-glob="pytest/guest/" --ignore-glob="*test_perf*" --ignore-glob="*test_stress*" pytest/
 ```
 
 - Run all tests:
 
-Please note that the performance tests can take a long time to run.
+Please note that the performance tests can take a long time (order of magnitude of a few hours per `pytest.test_perf_benchmark`) to run.
 
 ```
-$ sudo ./run.sh pytest bin/test_*.py
+$ sudo ./run.sh pytest pytest/test_*.py
 ```
 
 ### Run tests with checkbox:
