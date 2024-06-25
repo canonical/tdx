@@ -1,0 +1,33 @@
+#!/bin/bash
+
+TMP_FOLDER=/tmp/snap/checkbox-tdx-classic
+SCRIPT_DIR=$SNAP/providers/checkbox-provider-tdx/bin/
+
+setup_venv() {
+  mkdir -p ${TMP_FOLDER}/.pytest_cache
+  mkdir -p ${TMP_FOLDER}/reports
+  chmod a+w ${TMP_FOLDER}/reports
+  python3 -m venv ${TMP_FOLDER}/venv
+  source ${TMP_FOLDER}/venv/bin/activate
+  python3 -m pip install paramiko==3.3.1 \
+    pytest==8.2.1 \
+    parameterized==0.9.0 \
+    py-cpuinfo==9.0.0
+
+  cp -r ${SNAP}/providers/checkbox-provider-tdx/lib/tdx-tools ${TMP_FOLDER}
+  (cd ${TMP_FOLDER}/tdx-tools/ && python3 -m pip install ./)
+}
+
+deactivate &> /dev/null || true
+if [ ! -d ${TMP_FOLDER}/venv ]; then
+  setup_venv &> /dev/null
+else
+  source ${TMP_FOLDER}/venv/bin/activate
+fi
+
+export PYTHONPATH=${PYTHONPATH}:${SNAP}/providers/checkbox-provider-tdx/lib
+
+# TODO: -rP, -rE : print test output on Passed and Error
+# -s : do not capture logs
+# -v : increase verbosity
+pytest -o cache_dir=${TMP_FOLDER}/.pytest_cache -s -v --junitxml=${TMP_FOLDER}/reports/$1_report.xml ${SCRIPT_DIR}/$1 

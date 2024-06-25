@@ -5,7 +5,7 @@ launcher_version = 1
 stock_reports = text, submission_files
 
 [test plan]
-unit = com.canonical.certification::intel-tdx
+unit = com.canonical.certification::intel-tdx-guest
 forced = yes
 
 [test selection]

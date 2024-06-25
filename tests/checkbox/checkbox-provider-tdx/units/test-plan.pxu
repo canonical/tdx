@@ -2,9 +2,68 @@ id: intel-tdx
 unit: test plan
 _name: Intel Trusted Domain eXtension (TDX) tests
 include:
-    tdx-basic/.*
+    tdx-host/.*
+    tdx-guest/.*
+    tdx-boot/.*
+    tdx-perf/.*
+    tdx-quote/.*
+    tdx-stress/.*
 #mandatory_include:
 #    com.canonical.certification::miscellanea/submission-resources
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+
+id: intel-tdx-host
+unit: test plan
+_name: Intel Trusted Domain eXtension (TDX) tests
+include:
+    tdx-host/.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+
+id: intel-tdx-guest
+unit: test plan
+_name: Intel Trusted Domain eXtension (TDX) tests
+include:
+    tdx-guest/.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+
+id: intel-tdx-boot
+unit: test plan
+_name: Intel Trusted Domain eXtension (TDX) tests
+include:
+    tdx-boot/.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+
+id: intel-tdx-perf
+unit: test plan
+_name: Intel Trusted Domain eXtension (TDX) tests
+include:
+    tdx-perf/.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+
+id: intel-tdx-quote
+unit: test plan
+_name: Intel Trusted Domain eXtension (TDX) tests
+include:
+    tdx-quote/.*
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+
+id: intel-tdx-stress
+unit: test plan
+_name: Intel Trusted Domain eXtension (TDX) tests
+include:
+    tdx-stress/.*
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap

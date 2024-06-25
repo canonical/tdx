@@ -29,7 +29,7 @@ install_deps &> /dev/null
 rm -rf /var/tmp/checkbox-providers/checkbox-provider-tdx/
 mkdir -p /var/tmp/checkbox-providers
 cp -rf ${CHECKBOX_DIR}/checkbox-provider-tdx /var/tmp/checkbox-providers/
-cp -rf ${SCRIPT_DIR}/pytest /var/tmp/checkbox-providers/checkbox-provider-tdx/bin
+cp -rf ${SCRIPT_DIR}/tests /var/tmp/checkbox-providers/checkbox-provider-tdx/bin
 cp -rf ${SCRIPT_DIR}/lib /var/tmp/checkbox-providers/checkbox-provider-tdx
 chmod a+x /var/tmp/checkbox-providers/checkbox-provider-tdx/bin/*
 

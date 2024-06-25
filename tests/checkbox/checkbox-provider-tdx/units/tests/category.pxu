@@ -1,0 +1,23 @@
+unit: category
+id: tdx-host
+_name: Intel TDX host tests
+
+unit: category
+id: tdx-guest
+_name: Intel TDX guest tests
+
+unit: category
+id: tdx-boot
+_name: Intel TDX boot tests
+
+unit: category
+id: tdx-perf
+_name: Intel TDX perf tests
+
+unit: category
+id: tdx-quote
+_name: Intel TDX quote tests
+
+unit: category
+id: tdx-stress
+_name: Intel TDX stress tests
