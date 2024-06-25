@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # This source code is a modified copy of https://github.com/intel/tdx-tools.git
 # See LICENSE.apache file for original license information.
 
@@ -16,9 +18,6 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranties
 # of MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details.
-
-#!/bin/bash
-#
 
 # This script will create a TDX guest image (qcow2 format) from a cloud
 # image that is released at : https://cloud-images.ubuntu.com
