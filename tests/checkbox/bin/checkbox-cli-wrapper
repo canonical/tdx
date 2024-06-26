@@ -8,4 +8,5 @@ rm -rf ${TMP_FOLDER}
 # can't use /snap/bin/checkbox.checkbox-cli as it will run 
 # within the context of the wrong snap and the tdx tests 
 # won't get discovered via PROVIDERPATH
-exec /snap/checkbox22/current/bin/checkbox-cli "$@"
+# checkbox-cli resolves to /snap/checkbox22/current/bin/checkbox-cli
+exec checkbox-cli "$@"
