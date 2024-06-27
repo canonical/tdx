@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # This file is part of Canonical's TDX repository which includes tools
 # to setup and configure a confidential computing environment
 # based on Intel TDX technology.
@@ -13,8 +15,6 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranties
 # of MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details.
-
-#!/bin/bash
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
