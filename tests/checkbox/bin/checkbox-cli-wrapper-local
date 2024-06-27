@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# Remove temporary folder and rebuild in setup-env-and-run
+TMP_FOLDER=/tmp/snap/checkbox-tdx-classic
+rm -rf ${TMP_FOLDER}
+
+# wrapper around the checkbox-cli
+# must use /snap/bin/checkbox.checkbox-cli outside the snap
+TDX_LOCAL_TESTING=1 exec /snap/bin/checkbox.checkbox-cli "$@"

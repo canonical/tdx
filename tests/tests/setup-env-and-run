@@ -1,7 +1,31 @@
 #!/bin/bash
 
+# This file is part of Canonical's TDX repository which includes tools
+# to setup and configure a confidential computing environment
+# based on Intel TDX technology.
+# See the LICENSE file in the repository for the license text.
+
+# Copyright 2024 Canonical Ltd.
+# SPDX-License-Identifier: GPL-3.0-only
+
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranties
+# of MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+
 TMP_FOLDER=/tmp/snap/checkbox-tdx-classic
-SCRIPT_DIR=$SNAP/providers/checkbox-provider-tdx/bin/
+
+if [ -z $TDX_LOCAL_TESTING ]; then
+  # Inside snap
+  CHECKBOX_FOLDER=${SNAP}/providers
+else
+  # Running tests locally outside snap
+  CHECKBOX_FOLDER=/var/tmp/checkbox-providers
+fi
+SCRIPT_DIR=${CHECKBOX_FOLDER}/checkbox-provider-tdx/bin/
 
 setup_venv() {
   mkdir -p ${TMP_FOLDER}/.pytest_cache
@@ -14,7 +38,7 @@ setup_venv() {
     parameterized==0.9.0 \
     py-cpuinfo==9.0.0
 
-  cp -r ${SNAP}/providers/checkbox-provider-tdx/lib/tdx-tools ${TMP_FOLDER}
+  cp -r ${CHECKBOX_FOLDER}/checkbox-provider-tdx/lib/tdx-tools ${TMP_FOLDER}
   (cd ${TMP_FOLDER}/tdx-tools/ && python3 -m pip install ./)
 }
 
@@ -25,7 +49,7 @@ else
   source ${TMP_FOLDER}/venv/bin/activate
 fi
 
-export PYTHONPATH=${PYTHONPATH}:${SNAP}/providers/checkbox-provider-tdx/lib
+export PYTHONPATH=${PYTHONPATH}:${CHECKBOX_FOLDER}/checkbox-provider-tdx/lib
 
 # TODO: -rP, -rE : print test output on Passed and Error
 # -s : do not capture logs
