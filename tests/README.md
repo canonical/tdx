@@ -6,6 +6,12 @@ This folder contains Intel TDX tests.
 
 - The tests must be executed a host that has been setup properly for Intel TDX.
 
+- Tox must be installed along with python3:
+```
+$ sudo apt install tox
+$ sudo apt install python3
+```
+
 - You must specify a path to the guest image with `TDXTEST_GUEST_IMG` environment variable.
   This is for both pytest and checkbox tests.
 
