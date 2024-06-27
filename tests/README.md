@@ -25,37 +25,37 @@ Go to the `tests` folder.
 - Run sanity tests to check the host setup:
 
 ```
-$ sudo tox -e test_host
+$ sudo -E tox -e test_host
 ```
 
 - Run guest tests:
 
 ```
-$ sudo tox -e test_guest
+$ sudo -E tox -e test_guest
 ```
 
 - Run boot tests:
 
 ```
-$ sudo tox -e test_boot
+$ sudo -E tox -e test_boot
 ```
 
 - Run perf tests:
 
 ```
-$ sudo tox -e test_perf
+$ sudo -E tox -e test_perf
 ```
 
 - Run quote tests:
 
 ```
-$ sudo tox -e test_quote
+$ sudo -E tox -e test_quote
 ```
 
 - Run stress tests:
 
 ```
-$ sudo tox -e test_stress
+$ sudo -E tox -e test_stress
 ```
 
 - Run all tests:
@@ -63,7 +63,7 @@ $ sudo tox -e test_stress
 Please note that the performance tests can take a long time (order of magnitude of a few hours per `pytest.test_perf_benchmark`) to run.
 
 ```
-$ sudo tox -e test_all
+$ sudo -E tox -e test_all
 ```
 
 ### Run tests with checkbox:
