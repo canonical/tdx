@@ -1,5 +1,4 @@
 #!/bin/bash
-#
 
 # This source code is a modified copy of https://github.com/intel/tdx-tools.git
 # See LICENSE.apache file for original license information.

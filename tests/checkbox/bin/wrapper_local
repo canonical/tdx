@@ -34,6 +34,7 @@ export GI_TYPELIB_PATH=$SNAP/usr/lib/girepository-1.0:$SNAP/usr/lib/$ARCH/girepo
 export PATH="$SNAP/usr/sbin:$SNAP/sbin:$SNAP/usr/bin:$SNAP/bin:/snap/bin:$PATH"
 export ALSA_CONFIG_PATH=$SNAP/usr/share/alsa/alsa.conf:$SNAP/usr/share/alsa/pcm/default.conf
 export PYTHONPATH="$SNAP/lib:$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH"
+export PATH="$SNAP/providers/checkbox-provider-tdx/bin/:$PATH"
 
 if [ -e $RUNTIME/wrapper_common_classic ]; then
   . $RUNTIME/wrapper_common_classic

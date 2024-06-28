@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # This file is part of Canonical's TDX repository which includes tools
 # to setup and configure a confidential computing environment
 # based on Intel TDX technology.
@@ -14,7 +16,6 @@
 # of MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details.
 
-#!/bin/bash
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 CHECKBOX_DIR=${SCRIPT_DIR}/checkbox
@@ -29,7 +30,7 @@ install_deps &> /dev/null
 rm -rf /var/tmp/checkbox-providers/checkbox-provider-tdx/
 mkdir -p /var/tmp/checkbox-providers
 cp -rf ${CHECKBOX_DIR}/checkbox-provider-tdx /var/tmp/checkbox-providers/
-cp -rf ${SCRIPT_DIR}/pytest /var/tmp/checkbox-providers/checkbox-provider-tdx/bin
+cp -rf ${SCRIPT_DIR}/tests /var/tmp/checkbox-providers/checkbox-provider-tdx/bin
 cp -rf ${SCRIPT_DIR}/lib /var/tmp/checkbox-providers/checkbox-provider-tdx
 chmod a+x /var/tmp/checkbox-providers/checkbox-provider-tdx/bin/*
 
@@ -37,7 +38,7 @@ chmod a+x /var/tmp/checkbox-providers/checkbox-provider-tdx/bin/*
 # checkbox comes with its own python libs and runtime (see checkbox22)
 # check the requirement
 
-PATH=$PATH:${CHECKBOX_DIR}/bin ${CHECKBOX_DIR}/bin/test-runner-automated
+PATH=$PATH:${CHECKBOX_DIR}/bin /usr/bin/env -S checkbox-cli-wrapper-local ${CHECKBOX_DIR}/bin/test-runner-automated
 
 # Reports for checkbox get put here
 echo "Reports can be found at /var/tmp/tdxtest/reports"

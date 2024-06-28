@@ -37,7 +37,7 @@ base: core24
 apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]
-    command: bin/checkbox-cli-wrapper
+    command: bin/checkbox-cli-wrapper-image
   configure:
     command-chain: [bin/wrapper_local]
     command: bin/configure
@@ -55,6 +55,24 @@ apps:
   test-runner-automated:
     command-chain: [bin/wrapper_local]
     command: bin/test-runner-automated
+  test-runner-automated-host:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner-automated-host
+  test-runner-automated-guest:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner-automated-guest
+  test-runner-automated-boot:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner-automated-boot
+  test-runner-automated-perf:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner-automated-perf
+  test-runner-automated-quote:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner-automated-quote
+  test-runner-automated-stress:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner-automated-stress
   install-full-deps:
     command: bin/install-full-deps
 
@@ -83,14 +101,14 @@ parts:
       checkbox-provider-tools install --layout=relocatable --prefix=/providers/checkbox-provider-tdx --root="$SNAPCRAFT_PART_INSTALL"
   provider-bin:
     plugin: dump
-    source: pytest
+    source: tests
     organize:
       '*': providers/checkbox-provider-tdx/bin/
-  lib:
+  provider-lib:
     plugin: dump
     source: lib
     organize:
-      '*': lib/
+      '*': providers/checkbox-provider-tdx/lib/
   bin:
     plugin: dump
     source: checkbox/bin/

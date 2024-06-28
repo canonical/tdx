@@ -6,9 +6,14 @@ This folder contains Intel TDX tests.
 
 - The tests must be executed a host that has been setup properly for Intel TDX.
 
-- The guest image must be available at the project folder with the name `tdx-guest.qcow2`
-  You can follow the instructions in the project README to create one guest image.
-  You can specify a path to the guest image with `TDXTEST_IMAGE_FILE` environment variable.
+- Tox must be installed along with python3:
+```
+$ sudo apt install tox
+$ sudo apt install python3
+```
+
+- You must specify a path to the guest image with `TDXTEST_GUEST_IMG` environment variable.
+  This is for both pytest and checkbox tests.
 
 - The guest image must enable ssh server with password-based authentication for `root` user.
   The root user password must be `123456`
@@ -20,19 +25,37 @@ Go to the `tests` folder.
 - Run sanity tests to check the host setup:
 
 ```
-$ sudo ./run.sh pytest pytest/test_host_*.py
+$ sudo -E tox -e test_host
 ```
 
-- Run sanity tests to check the guest boot:
+- Run guest tests:
 
 ```
-$ sudo ./run.sh pytest pytest/test_guest_*.py bin/test_boot_*.py
+$ sudo -E tox -e test_guest
 ```
 
-- Run all tests except the performance and stress ones:
+- Run boot tests:
 
 ```
-$ sudo ./run.sh pytest --ignore-glob="pytest/guest/" --ignore-glob="*test_perf*" --ignore-glob="*test_stress*" pytest/
+$ sudo -E tox -e test_boot
+```
+
+- Run perf tests:
+
+```
+$ sudo -E tox -e test_perf
+```
+
+- Run quote tests:
+
+```
+$ sudo -E tox -e test_quote
+```
+
+- Run stress tests:
+
+```
+$ sudo -E tox -e test_stress
 ```
 
 - Run all tests:
@@ -40,12 +63,62 @@ $ sudo ./run.sh pytest --ignore-glob="pytest/guest/" --ignore-glob="*test_perf*"
 Please note that the performance tests can take a long time (order of magnitude of a few hours per `pytest.test_perf_benchmark`) to run.
 
 ```
-$ sudo ./run.sh pytest pytest/test_*.py
+$ sudo -E tox -e test_all
 ```
 
 ### Run tests with checkbox:
 
-TODO
+Go to the `tests` folder.
+
+```
+$ snapcraft
+$ sudo snap install ./checkbox-tdx-classic_2.0_amd64.snap --dangerous --classic
+```
+
+- Run sanity tests to check the host setup:
+
+```
+$ sudo -E checkbox-tdx-classic.test-runner-automated-host
+```
+
+- Run guest tests:
+
+```
+$ sudo -E checkbox-tdx-classic.test-runner-automated-guest
+```
+
+- Run boot tests:
+
+```
+$ sudo -E checkbox-tdx-classic.test-runner-automated-boot
+```
+
+- Run perf tests:
+
+```
+$ sudo -E checkbox-tdx-classic.test-runner-automated-perf
+```
+
+- Run quote tests:
+
+```
+$ sudo -E checkbox-tdx-classic.test-runner-automated-quote
+```
+
+- Run stress tests:
+
+```
+$ sudo -E checkbox-tdx-classic.test-runner-automated-stress
+```
+
+- Run all tests:
+
+Please note that the performance tests can take a long time to run.
+
+```
+$ sudo -E checkbox-tdx-classic.test-runner-automated
+```
+
 
 ### Intel TDX Tests specification
 
