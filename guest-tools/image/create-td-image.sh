@@ -184,7 +184,7 @@ resize_guest_image() {
     if [ $? -eq 0 ]; then
         ok "Resize the guest image to ${SIZE}G"
     else
-        warn "Failed to resize guest image to ${SIZE}G"
+        error "Failed to resize guest image to ${SIZE}G"
     fi
 }
 
