@@ -27,6 +27,11 @@
 TDX_PPA="tdx-release"
 
 ################################################################
+# The TDX PPA for attestation
+################################################################
+TDX_PPA_ATTESTATION=tdx-attestation-release
+
+################################################################
 # Enable the installation of DCAP packages from Canonical's
 # repository. This flag is considered during host OS and guest
 # OS setup.
