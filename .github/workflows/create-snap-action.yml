@@ -1,27 +1,28 @@
-name: Create snap action
+name: Do a snap build
+
 run-name: ${{ github.actor }} is creating testing snap
-on: [push]
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: # Allow manual trigger
+
 jobs:
-  Create-Snap-Action:
-    runs-on: ubuntu-24.04
-    continue-on-error: true
+
+  build:
+    runs-on: ubuntu-22.04
     steps:
-      - name: Check out repository code step
-        uses: actions/checkout@v4
-      - name: Installation step
+      - uses: actions/checkout@v4
+        name: Checkout
+
+      - uses: snapcore/action-build@v1
+        name: Build snap
+        id: build
+        with:
+          path: tests
+          snapcraft-channel: latest/stable
+
+      - name: Verify snap
         run: |
-          sudo snap install snapcraft --classic
-          sudo snap install lxd
-          sudo lxd init --auto
-          sudo lxd waitready
-      - name: Run snapcraft step
-        run: | 
-          cd tests
-          # run snapcraft in destructive mode 
-          # -- network doesn't work properly otherwise
-          sudo snapcraft --destructive
-      - name: Output logs step
-        if: always()
-        run: |
-          journalctl -u snap.lxd.daemon
-          sudo bash -c 'cat /root/.local/state/snapcraft/log/snapcraft*.log'
+          sudo snap install checkbox22
+          sudo snap install --dangerous --classic ${{ steps.build.outputs.snap }}
