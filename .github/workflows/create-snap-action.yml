@@ -3,17 +3,15 @@ run-name: ${{ github.actor }} is creating testing snap
 on: [push]
 jobs:
   Create-Snap-Action:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     continue-on-error: true
     steps:
       - name: Check out repository code step
         uses: actions/checkout@v4
       - name: Installation step
         run: |
-          sudo apt update
-          sudo apt install snapcraft
+          sudo snap install snapcraft --classic
           sudo snap install lxd
-          sudo snap install core24
           sudo lxd init --auto
           sudo lxd waitready
       - name: Run snapcraft step
