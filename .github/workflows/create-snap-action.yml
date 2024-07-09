@@ -4,7 +4,9 @@ run-name: ${{ github.actor }} is creating testing snap
 
 on:
   push:
-    branches: [ "main" ]
+    branches: 
+      - main
+      - pek_743_create_snap_action
   workflow_dispatch: # Allow manual trigger
 
 jobs:
