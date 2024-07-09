@@ -19,7 +19,7 @@ jobs:
           cd tests
           # run snapcraft in destructive mode 
           # -- network doesn't work properly otherwise
-          sudo snapcraft --destructive-mode
+          sudo snapcraft
       - name: Output logs step
         if: always()
         run: |
