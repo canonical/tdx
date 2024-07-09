@@ -6,25 +6,23 @@ jobs:
     runs-on: ubuntu-22.04
     continue-on-error: true
     steps:
-      - name: Check out repository code
+      - name: Check out repository code step
         uses: actions/checkout@v4
-      - name: Installation Step
+      - name: Installation step
         run: |
-          echo "Install snapcraft"
           sudo apt update
           sudo apt install snapcraft
-          echo "Install snapcraft"
           sudo snap install lxd
-          echo "Initialize snapcraft"
+          sudo snap install core24
           sudo lxd init --auto
-      - name: Run snapcraft
+      - name: Run snapcraft step
         run: | 
           cd tests
           # run snapcraft in destructive mode 
           # -- network doesn't work properly otherwise
           sudo snapcraft --destructive-mode
-      - name: Output logs
+      - name: Output logs step
         if: always()
         run: |
-          journalctl -u snap.multipass.multipassd
+          journalctl -u snap.lxd.daemon
           sudo bash -c 'cat /root/.local/state/snapcraft/log/snapcraft*.log'
