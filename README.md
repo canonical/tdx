@@ -11,7 +11,6 @@
 * [8. Setup Remote Attestation on Host OS and inside TD](#setup-remote-attestation)
 * [9. Build Packages From Source](#build-packages-from-source)
 * [10. Run Tests](#sanity-functional-tests)
-* [11. Secure boot](#secure-boot)
 
 <!-- headings -->
 <a id="introduction"></a>
@@ -233,6 +232,14 @@ A different qcow2 image (e.g., one with an `intel` kernel) can be used by settin
 	```
 	./tdvirsh -h
 	```
+
+### 6.3 Secure Boot TD
+
+To run a TD VM with secure boot enabled, use the `tdvirsh` tool with
+dedicated libvirt configuration:
+
+	cd tdx/guest-tools
+	XML_TEMPLATE=trust_domain-sb.xml.template ./tdvirsh new
 
 
 <a id="verify-td"></a>
@@ -583,12 +590,3 @@ Here are example instructions for building QEMU (for normal user with sudo right
 ## 10. Running Tests
 
 Please follow [tests/README](tests/README.md) to run Intel TDX tests.
-
-<a id="secure-boot"></a>
-## 11. Secure boot
-
-To run a TD VM with secure boot enabled, use the `tdvirsh` tool with
-dedicated libvirt configuration:
-
-	cd tdx/guest-tools
-	XML_TEMPLATE=trust_domain-sb.xml.template ./tdvirsh new
