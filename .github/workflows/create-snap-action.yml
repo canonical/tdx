@@ -1,0 +1,29 @@
+name: Do a snap build
+
+run-name: ${{ github.actor }} is creating testing snap
+
+on:
+  push:
+    branches: 
+      - main
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout
+
+      - uses: snapcore/action-build@v1
+        name: Build snap
+        id: build
+        with:
+          path: tests
+          snapcraft-channel: latest/stable
+
+      - name: Verify snap
+        run: |
+          sudo snap install checkbox22
+          sudo snap install --dangerous --classic ${{ steps.build.outputs.snap }}
