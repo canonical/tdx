@@ -6,7 +6,6 @@ on:
   push:
     branches: 
       - main
-      - pek_743_create_snap_action
   workflow_dispatch: # Allow manual trigger
 
 jobs:
