@@ -233,6 +233,14 @@ A different qcow2 image (e.g., one with an `intel` kernel) can be used by settin
 	./tdvirsh -h
 	```
 
+### 6.3 Secure Boot TD
+
+To run a TD VM with secure boot enabled, use the `tdvirsh` tool with
+dedicated libvirt configuration:
+
+	cd tdx/guest-tools
+	XML_TEMPLATE=trust_domain-sb.xml.template ./tdvirsh new
+
 
 <a id="verify-td"></a>
 ## 7. Verify TD
