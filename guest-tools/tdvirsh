@@ -24,23 +24,18 @@
 #
 DOMAIN_PREFIX="tdvirsh"
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-BASE_IMG=${TD_IMG:-${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04-generic.qcow2}
-XML_TEMPLATE=${XML_TEMPLATE:-${SCRIPT_DIR}/trust_domain.xml.template}
+SCRIPT_NAME=$(basename "$0")
+BASE_IMG_DEFAULT=${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04-generic.qcow2
+XML_TEMPLATE_DEFAULT=${SCRIPT_DIR}/trust_domain.xml.template
 WORKDIR_PATH=/var/tmp/tdvirsh/
 
-# determine extra domain prefix
-XML_TEMPLATE_FN=${XML_TEMPLATE##*/}
-DOMAIN_PREFIX_EXTRA=${XML_TEMPLATE_FN%.xml*}
-if [ -z "$DOMAIN_PREFIX_EXTRA" ]; then
-    DOMAIN_PREFIX_EXTRA="td_guest"
-fi
 
 ##
 # Global variables
 #
 overlay_image_path=${WORKDIR_PATH}/overlay.${domain}.qcow2
-base_img_path=""
-xml_template_path=""
+base_img_path=$(realpath ${BASE_IMG_DEFAULT})
+xml_template_path=$(realpath ${XML_TEMPLATE_DEFAULT})
 created_domain=""
 
 usage() {
@@ -51,33 +46,35 @@ Manage Trust Domains (TDs) using libvirt.
 
 Available options:
 
-new                          Run a Trust Domain (TD)
-delete          <domain|all> Stop and delete Trust Domain (TD)
+new [--td-image|-i PATH] [--xml-template|-t PATH]
+                            Run a Trust Domain (TD)
+                                Default TD image path: ./image/tdx-guest-ubuntu-24.04-generic.qcow2
+                                Default XML template path: ./trust_domain.xml.template
+delete <domain|all>         Stop and delete Trust Domain (TD)
                                <domain> should be a valid domain name
                                <all> delete all VMs
-list                         List all VMs
--h,   --help                 Print this help and exit
+list                        List all VMs
+-h,   --help                Print this help and exit
 
 All other options will be passed to virsh. To see virsh usage run:
     virsh --help
 
-Environment variables:
-
-TD_IMG         TDX image path (default: ./image/tdx-guest-ubuntu-24.04-generic.qcow2)
-XML_TEMPLATE   Path to virsh guest XML template (default: ./trust_domain.xml.template)
 EOM
 }
 
-set_input_paths() {
-    base_img_path=$(realpath ${BASE_IMG})
+check_input_paths() {
+    error=0
     if [ $? -ne 0 ] || [ ! -f ${base_img_path} ]; then
-        echo "Image ${base_img_path} not found."
-        echo "Set base TD qcow2 image path with TD_IMG"
-        exit 1
+        echo "TD image not found at path '${base_img_path}'."
+        echo "Set TD image path via command line option."
+        error=1
     fi
-    xml_template_path=$(realpath ${XML_TEMPLATE})
     if [ $? -ne 0 ] || [ ! -f ${xml_template_path} ]; then
-        echo "Set libvirt guest XML template path with XML_TEMPLATE"
+        echo "libvirt guest XML template not found at path '${xml_template_path}'."
+        echo "Set libvirt guest XML template path via command line option."
+        error=1
+    fi
+    if [ $error -ne 0 ]; then
         exit 1
     fi
 }
@@ -108,7 +105,15 @@ create_domain_xml() {
 
 boot_vm() {
     virsh define ${WORKDIR_PATH}/${DOMAIN_PREFIX}.xml >/dev/null
-    created_domain=${DOMAIN_PREFIX}-${DOMAIN_PREFIX_EXTRA}-$(virsh domuuid ${DOMAIN_PREFIX})
+
+    # determine extra domain prefix
+    xml_template_path_fn=${xml_template_path##*/}
+    domain_prefix_extra=${xml_template_path_fn%.xml*}
+    if [ -z "$domain_prefix_extra" ]; then
+        domain_prefix_extra="td_guest"
+    fi
+
+    created_domain=${DOMAIN_PREFIX}-${domain_prefix_extra}-$(virsh domuuid ${DOMAIN_PREFIX})
     mv ${WORKDIR_PATH}/{${DOMAIN_PREFIX}.xml,${created_domain}.xml} &>/dev/null || true
     virsh domrename ${DOMAIN_PREFIX} ${created_domain} >/dev/null
     virsh start ${created_domain} >/dev/null
@@ -174,9 +179,9 @@ print_all() {
 }
 
 run_td() {
-    echo "Create and run new virsh domain from ${XML_TEMPLATE}"
+    echo "Create and run new virsh domain from ${base_img_path} and ${xml_template_path} "
     echo "---"
-    set_input_paths
+    check_input_paths
     create_overlay_image
     create_domain_xml
     boot_vm
@@ -191,6 +196,28 @@ parse_params() {
             exit 0
             ;;
         new)
+            shift
+            while :; do
+                case "${1-}" in
+                    -i | --td-image)
+                        base_img="${2-}"
+                        shift 2
+                        ;;
+                    -t | --xml-template)
+                        xml_template="${2-}"
+                        shift 2
+                        ;;
+                    "")
+                        break
+                        ;;
+                    *)
+                        echo "${SCRIPT_NAME}: unrecognized option '${1-}'. See '${SCRIPT_NAME} -h'."
+                        exit 1
+                        ;;
+                esac
+            done
+            [ -n "${base_img}" ] && base_img_path=$(realpath "${base_img}")
+            [ -n "${xml_template}" ] && xml_template_path=$(realpath "${xml_template}")
             run_td
             exit 0
             ;;
