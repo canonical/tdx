@@ -31,6 +31,16 @@ PROD=$(rdmsr 0xce -f 27:27)
 CPU_MODEL=$(cat /proc/cpuinfo | awk 'match($0,/model.+: ([0-9]+)/,m){ print m[1]; exit}')
 
 CPU_GEN="unknown generation"
+# ref : https://github.com/qemu/qemu/blob/master/target/i386/cpu.c
+if [ "$CPU_MODEL" = "143" ]; then
+    CPU_GEN="Sapphire Rapids"
+fi
+if [ "$CPU_MODEL" = "173" ]; then
+    CPU_GEN="Granite Rapids"
+fi
+if [ "$CPU_MODEL" = "175" ]; then
+    CPU_GEN="Sierra Forest"
+fi
 if [ "$CPU_MODEL" = "207" ]; then
     CPU_GEN="Emeralds Rapids"
 fi
