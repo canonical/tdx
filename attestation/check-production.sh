@@ -28,6 +28,9 @@ set -e
 modprobe msr
 PROD=$(rdmsr 0xce -f 27:27)
 
+CPU_GEN=$(cat /sys/devices/cpu/caps/pmu_name)
+echo "CPU: ${CPU_GEN}"
+
 if [ "${PROD}" = "0" ]; then
     echo "Production"
 else
