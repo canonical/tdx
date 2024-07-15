@@ -27,6 +27,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 SCRIPT_NAME=$(basename "$0")
 BASE_IMG_DEFAULT=${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04-generic.qcow2
 XML_TEMPLATE_DEFAULT=${SCRIPT_DIR}/trust_domain.xml.template
+MEMORY_SIZE_DEFAULT="2GiB"
 WORKDIR_PATH=/var/tmp/tdvirsh/
 
 
@@ -36,6 +37,7 @@ WORKDIR_PATH=/var/tmp/tdvirsh/
 overlay_image_path=${WORKDIR_PATH}/overlay.${domain}.qcow2
 base_img_path=$(realpath ${BASE_IMG_DEFAULT})
 xml_template_path=$(realpath ${XML_TEMPLATE_DEFAULT})
+memory_size="$MEMORY_SIZE_DEFAULT"
 created_domain=""
 
 usage() {
@@ -46,10 +48,11 @@ Manage Trust Domains (TDs) using libvirt.
 
 Available options:
 
-new [--td-image|-i PATH] [--xml-template|-t PATH]
+new [--td-image|-i PATH] [--xml-template|-t PATH] [--memory-size|-s SIZE]
                             Run a Trust Domain (TD)
                                 Default TD image path: ./image/tdx-guest-ubuntu-24.04-generic.qcow2
                                 Default XML template path: ./trust_domain.xml.template
+                                Default main memory size: 2GiB
 delete <domain|all>         Stop and delete Trust Domain (TD)
                                <domain> should be a valid domain name
                                <all> delete all VMs
@@ -93,11 +96,15 @@ create_overlay_image() {
 create_domain_xml() {
     awk -v img_path=${base_img_path} \
         -v domain=${DOMAIN_PREFIX} \
-        -v overlay_path=${overlay_image_path} '
+        -v overlay_path=${overlay_image_path} \
+        -v memory_size=${memory_size%%[a-zA-Z]*} \
+        -v memory_unit=${memory_size##*[0-9]} '
         {
   gsub("BASE_IMG_PATH", img_path, $0);
   gsub("DOMAIN", domain, $0);
   gsub("OVERLAY_IMG_PATH", overlay_path, $0);
+  gsub("MEMORY_SIZE", memory_size, $0);
+  gsub("MEMORY_SUNIT", memory_unit, $0);
   print;
         }
   ' ${xml_template_path} > ${WORKDIR_PATH}/${DOMAIN_PREFIX}.xml
@@ -206,6 +213,15 @@ parse_params() {
                     -t | --xml-template)
                         xml_template="${2-}"
                         shift 2
+                        ;;
+                    -s | --memory-size)
+                            memory_size="${2-}"
+                            if [[ ! $memory_size =~ ^[0-9]+(b|bytes|KB|k|KiB|MB|M|MiB|GB|G|GiB|TB|T|TiB)$ ]]; then
+                                echo "Invalid memory size format: ${memory_size}"
+                                echo "Valid units are: b, bytes, KB, k, KiB, MB, M, MiB, GB, G, GiB, TB, T, or TiB."
+                                exit 1
+                            fi
+                            shift 2
                         ;;
                     "")
                         break
