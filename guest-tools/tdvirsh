@@ -28,6 +28,7 @@ SCRIPT_NAME=$(basename "$0")
 BASE_IMG_DEFAULT=${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04-generic.qcow2
 XML_TEMPLATE_DEFAULT=${SCRIPT_DIR}/trust_domain.xml.template
 MEMORY_SIZE_DEFAULT="2GiB"
+VCPU_COUNT_DEFAULT=16
 WORKDIR_PATH=/var/tmp/tdvirsh/
 
 
@@ -38,6 +39,7 @@ overlay_image_path=${WORKDIR_PATH}/overlay.${domain}.qcow2
 base_img_path=$(realpath ${BASE_IMG_DEFAULT})
 xml_template_path=$(realpath ${XML_TEMPLATE_DEFAULT})
 memory_size="$MEMORY_SIZE_DEFAULT"
+vcpu_count=$VCPU_COUNT_DEFAULT
 created_domain=""
 
 usage() {
@@ -48,11 +50,12 @@ Manage Trust Domains (TDs) using libvirt.
 
 Available options:
 
-new [--td-image|-i PATH] [--xml-template|-t PATH] [--memory-size|-s SIZE]
+new [--td-image|-i PATH] [--xml-template|-t PATH] [--memory-size|-s SIZE] [--vcpus|-c COUNT]
                             Run a Trust Domain (TD)
                                 Default TD image path: ./image/tdx-guest-ubuntu-24.04-generic.qcow2
                                 Default XML template path: ./trust_domain.xml.template
                                 Default main memory size: 2GiB
+                                Default vcpu amount: 16
 delete <domain|all>         Stop and delete Trust Domain (TD)
                                <domain> should be a valid domain name
                                <all> delete all VMs
@@ -98,13 +101,15 @@ create_domain_xml() {
         -v domain=${DOMAIN_PREFIX} \
         -v overlay_path=${overlay_image_path} \
         -v memory_size=${memory_size%%[a-zA-Z]*} \
-        -v memory_unit=${memory_size##*[0-9]} '
+        -v memory_unit=${memory_size##*[0-9]} \
+        -v vcpu_count=${vcpu_count} '
         {
   gsub("BASE_IMG_PATH", img_path, $0);
   gsub("DOMAIN", domain, $0);
   gsub("OVERLAY_IMG_PATH", overlay_path, $0);
   gsub("MEMORY_SIZE", memory_size, $0);
   gsub("MEMORY_SUNIT", memory_unit, $0);
+  gsub("VCPU_COUNT", vcpu_count, $0);
   print;
         }
   ' ${xml_template_path} > ${WORKDIR_PATH}/${DOMAIN_PREFIX}.xml
@@ -222,6 +227,10 @@ parse_params() {
                                 exit 1
                             fi
                             shift 2
+                        ;;
+                    -c | --vcpus)
+                        vcpu_count="${2-}"
+                        shift 2
                         ;;
                     "")
                         break
