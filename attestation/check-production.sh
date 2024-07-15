@@ -28,9 +28,14 @@ set -e
 modprobe msr
 PROD=$(rdmsr 0xce -f 27:27)
 
-CPU_GEN=$(cat /sys/devices/cpu/caps/pmu_name)
-echo "CPU: ${CPU_GEN}"
+CPU_MODEL=$(cat /proc/cpuinfo | awk 'match($0,/model.+: ([0-9]+)/,m){ print m[1]; exit}')
 
+CPU_GEN="unknown generation"
+if [ "$CPU_MODEL" = "207" ]; then
+    CPU_GEN="Emeralds Rapids"
+fi
+
+echo "CPU: ${CPU_GEN}"
 if [ "${PROD}" = "0" ]; then
     echo "Production"
 else
