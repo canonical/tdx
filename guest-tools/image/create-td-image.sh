@@ -34,18 +34,18 @@
 #
 # TODO : ask cloud init to run the TDX setup script
 
-CURR_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # source config file
-if [ -f ${CURR_DIR}/../../setup-tdx-config ]; then
-    source ${CURR_DIR}/../../setup-tdx-config
+if [ -f ${SCRIPT_DIR}/../../setup-tdx-config ]; then
+    source ${SCRIPT_DIR}/../../setup-tdx-config
 fi
 
 LOGFILE=/tmp/tdx-guest-setup.txt
 FORCE_RECREATE=false
 OFFICIAL_UBUNTU_IMAGE=${OFFICIAL_UBUNTU_IMAGE:-"https://cloud-images.ubuntu.com/releases/noble/release/"}
 CLOUD_IMG=${CLOUD_IMG:-"ubuntu-24.04-server-cloudimg-amd64.img"}
-CLOUD_IMG_PATH=$(realpath "${CURR_DIR}/$CLOUD_IMG")
+CLOUD_IMG_PATH=$(realpath "${SCRIPT_DIR}/$CLOUD_IMG")
 if [[ "${TDX_SETUP_INTEL_KERNEL}" == "1" ]]; then
     GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-24.04-intel.qcow2")
 else
@@ -122,11 +122,11 @@ process_args() {
 
 download_image() {
     # Get the checksum file first
-    if [[ -f ${CURR_DIR}/"SHA256SUMS" ]]; then
-        rm ${CURR_DIR}/"SHA256SUMS"
+    if [[ -f ${SCRIPT_DIR}/"SHA256SUMS" ]]; then
+        rm ${SCRIPT_DIR}/"SHA256SUMS"
     fi
 
-    wget "${OFFICIAL_UBUNTU_IMAGE}/SHA256SUMS" -O ${CURR_DIR}/"SHA256SUMS"
+    wget "${OFFICIAL_UBUNTU_IMAGE}/SHA256SUMS" -O ${SCRIPT_DIR}/"SHA256SUMS"
 
     while :; do
         # Download the cloud image if not exists
@@ -148,7 +148,7 @@ download_image() {
                 fi
                 found=true
             fi
-        done < ${CURR_DIR}/"SHA256SUMS"
+        done < ${SCRIPT_DIR}/"SHA256SUMS"
         if [[ $found != "true" ]]; then
             echo "Invalid SHA256SUM file"
             exit 1
@@ -197,7 +197,7 @@ config_cloud_init_cleanup() {
 }
 
 config_cloud_init() {
-    pushd ${CURR_DIR}/cloud-init-data
+    pushd ${SCRIPT_DIR}/cloud-init-data
     [ -e /tmp/ciiso.iso ] && rm /tmp/ciiso.iso
     cp user-data.template user-data
     cp meta-data.template meta-data
@@ -243,11 +243,11 @@ EOT
 setup_guest_image() {
     virt-customize -a ${TMP_GUEST_IMG_PATH} \
        --mkdir /tmp/tdx/ \
-       --copy-in ${CURR_DIR}/setup.sh:/tmp/tdx/ \
-       --copy-in ${CURR_DIR}/../../setup-tdx-guest.sh:/tmp/tdx/ \
-       --copy-in ${CURR_DIR}/../../setup-tdx-common:/tmp/tdx \
-       --copy-in ${CURR_DIR}/../../setup-tdx-config:/tmp/tdx \
-       --copy-in ${CURR_DIR}/../../attestation/:/tmp/tdx \
+       --copy-in ${SCRIPT_DIR}/setup.sh:/tmp/tdx/ \
+       --copy-in ${SCRIPT_DIR}/../../setup-tdx-guest.sh:/tmp/tdx/ \
+       --copy-in ${SCRIPT_DIR}/../../setup-tdx-common:/tmp/tdx \
+       --copy-in ${SCRIPT_DIR}/../../setup-tdx-config:/tmp/tdx \
+       --copy-in ${SCRIPT_DIR}/../../attestation/:/tmp/tdx \
        --run-command "/tmp/tdx/setup.sh"
     if [ $? -eq 0 ]; then
         ok "Setup guest image..."
@@ -257,8 +257,8 @@ setup_guest_image() {
 }
 
 cleanup() {
-    if [[ -f ${CURR_DIR}/"SHA256SUMS" ]]; then
-        rm ${CURR_DIR}/"SHA256SUMS"
+    if [[ -f ${SCRIPT_DIR}/"SHA256SUMS" ]]; then
+        rm ${SCRIPT_DIR}/"SHA256SUMS"
     fi
     ok "Cleanup!"
 }
