@@ -1,0 +1,20 @@
+#!/usr/bin/env python3
+
+import sqlite3
+import json
+
+conn = sqlite3.connect('/opt/intel/sgx-dcap-pccs/pckcache.db')
+
+try:
+    cursor = conn.cursor()
+    data=cursor.execute('''select tcbinfo from fmspc_tcbs''')
+    for row in data:
+        tcbinfo = row[0].decode('utf-8')
+        tcbinfo_dict = json.loads(tcbinfo)
+        print(tcbinfo_dict['tcbInfo']['id'])
+        print('-----')
+        print(json.dumps(tcbinfo_dict, indent=2))
+except:
+    pass
+
+conn.close()
