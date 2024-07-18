@@ -28,5 +28,25 @@ def test_host_tdx_software():
 
     subprocess.check_call('grep Y /sys/module/kvm_intel/parameters/sgx', shell=True)
 
+def test_host_tdx_uefi():
+    """
+    tdx_uefi test case (See https://github.com/intel/tdx/wiki/Tests)
+    """
+
+    # Get dmesg and make sure it has the attributes line indicating uefi
+    cs = subprocess.run(['sudo', 'dmesg'], check=True, capture_output=True)
+    assert cs.returncode == 0, 'Failed getting dmesg'
+    dmesg_str = str(cs.stdout)
+    assert "tdx: TDX module: attributes" in dmesg_str, "Could not find tdx module init in dmesg"
+
+    # Adding this for maybe doing more verification of the information here in the future
+    # Parsing the line into pairs of "attributs,0x0", "vendor_id, 0x8086", ...
+    i1 = dmesg_str.find('tdx: TDX module: attributes')
+    i2 = dmesg_str[i1:].find('\\n')
+    pairs = dmesg_str[i1+17:i1+i2].split(',')
+    for p in pairs:
+        print(p.strip().split(' '))
+
+
 if __name__ == '__main__':
     test_host_tdx_software()

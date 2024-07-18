@@ -38,7 +38,12 @@ cleanup() {
 install_deps() {
   sudo apt install -y python3-parameterized \
          sshpass \
+         cpuid \
          python3-cpuinfo  &> /dev/null
+  # Make sure kvm_intel is installed properly
+  # (one of the tests installed it with NOEPT)
+  sudo rmmod kvm_intel
+  sudo modprobe kvm_intel
 }
 
 rm -rf /var/tmp/tdxtest

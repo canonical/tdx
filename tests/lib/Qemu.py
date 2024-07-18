@@ -60,7 +60,7 @@ class QemuCpu:
     def args(self):
         smp = ['-smp', f'{self.nb_cores},sockets={self.nb_sockets}']
         if self.cpu_flags != '':
-            cpu = ['-cpu', self.cpu_type, self.cpu_flags]
+            cpu = ['-cpu', self.cpu_type + self.cpu_flags]
         else:
             cpu = ['-cpu', self.cpu_type]
         return cpu + smp
