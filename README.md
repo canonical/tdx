@@ -308,7 +308,7 @@ sudo ./check-production.sh
 
 1. Install the required DCAP packages inside the host OS.
 
-	NOTE 1:  If you have already installed Canoncial's attestation components as part of the host OS setup (see [step 2 in section 4.2](#step-4-2-2)), you can continue with [step 3](#verify-sgx-devices).
+	NOTE 1:  If you have already installed Canonical's attestation components as part of the host OS setup (see [step 2 in section 4.2](#step-4-2-2)), you can continue with [step 3](#verify-sgx-devices).
 
 	NOTE 2: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
