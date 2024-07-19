@@ -34,23 +34,24 @@
 #
 # TODO : ask cloud init to run the TDX setup script
 
-CURR_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # source config file
-if [ -f ${CURR_DIR}/../../setup-tdx-config ]; then
-    source ${CURR_DIR}/../../setup-tdx-config
+if [ -f ${SCRIPT_DIR}/../../setup-tdx-config ]; then
+    source ${SCRIPT_DIR}/../../setup-tdx-config
 fi
 
 LOGFILE=/tmp/tdx-guest-setup.txt
-WORK_DIR=${PWD}
 FORCE_RECREATE=false
 OFFICIAL_UBUNTU_IMAGE=${OFFICIAL_UBUNTU_IMAGE:-"https://cloud-images.ubuntu.com/releases/noble/release/"}
 CLOUD_IMG=${CLOUD_IMG:-"ubuntu-24.04-server-cloudimg-amd64.img"}
+CLOUD_IMG_PATH=$(realpath "${SCRIPT_DIR}/$CLOUD_IMG")
 if [[ "${TDX_SETUP_INTEL_KERNEL}" == "1" ]]; then
-    GUEST_IMG="tdx-guest-ubuntu-24.04-intel.qcow2"
+    GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-24.04-intel.qcow2")
 else
-    GUEST_IMG="tdx-guest-ubuntu-24.04-generic.qcow2"
+    GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-24.04-generic.qcow2")
 fi
+TMP_GUEST_IMG_PATH="/tmp/tdx-guest-tmp.qcow2"
 SIZE=50
 GUEST_USER=${GUEST_USER:-"tdx"}
 GUEST_PASSWORD=${GUEST_PASSWORD:-"123456"}
@@ -92,7 +93,7 @@ EOM
 process_args() {
     while getopts "o:s:n:u:p:r:fch" option; do
         case "$option" in
-        o) GUEST_IMG=$OPTARG ;;
+        o) GUEST_IMG_PATH=$(realpath "$OPTARG") ;;
         s) SIZE=$OPTARG ;;
         n) GUEST_HOSTNAME=$OPTARG ;;
         u) GUEST_USER=$OPTARG ;;
@@ -110,44 +111,44 @@ process_args() {
         esac
     done
 
-    if [[ "${CLOUD_IMG}" == "${GUEST_IMG}" ]]; then
+    if [[ "${CLOUD_IMG_PATH}" == "${GUEST_IMG_PATH}" ]]; then
         error "Please specify a different name for guest image via -o"
     fi
 
-    if [[ ${GUEST_IMG} != *.qcow2 ]]; then
+    if [[ ${GUEST_IMG_PATH} != *.qcow2 ]]; then
         error "The output file should be qcow2 format with the suffix .qcow2."
     fi
 }
 
 download_image() {
     # Get the checksum file first
-    if [[ -f ${CURR_DIR}/"SHA256SUMS" ]]; then
-        rm ${CURR_DIR}/"SHA256SUMS"
+    if [[ -f ${SCRIPT_DIR}/"SHA256SUMS" ]]; then
+        rm ${SCRIPT_DIR}/"SHA256SUMS"
     fi
 
-    wget "${OFFICIAL_UBUNTU_IMAGE}/SHA256SUMS"
+    wget "${OFFICIAL_UBUNTU_IMAGE}/SHA256SUMS" -O ${SCRIPT_DIR}/"SHA256SUMS"
 
     while :; do
         # Download the cloud image if not exists
-        if [[ ! -f ${CLOUD_IMG} ]]; then
-            wget -O ${CURR_DIR}/${CLOUD_IMG} ${OFFICIAL_UBUNTU_IMAGE}/${CLOUD_IMG}
+        if [[ ! -f ${CLOUD_IMG_PATH} ]]; then
+            wget -O ${CLOUD_IMG_PATH} ${OFFICIAL_UBUNTU_IMAGE}/${CLOUD_IMG}
         fi
 
         # calculate the checksum
-        download_sum=$(sha256sum ${CURR_DIR}/${CLOUD_IMG} | awk '{print $1}')
+        download_sum=$(sha256sum ${CLOUD_IMG_PATH} | awk '{print $1}')
         found=false
         while IFS= read -r line || [[ -n "$line" ]]; do
             if [[ "$line" == *"$CLOUD_IMG"* ]]; then
                 if [[ "${line%% *}" != ${download_sum} ]]; then
                     echo "Invalid download file according to sha256sum, re-download"
-                    rm ${CURR_DIR}/${CLOUD_IMG}
+                    rm ${CLOUD_IMG_PATH}
                 else
                     ok "Verify the checksum for Ubuntu cloud image."
                     return
                 fi
                 found=true
             fi
-        done <"SHA256SUMS"
+        done < ${SCRIPT_DIR}/"SHA256SUMS"
         if [[ $found != "true" ]]; then
             echo "Invalid SHA256SUM file"
             exit 1
@@ -157,7 +158,7 @@ download_image() {
 
 create_guest_image() {
     if [ ${FORCE_RECREATE} = "true" ]; then
-        rm -f ${CURR_DIR}/${CLOUD_IMG}
+        rm -f ${CLOUD_IMG_PATH}
     fi
 
     download_image
@@ -165,9 +166,9 @@ create_guest_image() {
     # this image will need to be customized both by virt-customize and virt-install
     # virt-install will interact with libvirtd and if the latter runs in normal user mode
     # we have to make sure that guest image is writable for normal user
-    install -m 0777 ${CURR_DIR}/${CLOUD_IMG} /tmp/${GUEST_IMG}
+    install -m 0777 ${CLOUD_IMG_PATH} ${TMP_GUEST_IMG_PATH}
     if [ $? -eq 0 ]; then
-        ok "Copy the ${CLOUD_IMG} => /tmp/${GUEST_IMG}"
+        ok "Copy the ${CLOUD_IMG} => ${TMP_GUEST_IMG_PATH}"
     else
         error "Failed to copy ${CLOUD_IMG} to /tmp"
     fi
@@ -176,8 +177,8 @@ create_guest_image() {
 }
 
 resize_guest_image() {
-    qemu-img resize /tmp/${GUEST_IMG} +${SIZE}G
-    virt-customize -a /tmp/${GUEST_IMG} \
+    qemu-img resize ${TMP_GUEST_IMG_PATH} +${SIZE}G
+    virt-customize -a ${TMP_GUEST_IMG_PATH} \
         --run-command 'growpart /dev/sda 1' \
         --run-command 'resize2fs /dev/sda1' \
         --run-command 'systemctl mask pollinate.service'
@@ -196,7 +197,7 @@ config_cloud_init_cleanup() {
 }
 
 config_cloud_init() {
-    pushd ${CURR_DIR}/cloud-init-data
+    pushd ${SCRIPT_DIR}/cloud-init-data
     [ -e /tmp/ciiso.iso ] && rm /tmp/ciiso.iso
     cp user-data.template user-data
     cp meta-data.template meta-data
@@ -221,7 +222,7 @@ EOT
     popd
 
     virt-install --debug --memory 4096 --vcpus 4 --name tdx-config-cloud-init \
-        --disk /tmp/${GUEST_IMG} \
+        --disk ${TMP_GUEST_IMG_PATH} \
         --disk /tmp/ciiso.iso,device=cdrom \
         --os-variant ubuntu24.04 \
         --virt-type kvm \
@@ -240,13 +241,13 @@ EOT
 }
 
 setup_guest_image() {
-    virt-customize -a /tmp/${GUEST_IMG} \
+    virt-customize -a ${TMP_GUEST_IMG_PATH} \
        --mkdir /tmp/tdx/ \
-       --copy-in ${CURR_DIR}/setup.sh:/tmp/tdx/ \
-       --copy-in ${CURR_DIR}/../../setup-tdx-guest.sh:/tmp/tdx/ \
-       --copy-in ${CURR_DIR}/../../setup-tdx-common:/tmp/tdx \
-       --copy-in ${CURR_DIR}/../../setup-tdx-config:/tmp/tdx \
-       --copy-in ${CURR_DIR}/../../attestation/:/tmp/tdx \
+       --copy-in ${SCRIPT_DIR}/setup.sh:/tmp/tdx/ \
+       --copy-in ${SCRIPT_DIR}/../../setup-tdx-guest.sh:/tmp/tdx/ \
+       --copy-in ${SCRIPT_DIR}/../../setup-tdx-common:/tmp/tdx \
+       --copy-in ${SCRIPT_DIR}/../../setup-tdx-config:/tmp/tdx \
+       --copy-in ${SCRIPT_DIR}/../../attestation/:/tmp/tdx \
        --run-command "/tmp/tdx/setup.sh"
     if [ $? -eq 0 ]; then
         ok "Setup guest image..."
@@ -256,8 +257,8 @@ setup_guest_image() {
 }
 
 cleanup() {
-    if [[ -f ${CURR_DIR}/"SHA256SUMS" ]]; then
-        rm ${CURR_DIR}/"SHA256SUMS"
+    if [[ -f ${SCRIPT_DIR}/"SHA256SUMS" ]]; then
+        rm ${SCRIPT_DIR}/"SHA256SUMS"
     fi
     ok "Cleanup!"
 }
@@ -302,7 +303,7 @@ setup_guest_image
 
 cleanup
 
-mv /tmp/${GUEST_IMG} ${WORK_DIR}/
-chmod a+rw ${WORK_DIR}/${GUEST_IMG}
+mv ${TMP_GUEST_IMG_PATH} ${GUEST_IMG_PATH}
+chmod a+rw ${GUEST_IMG_PATH}
 
-ok "TDX guest image : ${WORK_DIR}/${GUEST_IMG}"
+ok "TDX guest image : ${GUEST_IMG_PATH}"
