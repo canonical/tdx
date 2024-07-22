@@ -207,8 +207,10 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
 Details about `tdvirsh`:
 * To manage the lifecycle of TDs, we developed a wrapper around the `virsh` tool.
 This new `tdvirsh` tool extends `virsh` with new capabilities to create/remove TDs.
-* By default, the `tdvirsh` will use an image located at `./image/tdx-guest-ubuntu-24.04-generic.qcow2` with the `generic` Ubuntu kernel.
-A different qcow2 image (e.g., one with an `intel` kernel) can be used by setting the `TD_IMG` command-line variable.
+* By default, `tdvirsh` will use an image located at `./image/tdx-guest-ubuntu-24.04-generic.qcow2` with the `generic` Ubuntu kernel.
+A different qcow2 image (e.g., one with an `intel` kernel) can be used by using the command-line option `-i IMAGE_PATH`.
+* By default, `tdvirsh` will use a XML libvirt template located at `./trust_domain.xml.template`.
+A different XML libvirt template can be used by using the command-line option `-t XML_PATH`.
 * All VMs can be listed with the following command:
 	```
 	./tdvirsh list --all
@@ -235,11 +237,11 @@ A different qcow2 image (e.g., one with an `intel` kernel) can be used by settin
 
 ### 6.3 Secure Boot TD
 
-To run a TD VM with secure boot enabled, use the `tdvirsh` tool with
+To run a TD with secure boot enabled, use the `tdvirsh` tool with
 dedicated libvirt configuration:
 
 	cd tdx/guest-tools
-	XML_TEMPLATE=trust_domain-sb.xml.template ./tdvirsh new
+	./tdvirsh new -t trust_domain-sb.xml.template
 
 
 <a id="verify-td"></a>
@@ -421,7 +423,7 @@ sudo ./check-production.sh
 		[04-06-2024 03:05:54] INFO: Finished Registration Agent Flow.
 		```
 
-	If an error is reported in one of the logs, boot into the BIOS, go to 
+	If an error is reported in one of the logs, boot into the BIOS, go to
 	`Socket Configuration > Processor Configuration > Software Guard Extension (SGX)`, and set
 	- `SGX Factory Reset` to `Enabled`
 	- `SGX Auto MP Registration` to `Enabled`
