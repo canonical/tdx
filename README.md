@@ -241,7 +241,7 @@ To run a TD with secure boot enabled, use the `tdvirsh` tool with
 dedicated libvirt configuration:
 
 	cd tdx/guest-tools
-	./tdvirsh new -i trust_domain-sb.xml.template
+	./tdvirsh new -t trust_domain-sb.xml.template
 
 
 <a id="verify-td"></a>
