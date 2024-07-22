@@ -55,6 +55,7 @@
   <allowReboot value='no'/>
   <launchSecurity type='tdx'>
     <policy>0x10000000</policy>
+    <Quote-Generation-Service>vsock:2:4050</Quote-Generation-Service>
   </launchSecurity>
   <qemu:commandline>
     <qemu:arg value='-device'/>
