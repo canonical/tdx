@@ -16,6 +16,20 @@
 # of MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.
 # See the GNU General Public License for more details.
 
+_on_error() {
+  trap '' ERR
+  line_path=$(caller)
+  line=${line_path% *}
+  path=${line_path#* }
+
+  echo ""
+  echo "ERR $path:$line $BASH_COMMAND exited with $1"
+  exit 1
+}
+trap '_on_error $?' ERR
+
+set -eE
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # source config file

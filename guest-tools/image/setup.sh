@@ -4,6 +4,20 @@
 #
 # This file is part of tdx repo. See LICENSE file for license information.
 
+_on_error() {
+  trap '' ERR
+  line_path=$(caller)
+  line=${line_path% *}
+  path=${line_path#* }
+
+  echo ""
+  echo "ERR $path:$line $BASH_COMMAND exited with $1"
+  exit 1
+}
+trap '_on_error $?' ERR
+
+set -eE
+
 apt update
 
 # Utilities packages for automated testing
