@@ -71,6 +71,10 @@ warn() {
     echo -e "\e[1;33mWARN: $*\e[0;0m"
 }
 
+info() {
+    echo -e "\e[0;33mINFO: $*\e[0;0m"
+}
+
 check_tool() {
     [[ "$(command -v $1)" ]] || { error "$1 is not installed" 1>&2 ; }
 }
@@ -216,9 +220,10 @@ EOT
 local-hostname: $GUEST_HOSTNAME
 EOT
 
-    ok "Generate configuration for cloud-init..."
+    info "Generate configuration for cloud-init..."
     genisoimage -output /tmp/ciiso.iso -volid cidata -joliet -rock user-data meta-data
-    ok "Generate the cloud-init ISO image..."
+    info "Apply cloud-init configuration with virt-install..."
+    info "(Check logfile for more details $LOGFILE)"
     popd
 
     virt-install --debug --memory 4096 --vcpus 4 --name tdx-config-cloud-init \
@@ -230,7 +235,7 @@ EOT
         --import \
         --wait=12 &>> $LOGFILE
     if [ $? -eq 0 ]; then
-        ok "Complete cloud-init..."
+        ok "Apply cloud-init configuration with virt-install"
         sleep 1
     else
         warn "Please increase wait time(--wait=12) above and try again..."
@@ -241,6 +246,7 @@ EOT
 }
 
 setup_guest_image() {
+    info "Run setup scripts inside the guest image. Please wait ..."
     virt-customize -a ${TMP_GUEST_IMG_PATH} \
        --mkdir /tmp/tdx/ \
        --copy-in ${SCRIPT_DIR}/setup.sh:/tmp/tdx/ \
@@ -250,7 +256,7 @@ setup_guest_image() {
        --copy-in ${SCRIPT_DIR}/../../attestation/:/tmp/tdx \
        --run-command "/tmp/tdx/setup.sh"
     if [ $? -eq 0 ]; then
-        ok "Setup guest image..."
+        ok "Run setup scripts inside the guest image"
     else
         error "Failed to setup guest image"
     fi
@@ -260,7 +266,7 @@ cleanup() {
     if [[ -f ${SCRIPT_DIR}/"SHA256SUMS" ]]; then
         rm ${SCRIPT_DIR}/"SHA256SUMS"
     fi
-    ok "Cleanup!"
+    info "Cleanup!"
 }
 
 echo "=== tdx guest image generation === " > $LOGFILE
@@ -281,7 +287,7 @@ check_tool virt-customize
 check_tool virt-install
 check_tool genisoimage
 
-ok "Installation of required tools"
+info "Installation of required tools"
 
 process_args "$@"
 
