@@ -45,7 +45,7 @@ LOGFILE=/tmp/tdx-guest-setup.txt
 FORCE_RECREATE=false
 OFFICIAL_UBUNTU_IMAGE=${OFFICIAL_UBUNTU_IMAGE:-"https://cloud-images.ubuntu.com/releases/noble/release/"}
 CLOUD_IMG=${CLOUD_IMG:-"ubuntu-24.04-server-cloudimg-amd64.img"}
-CLOUD_IMG_PATH=$(realpath "${SCRIPT_DIR}/$CLOUD_IMG")
+CLOUD_IMG_PATH=$(realpath "${SCRIPT_DIR}/${CLOUD_IMG}")
 if [[ "${TDX_SETUP_INTEL_KERNEL}" == "1" ]]; then
     GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-24.04-intel.qcow2")
 else
@@ -98,17 +98,17 @@ process_args() {
     while getopts "o:s:n:u:p:r:fch" option; do
         case "$option" in
         o) GUEST_IMG_PATH=$(realpath "$OPTARG") ;;
-        s) SIZE=$OPTARG ;;
-        n) GUEST_HOSTNAME=$OPTARG ;;
-        u) GUEST_USER=$OPTARG ;;
-        p) GUEST_PASSWORD=$OPTARG ;;
+        s) SIZE=${OPTARG} ;;
+        n) GUEST_HOSTNAME=${OPTARG} ;;
+        u) GUEST_USER=${OPTARG} ;;
+        p) GUEST_PASSWORD=${OPTARG} ;;
         f) FORCE_RECREATE=true ;;
         h)
             usage
             exit 0
             ;;
         *)
-            echo "Invalid option '-$OPTARG'"
+            echo "Invalid option '-${OPTARG}'"
             usage
             exit 1
             ;;
@@ -223,7 +223,7 @@ EOT
     info "Generate configuration for cloud-init..."
     genisoimage -output /tmp/ciiso.iso -volid cidata -joliet -rock user-data meta-data
     info "Apply cloud-init configuration with virt-install..."
-    info "(Check logfile for more details $LOGFILE)"
+    info "(Check logfile for more details ${LOGFILE})"
     popd
 
     virt-install --debug --memory 4096 --vcpus 4 --name tdx-config-cloud-init \
@@ -233,13 +233,13 @@ EOT
         --virt-type kvm \
         --graphics none \
         --import \
-        --wait=12 &>> $LOGFILE
+        --wait=12 &>> ${LOGFILE}
     if [ $? -eq 0 ]; then
         ok "Apply cloud-init configuration with virt-install"
         sleep 1
     else
         warn "Please increase wait time(--wait=12) above and try again..."
-        error "Failed to configure cloud init. Please check logfile \"$LOGFILE\" for more information."
+        error "Failed to configure cloud init. Please check logfile \"${LOGFILE}\" for more information."
     fi
 
     config_cloud_init_cleanup
@@ -269,18 +269,18 @@ cleanup() {
     info "Cleanup!"
 }
 
-echo "=== tdx guest image generation === " > $LOGFILE
+echo "=== tdx guest image generation === " > ${LOGFILE}
 
 # sanity cleanup
 config_cloud_init_cleanup
 
 # install required tools
-apt install --yes qemu-utils libguestfs-tools virtinst genisoimage libvirt-daemon-system &>> $LOGFILE
+apt install --yes qemu-utils libguestfs-tools virtinst genisoimage libvirt-daemon-system &>> ${LOGFILE}
 
 # to allow virt-customize to have name resolution, dhclient should be available
 # on the host system. that is because virt-customize will create an appliance (with supermin)
 # from the host system and will collect dhclient into the appliance
-apt install --yes isc-dhcp-client &>> $LOGFILE
+apt install --yes isc-dhcp-client &>> ${LOGFILE}
 
 check_tool qemu-img
 check_tool virt-customize
@@ -294,7 +294,7 @@ process_args "$@"
 #
 # Check user permission
 #
-if (( $EUID != 0 )); then
+if (( ${EUID} != 0 )); then
     warn "Current user is not root, please use root permission via \"sudo\" or make sure current user has correct "\
          "permission by configuring /etc/libvirt/qemu.conf"
     warn "Please refer https://libvirt.org/drvqemu.html#posix-users-groups"
