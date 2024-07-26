@@ -55,7 +55,9 @@
   <allowReboot value='no'/>
   <launchSecurity type='tdx'>
     <policy>0x10000000</policy>
-    <Quote-Generation-Service>vsock:2:4050</Quote-Generation-Service>
+    <quoteGenerationService>
+      <SocketAddress type='vsock' cid='2' port='4050'/>
+    </quoteGenerationService>
   </launchSecurity>
   <qemu:commandline>
     <qemu:arg value='-device'/>
