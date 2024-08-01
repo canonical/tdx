@@ -90,7 +90,9 @@ rm -f /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
 # stop at error
 set -e
 
-add_kobuk_ppa ${TDX_PPA:-tdx-release}
+# We want wordsplitting if there is multiple entries
+# shellcheck disable=SC2086
+add_kobuk_ppas ${TDX_PPA:-tdx-release}
 
 apt install --yes --allow-downgrades \
     ${KERNEL_TYPE} \

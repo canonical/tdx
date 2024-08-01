@@ -46,6 +46,13 @@ Unattended-Upgrade::Allow-downgrade "true";
 EOF
 }
 
+# Add all kobuk given PPAs
+add_kobuk_ppas() {
+  for ppa in "$@"; do
+    add_kobuk_ppa "$ppa"
+  done
+}
+
 # get the current kernel version from the kernel flavour/type
 # we are using
 # the input will be the kernel meta package name of type : linux-image-<flavour|type>
