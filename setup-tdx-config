@@ -23,7 +23,7 @@
 # By default, this is the release PPA
 # but for development purpose, users can switch to dev PPA: tdx
 ################################################################
-TDX_PPA=tdx-release
+TDX_PPA="tdx-release"
 
 ################################################################
 # Enable the installation of DCAP packages from Canonical's
