@@ -57,8 +57,6 @@
     <policy>0x10000000</policy>
   </launchSecurity>
   <qemu:commandline>
-    <qemu:arg value='-cpu'/>
-    <qemu:arg value='host'/>
     <qemu:arg value='-device'/>
     <qemu:arg value='virtio-net-pci,netdev=nic0,bus=pcie.0,addr=0x5'/>
     <qemu:arg value='-netdev'/>
