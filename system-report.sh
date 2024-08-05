@@ -65,7 +65,7 @@ result=$(sudo dmesg | grep -i tdx)
 print_section "TDX kernel logs" "${result}"
 
 result=$( \
-if grep -q tdddx /proc/cpuinfo; then \
+if grep -q tdx /proc/cpuinfo; then \
   echo "CPU supports TDX according to /proc/cpuinfo"; \
 else echo "No TDX support in CPU according to /proc/cpuinfo"; \
 fi)
