@@ -1,6 +1,6 @@
 ---
 name: Support Request
-about: Support request or question relating to Intel Device Plugins for Kubernetes
+about: Support request or question relating to TDX on Ubuntu
 
 ---
 
