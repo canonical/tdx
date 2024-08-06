@@ -50,6 +50,15 @@ set_pkg_result_string() {
   result="$result\n$(apt info ${package} 2>/dev/null | grep -E 'Package|Version|APT-Sources')"
 }
 
+set_msr_result_string() {
+  HW_ENCRYPT_ENABLE=$(sudo rdmsr 0x982 -f 1:1)
+  result="HW_ENCRYPT_ENABLE bit: ${HW_ENCRYPT_ENABLE} (expected value: 1)"
+  SEAM_RR=$(sudo rdmsr 0x1401 -f 11:11)
+  result="$result\nSEAM_RR bit: $SEAM_RR (expected value: 1)"
+  NUM_TDX_PRIV_KEYS=$(sudo rdmsr 0x87 -f 63:32)
+  result="$result\nNUM_TDX_PRIV_KEYS: $NUM_TDX_PRIV_KEYS (expected value: >32)"
+}
+
 printf "If you are running this for reporting an issue on GitHub,\n"
 printf "copy all output between the markers below.\n\n"
 
@@ -70,6 +79,9 @@ if grep -q tdx /proc/cpuinfo; then \
 else echo "No TDX support in CPU according to /proc/cpuinfo"; \
 fi)
 print_section "TDX CPU instruction support" "${result}"
+
+set_msr_result_string
+print_section "Model specific registers (MSRs)" "${result}"
 
 result=$(grep -m1 "model name" /proc/cpuinfo | cut -f2 -d":")
 print_section "CPU details" "${result}"
