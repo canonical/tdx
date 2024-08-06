@@ -4,7 +4,7 @@ about: Support request or question relating to TDX on Ubuntu
 
 ---
 
-<!-- BEFORE SUBMISSION: Please read any known issues and workarounds in the plugin's readme. -->
+<!-- BEFORE SUBMISSION: Please review known issues prior to submitting a request. -->
 
 **Describe the support request**
 A clear and concise description of what you are looking support for.
