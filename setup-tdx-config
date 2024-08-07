@@ -19,9 +19,10 @@
 ################################################################
 
 ################################################################
-# The TDX PPA to use
-# By default, this is the release PPA
-# but for development purpose, users can switch to dev PPA: tdx
+# The TDX PPAs to use
+# By default, there is only the release PPA : tdx-release
+# but for development purpose, users can change this list to
+# contain an arbitrary number of PPAs
 ################################################################
 TDX_PPA="tdx-release"
 
