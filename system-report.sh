@@ -57,6 +57,12 @@ set_msr_result_string() {
   result="$result\nSEAM_RR bit: $SEAM_RR (expected value: 1)"
   NUM_TDX_PRIV_KEYS=$(sudo rdmsr 0x87 -f 63:32)
   result="$result\nNUM_TDX_PRIV_KEYS: $NUM_TDX_PRIV_KEYS (expected value: >32)"
+  MSR_EXTRA1=$(sudo rdmsr 0xa0)
+  result="$result\nMSR_EXTRA1 (0xa0): $MSR_EXTRA1 (expected value: 0)"
+  MSR_EXTRA2=$(sudo rdmsr 0x1f5 -f 11:11)
+  result="$result\nMSR_EXTRA2 (0x1f5, bit 11): $MSR_EXTRA2 (expected value: 1)"
+  MSR_EXTRA3=$(sudo rdmsr 0x1401 -f 11:11)
+  result="$result\nMSR_EXTRA3 (0x1401, bit 11): $MSR_EXTRA3 (expected value: 1)"
 }
 
 printf "If you are running this for reporting an issue on GitHub,\n"
@@ -110,5 +116,14 @@ print_section "sgx-ra-service package details" "${result}"
 
 set_pkg_result_string "sgx-pck-id-retrieval-tool"
 print_section "sgx-pck-id-retrieval-tool package details" "${result}"
+
+result=$(systemctl status qgsd 2>&1)
+print_section "QGSD service status" "${result}"
+
+result=$(systemctl status pccs 2>&1)
+print_section "PCCS service status" "${result}"
+
+result=$(tail -n 30 /var/log/mpa_registration.log)
+print_section "MPA registration logs (last 30 lines)" "${result}"
 
 printf "<======== COPY ABOVE HERE ========>\n"
