@@ -24,45 +24,45 @@
 #
 
 print_section() {
-  if [ $# -ne 2 ]; then
-    >&2 echo "$0 <header> <command output>"
-    exit 1
-  fi
-  header=$1
-  cmdout=$2
-  printf "### ${header}\n\n"
-  printf "\`\`\`\n"
-  printf "${cmdout}"
-  printf "\n\`\`\`\n\n"
+    if [ $# -ne 2 ]; then
+        >&2 echo "$0 <header> <command output>"
+        exit 1
+    fi
+    header=$1
+    cmdout=$2
+    printf "### ${header}\n\n"
+    printf "\`\`\`\n"
+    printf "${cmdout}"
+    printf "\n\`\`\`\n\n"
 }
 
 set_pkg_result_string() {
-  if [ $# -ne 1 ]; then
-    >&2 echo "$0 <package>"
-    exit 1
-  fi
-  package=$1
-  result=$( \
-  if dpkg -s ${package} &> /dev/null; then \
-    echo "Status: Installed"; \
-  else echo "Status: Not Installed"; \
-  fi)
-  result="$result\n$(apt info ${package} 2>/dev/null | grep -E 'Package|Version|APT-Sources')"
+    if [ $# -ne 1 ]; then
+        >&2 echo "$0 <package>"
+        exit 1
+    fi
+    package=$1
+    result=$( \
+    if dpkg -s ${package} &> /dev/null; then \
+        echo "Status: Installed"; \
+    else echo "Status: Not Installed"; \
+    fi)
+    result="$result\n$(apt info ${package} 2>/dev/null | grep -E 'Package|Version|APT-Sources')"
 }
 
 set_msr_result_string() {
-  HW_ENCRYPT_ENABLE=$(sudo rdmsr 0x982 -f 1:1)
-  result="HW_ENCRYPT_ENABLE bit: ${HW_ENCRYPT_ENABLE} (expected value: 1)"
-  SEAM_RR=$(sudo rdmsr 0x1401 -f 11:11)
-  result="$result\nSEAM_RR bit: $SEAM_RR (expected value: 1)"
-  NUM_TDX_PRIV_KEYS=$(sudo rdmsr 0x87 -f 63:32)
-  result="$result\nNUM_TDX_PRIV_KEYS: $NUM_TDX_PRIV_KEYS (expected value: >32)"
-  MSR_EXTRA1=$(sudo rdmsr 0xa0)
-  result="$result\nMSR_EXTRA1 (0xa0): $MSR_EXTRA1 (expected value: 0)"
-  MSR_EXTRA2=$(sudo rdmsr 0x1f5 -f 11:11)
-  result="$result\nMSR_EXTRA2 (0x1f5, bit 11): $MSR_EXTRA2 (expected value: 1)"
-  MSR_EXTRA3=$(sudo rdmsr 0x1401 -f 11:11)
-  result="$result\nMSR_EXTRA3 (0x1401, bit 11): $MSR_EXTRA3 (expected value: 1)"
+    HW_ENCRYPT_ENABLE=$(sudo rdmsr 0x982 -f 1:1)
+    result="HW_ENCRYPT_ENABLE bit: ${HW_ENCRYPT_ENABLE} (expected value: 1)"
+    SEAM_RR=$(sudo rdmsr 0x1401 -f 11:11)
+    result="$result\nSEAM_RR bit: $SEAM_RR (expected value: 1)"
+    NUM_TDX_PRIV_KEYS=$(sudo rdmsr 0x87 -f 63:32)
+    result="$result\nNUM_TDX_PRIV_KEYS: $NUM_TDX_PRIV_KEYS (expected value: >32)"
+    MSR_EXTRA1=$(sudo rdmsr 0xa0)
+    result="$result\nMSR_EXTRA1 (0xa0): $MSR_EXTRA1 (expected value: 0)"
+    MSR_EXTRA2=$(sudo rdmsr 0x1f5 -f 11:11)
+    result="$result\nMSR_EXTRA2 (0x1f5, bit 11): $MSR_EXTRA2 (expected value: 1)"
+    MSR_EXTRA3=$(sudo rdmsr 0x1401 -f 11:11)
+    result="$result\nMSR_EXTRA3 (0x1401, bit 11): $MSR_EXTRA3 (expected value: 1)"
 }
 
 printf "If you are running this for reporting an issue on GitHub,\n"
@@ -81,7 +81,7 @@ print_section "TDX kernel logs" "${result}"
 
 result=$( \
 if grep -q tdx /proc/cpuinfo; then \
-  echo "CPU supports TDX according to /proc/cpuinfo"; \
+    echo "CPU supports TDX according to /proc/cpuinfo"; \
 else echo "No TDX support in CPU according to /proc/cpuinfo"; \
 fi)
 print_section "TDX CPU instruction support" "${result}"
@@ -93,7 +93,7 @@ result=$(grep -m1 "model name" /proc/cpuinfo | cut -f2 -d":")
 print_section "CPU details" "${result}"
 
 result=$(find . -name check-production.sh -exec \
-  sh -c 'cd "$(dirname "$0")" && sudo ./check-production.sh' {} \;)
+    sh -c 'cd "$(dirname "$0")" && sudo ./check-production.sh' {} \;)
 print_section "Production system check" "${result}"
 
 set_pkg_result_string "qemu-system-x86"
