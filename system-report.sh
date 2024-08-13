@@ -57,12 +57,10 @@ set_msr_result_string() {
     result="$result\nSEAM_RR bit: $SEAM_RR (expected value: 1)"
     NUM_TDX_PRIV_KEYS=$(sudo rdmsr 0x87 -f 63:32)
     result="$result\nNUM_TDX_PRIV_KEYS: $NUM_TDX_PRIV_KEYS (expected value: >32)"
-    MSR_EXTRA1=$(sudo rdmsr 0xa0)
-    result="$result\nMSR_EXTRA1 (0xa0): $MSR_EXTRA1 (expected value: 0)"
-    MSR_EXTRA2=$(sudo rdmsr 0x1f5 -f 11:11)
-    result="$result\nMSR_EXTRA2 (0x1f5, bit 11): $MSR_EXTRA2 (expected value: 1)"
-    MSR_EXTRA3=$(sudo rdmsr 0x1401 -f 11:11)
-    result="$result\nMSR_EXTRA3 (0x1401, bit 11): $MSR_EXTRA3 (expected value: 1)"
+    SGX_AND_MCHECK_STATUS=$(sudo rdmsr 0xa0)
+    result="$result\nSGX_AND_MCHECK_STATUS: $SGX_AND_MCHECK_STATUS (expected value: 0)"
+    TDX_STATUS=$(sudo rdmsr 0x1401 -f 11:11)
+    result="$result\nTDX_STATUS bit: $TDX_STATUS (expected value: 1)"
 }
 
 printf "If you are running this for reporting an issue on GitHub,\n"
