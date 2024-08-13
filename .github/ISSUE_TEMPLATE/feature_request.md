@@ -17,6 +17,4 @@ A clear and concise description of what you want to happen.
 Add any other context or screenshots about the feature request here.
 
 **System report**
-If you think it would be helpful, please run the
-[system-report.sh](../../system-report.sh) script on your host system and copy the
-output below.
+If you think it would be helpful, please run the [system-report.sh](https://github.com/canonical/tdx/blob/f58ad41/system-report.sh) script on your host system and copy the output below.
