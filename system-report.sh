@@ -59,8 +59,6 @@ set_msr_result_string() {
     result="$result\nNUM_TDX_PRIV_KEYS: $NUM_TDX_PRIV_KEYS (expected value: >32)"
     SGX_AND_MCHECK_STATUS=$(sudo rdmsr 0xa0)
     result="$result\nSGX_AND_MCHECK_STATUS: $SGX_AND_MCHECK_STATUS (expected value: 0)"
-    TDX_STATUS=$(sudo rdmsr 0x1401 -f 11:11)
-    result="$result\nTDX_STATUS bit: $TDX_STATUS (expected value: 1)"
 }
 
 printf "If you are running this for reporting an issue on GitHub,\n"
