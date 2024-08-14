@@ -50,15 +50,30 @@ set_pkg_result_string() {
     result="$result\n$(apt info ${package} 2>/dev/null | grep -E 'Package|Version|APT-Sources')"
 }
 
+# load msr kernel module and install msr-tools if needed
+install_msr() {
+    if ! which rdmsr &> /dev/null; then
+        sudo apt install -y msr-tools &> /dev/null
+    fi
+    sudo modprobe msr &> /dev/null
+}
+
 set_msr_result_string() {
-    HW_ENCRYPT_ENABLE=$(sudo rdmsr 0x982 -f 1:1)
-    result="HW_ENCRYPT_ENABLE bit: ${HW_ENCRYPT_ENABLE} (expected value: 1)"
+    install_msr
+    MK_TME_ENABLE=$(sudo rdmsr 0x982 -f 1:1)
+    result="MK_TME_ENABLE bit: ${MK_TME_ENABLE} (expected value: 1)"
     SEAM_RR=$(sudo rdmsr 0x1401 -f 11:11)
     result="$result\nSEAM_RR bit: $SEAM_RR (expected value: 1)"
     NUM_TDX_PRIV_KEYS=$(sudo rdmsr 0x87 -f 63:32)
-    result="$result\nNUM_TDX_PRIV_KEYS: $NUM_TDX_PRIV_KEYS (expected value: >32)"
+    result="$result\nNUM_TDX_PRIV_KEYS: $NUM_TDX_PRIV_KEYS"
     SGX_AND_MCHECK_STATUS=$(sudo rdmsr 0xa0)
     result="$result\nSGX_AND_MCHECK_STATUS: $SGX_AND_MCHECK_STATUS (expected value: 0)"
+    PROD=$(rdmsr 0xce -f 27:27)
+    PRODUCTION="Pre-production"
+    if [[ "${PROD}" = "0" ]]; then
+        PRODUCTION="Production"
+    fi
+    result="$result\nProduction platform: ${PRODUCTION} (expected value: Production)"
 }
 
 printf "If you are running this for reporting an issue on GitHub,\n"
@@ -122,7 +137,7 @@ print_section "QGSD service status" "${result}"
 result=$(systemctl status pccs 2>&1)
 print_section "PCCS service status" "${result}"
 
-result=$(tail -n 30 /var/log/mpa_registration.log)
+result=$(tail -n 30 /var/log/mpa_registration.log 2>/dev/null)
 print_section "MPA registration logs (last 30 lines)" "${result}"
 
 printf "<======== COPY ABOVE HERE ========>\n"
