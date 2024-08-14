@@ -106,10 +106,6 @@ print_section "Model specific registers (MSRs)" "${result}"
 result=$(grep -m1 "model name" /proc/cpuinfo | cut -f2 -d":")
 print_section "CPU details" "${result}"
 
-result=$(find . -name check-production.sh -exec \
-    sh -c 'cd "$(dirname "$0")" && sudo ./check-production.sh' {} \;)
-print_section "Production system check" "${result}"
-
 set_pkg_result_string "qemu-system-x86"
 print_section "QEMU package details" "${result}"
 
