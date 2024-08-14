@@ -60,8 +60,8 @@ install_msr() {
 
 set_msr_result_string() {
     install_msr
-    MK_TME_ENABLE=$(sudo rdmsr 0x982 -f 1:1)
-    result="MK_TME_ENABLE bit: ${MK_TME_ENABLE} (expected value: 1)"
+    MK_TME_ENABLED=$(sudo rdmsr 0x982 -f 1:1)
+    result="MK_TME_ENABLED bit: ${MK_TME_ENABLE} (expected value: 1)"
     SEAM_RR=$(sudo rdmsr 0x1401 -f 11:11)
     result="$result\nSEAM_RR bit: $SEAM_RR (expected value: 1)"
     NUM_TDX_PRIV_KEYS=$(sudo rdmsr 0x87 -f 63:32)
