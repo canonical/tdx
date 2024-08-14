@@ -1,5 +1,8 @@
 # Intel® Trust Domain Extensions (TDX) on Ubuntu 23.10
 
+## !!! Mantic 23.10 is End-Of-Life !!!
+### Please use our releases for [Ubuntu 24.04](https://github.com/canonical/tdx/tree/noble-24.04) or newer
+
 ### Table of Contents:
 * [1. Introduction](#introduction)
 * [2. Report an Issue](#report-an-issue)
