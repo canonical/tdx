@@ -66,6 +66,9 @@ printf "copy all output between the markers below.\n\n"
 
 printf "<======== COPY BELOW HERE ========>\n\n"
 
+git_ref=$(git rev-parse HEAD 2> /dev/null)
+print_section "Git ref" "${git_ref}"
+
 result=$(lsb_release -a)
 print_section "Operating system details" "${result}"
 
