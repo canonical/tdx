@@ -44,14 +44,16 @@ fi
 SSH_PORT=10022
 PROCESS_NAME=td
 LOGFILE='/tmp/tdx-guest-td.log'
-# approach 1 : talk to QGS directly
-QUOTE_ARGS="-device vhost-vsock-pci,guest-cid=3"
+# approach 1 : userspace in the guest talks to QGS (on the host) directly
+QUOTE_VSOCK_ARGS="-device vhost-vsock-pci,guest-cid=3"
+# approach 2 : tdvmcall; see quote-generation-socket in qemu command line
+
 qemu-system-x86_64 -D $LOGFILE \
 		   -accel kvm \
 		   -m 2G -smp 16 \
 		   -name ${PROCESS_NAME},process=${PROCESS_NAME},debug-threads=on \
 		   -cpu host \
-		   -object tdx-guest,id=tdx \
+		   -object '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}' \
 		   -machine q35,kernel_irqchip=split,confidential-guest-support=tdx,hpet=off \
 		   -bios ${TDVF_FIRMWARE} \
 		   -nographic -daemonize \
@@ -59,7 +61,7 @@ qemu-system-x86_64 -D $LOGFILE \
 		   -device virtio-net-pci,netdev=nic0_td -netdev user,id=nic0_td,hostfwd=tcp::${SSH_PORT}-:22 \
 		   -drive file=${TD_IMG},if=none,id=virtio-disk0 \
 		   -device virtio-blk-pci,drive=virtio-disk0 \
-		   ${QUOTE_ARGS} \
+		   ${QUOTE_VSOCK_ARGS} \
 		   -pidfile /tmp/tdx-demo-td-pid.pid
 
 ret=$?
