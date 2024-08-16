@@ -100,7 +100,6 @@ apt install --yes --allow-downgrades \
     libvirt-daemon-system \
     libvirt-clients \
     ovmf \
-    tdx-tools-host
 
 KERNEL_RELEASE=$(get_kernel_version "$KERNEL_TYPE")
 # select the right kernel for next boot
