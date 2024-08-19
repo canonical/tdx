@@ -242,7 +242,7 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
         ---------------------------------------------------------------------------
         1    tdvirsh-trust_domain-f7210c2b-2657-4f30-adf3-639b573ea39f   running (ssh:32855, cid:3)
 
-        `ssh:32855` displays the port user can use to connect to the VM via `ssh`.
+        Note: `32855` in `ssh:32855` is the port number a user can use to connect to the TD via `ssh`.
 
    * A TD can be removed with the following command:
 
