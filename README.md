@@ -144,10 +144,10 @@ Important options for TD image creation:
 * If you're behind a proxy, use `sudo -E` to preserve user environment.
 * To adjust the base image, set the following two environment variables before running the script:
 
-```bash
-export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/noble/current/"
-export CLOUD_IMG="noble-server-cloudimg-amd64.img"
-```
+    ```bash
+    export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/noble/current/"
+    export CLOUD_IMG="noble-server-cloudimg-amd64.img"
+    ```
 
 * The used kernel type (`generic` or `intel`) will be reflected in the name of the resulting image so it is easy to distinguish.
 
