@@ -359,7 +359,7 @@ sudo ./check-production.sh
 	sudo systemctl status qgsd
 	```
 
-4. Verify the PCCS service is running properly.
+5. Verify the PCCS service is running properly:
 	```bash
 	sudo systemctl status pccs
 	```
