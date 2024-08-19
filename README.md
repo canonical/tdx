@@ -298,7 +298,7 @@ cd tdx/guest-tools
 	[    0.395218] Memory Encryption Features active: Intel TDX
 	```
 
-3. Verify quote generation provider.
+3. Verify quote generation provider:
 
 	```bash
 	mkdir -p /sys/kernel/config/tsm/report/testreport0
