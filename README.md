@@ -232,9 +232,9 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
    A different XML libvirt template can be used by using the command-line option `-t XML_PATH`.
    * All VMs can be listed with the following command:
 
-	```bash
-	./tdvirsh list --all
-	```
+        ```bash
+        ./tdvirsh list --all
+        ```
 
         Example output:
 
