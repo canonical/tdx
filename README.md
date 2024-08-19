@@ -52,8 +52,7 @@ Download and install [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/ubu
 
 ### 4.2 Enable Intel TDX in Host OS
 
-1. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or 
-   by cloning the repository (at the appropriate tag/branch).
+1. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning the repository (at the appropriate tag/branch).
    
    For example: 
 
