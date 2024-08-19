@@ -394,7 +394,7 @@ sudo ./check-production.sh
 
    NOTE: The resulting config file is located at `/opt/intel/sgx-dcap-pccs/config/default.json`.
 
-7. Restart the PCCS service.
+8. Restart the PCCS service:
 
 	```bash
 	sudo systemctl restart pccs
