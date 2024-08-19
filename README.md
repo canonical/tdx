@@ -406,7 +406,7 @@ sudo ./check-production.sh
 	sudo systemctl status pccs
 	```
 
-9. Register the platform.
+10. Register the platform.
 
 	The platform registration is done with the `mpa_registration_tool` tool.
 	This service is executed on system start up, registers the platform, and gets deactivated.
