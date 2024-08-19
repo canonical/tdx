@@ -369,7 +369,7 @@ sudo ./check-production.sh
       For key rotation purpose, two subscription keys are generated.
    2. [Retrieve](https://api.portal.trustedservices.intel.com/manage-subscriptions) one of your keys and use it in the next step.
 
-6. Configure the PCCS service.
+7. Configure the PCCS service:
 
 	```bash
 	sudo /usr/bin/pccs-configure
