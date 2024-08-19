@@ -61,7 +61,7 @@ Download and install [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/ubu
    ```
 
 2. Customize the setup of the host and TD by editing the configuration file `setup-tdx-config`.  
-   By default, remote attestation components are not installed on the host and inside the TD.  
+    By default, remote attestation components are not installed on the host and inside the TD.  
    You can chose to install them automatically by setting `TDX_SETUP_ATTESTATION=1`.  
    In this case, you can skip [step 8.2.1](#step-8-2-1) and [step 8.3.3](#step-8-3-3).  
 
