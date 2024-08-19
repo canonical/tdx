@@ -400,7 +400,7 @@ sudo ./check-production.sh
 	sudo systemctl restart pccs
 	```
 
-8. Verify the PCCS service is running properly.
+9. Verify the PCCS service is running properly:
 
 	```bash
 	sudo systemctl status pccs
