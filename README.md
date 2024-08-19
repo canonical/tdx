@@ -383,7 +383,7 @@ sudo ./check-production.sh
 	Checking cracklib-runtime ...
 	Set HTTPS listening port [8081] (1024-65535) :
 	Set the PCCS service to accept local connections only? [Y] (Y/N) :
-	Set your Intel PCS API key (Press ENTER to skip) : b1b98494660fa0de93638c531d2c0df7
+	Set your Intel PCS API key (Press ENTER to skip) : <Enter your Intel PCS subscription key here>
 	Choose caching fill method : [LAZY] (LAZY/OFFLINE/REQ) :
 	Set PCCS server administrator password: <pccs-admin-password>
 	Re-enter administrator password: <pccs-admin-password>
