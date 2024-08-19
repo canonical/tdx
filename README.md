@@ -283,7 +283,7 @@ cd tdx/guest-tools
 	ssh -p 10022 root@<host_ip>
 	```
 
-2. Verify Intel TDX is enabled in the TD.
+2. Verify Intel TDX is enabled in the TD:
 
 	```bash
 	dmesg | grep -i tdx
