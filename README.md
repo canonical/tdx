@@ -212,9 +212,9 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
 
    2. Restart the `libvirtd` service
 
-	```bash
-	systemctl restart libvirtd
-	```
+	    ```bash
+	    systemctl restart libvirtd
+	    ```
 
 2. Boot TD using the following commands.
 
