@@ -246,9 +246,9 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
 
    * A TD can be removed with the following command:
 
-	```bash
-	./tdvirsh delete [domain]
-	```
+        ```bash
+        ./tdvirsh delete [domain]
+        ```
 
    * All available options can be displayed with the following command:
 
