@@ -236,7 +236,7 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
 	./tdvirsh list --all
 	```
 
-	Example of output:
+        Example output:
 
         Id   Name                                                        State
         ---------------------------------------------------------------------------
