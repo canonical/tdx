@@ -354,7 +354,7 @@ sudo ./check-production.sh
 	crw-rw---- 1 root sgx     10, 124 Apr  3 21:14 /dev/sgx_vepc
 	```
 
-3. Verify the QGS service is running properly.
+4. Verify the QGS service is running properly:
 	```bash
 	sudo systemctl status qgsd
 	```
