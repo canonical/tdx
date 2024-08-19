@@ -409,7 +409,7 @@ sudo ./check-production.sh
 10. Register the platform.
 
 	The platform registration is done with the `mpa_registration_tool` tool.
-	This service is executed on system start up, registers the platform, and gets deactivated.
+	This agent is executed on system start up, registers the platform (if necessary), and gets deactivated.
 	Please check the following two logs to confirm successful registration:
 
 	1. Check the MPA service status.
