@@ -125,7 +125,6 @@ In this section, you will create an Ubuntu 24.04-based TD image from scratch or 
 This can be performed on any Ubuntu 22.04 or newer system - an Intel TDX-specific environment is not required.
 
 * The base image is an Ubuntu 24.04 cloud image.
-
 * By default, the Ubuntu generic kernel is used for the TD guest. The `-intel` kernel, which may have non-upstreamed and/or under-development features,
   can be selected by setting the variable `TDX_SETUP_INTEL_KERNEL=1` in the `setup-tdx-config` configuration file.
 
