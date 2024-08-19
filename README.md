@@ -258,7 +258,8 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
 
 ### 6.3 Secure Boot TD
 
-To run a TD with secure boot enabled, use the `tdvirsh` tool with dedicated libvirt configuration:
+We provide a libvirt template (`trust_domain-sb.xml.template`) that shows how a TD can be booted with secure boot.
+As a result, you can easily boot a TD with secure boot enabled using the following commands:
 
 ```bash
 cd tdx/guest-tools
