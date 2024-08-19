@@ -252,9 +252,9 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
 
    * All available options can be displayed with the following command:
 
-	```bash
-	./tdvirsh -h
-	```
+        ```bash
+        ./tdvirsh -h
+        ```
 
 ### 6.3 Secure Boot TD
 
