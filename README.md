@@ -432,7 +432,7 @@ sudo ./check-production.sh
 		Apr 09 22:54:50 right-glider-515046 systemd[1]: mpa_registration_tool.service: Deactivated successfully.
 		```
 
-	2. Check the MPA log file.
+	2. Check the log file of the MPA:
 		```bash
 		cat /var/log/mpa_registration.log
 		```
