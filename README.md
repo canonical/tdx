@@ -204,11 +204,11 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
 1. [Recommended] Configure libvirt to be usable as non-root user.
    1. Apply the following settings to the file `/etc/libvirt/qemu.conf`.
 
-	```bash
-	user = <your_user_name>
-	group = <your_group>
-	dynamic_ownership = 0
-	```
+	    ```bash
+	    user = <your_user_name>
+	    group = <your_group>
+	    dynamic_ownership = 0
+	    ```
 
    2. Restart the `libvirtd` service
 
