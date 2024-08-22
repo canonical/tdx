@@ -33,6 +33,11 @@ apt update
 
 apt install --yes --allow-downgrades sgx-dcap-pccs tdx-qgs
 
+# install the Intel Quote Provider library implementation
+# this package can be skipped if user can provider its own
+# provider
+apt install --yes --allow-downgrades libsgx-dcap-default-qpl
+
 # using RA registration (direct registration method)
 apt install --yes --allow-downgrades sgx-ra-service
 
