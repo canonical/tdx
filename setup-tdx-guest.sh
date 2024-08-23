@@ -67,9 +67,7 @@ apt install --yes --allow-downgrades \
    ${KERNEL_TYPE} \
    shim-signed \
    grub-efi-amd64-signed \
-   grub-efi-amd64-bin \
-   tdx-tools-guest \
-   python3-pytdxmeasure
+   grub-efi-amd64-bin
 
 # if a specific kernel has to be used instead of generic
 # TODO : install linux-modules-extra
