@@ -326,10 +326,10 @@ sudo ./check-production.sh
 	NOTE: These devices are needed as Intel TDX's attestation flow is based on the Intel SGX attestation flow.
 
 	```bash
-	$ ls -l /dev/sgx_*
-	crw-rw-rw- 1 root sgx     10, 125 Apr  3 21:14 /dev/sgx_enclave
-	crw-rw---- 1 root sgx_prv 10, 126 Apr  3 21:14 /dev/sgx_provision
-	crw-rw---- 1 root sgx     10, 124 Apr  3 21:14 /dev/sgx_vepc
+        $ ls -la /dev/sgx*
+        crw-rw---- 1 root sgx     10, 125 Aug 23 09:49 /dev/sgx_enclave
+        crw-rw---- 1 root sgx_prv 10, 126 Aug 23 09:49 /dev/sgx_provision
+        crw-rw---- 1 root sgx     10, 124 Aug 23 09:49 /dev/sgx_vepc
 	```
 
 3. Verify the QGS service is running properly:
