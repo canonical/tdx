@@ -200,6 +200,19 @@ config_cloud_init_cleanup() {
   virsh undefine tdx-config-cloud-init &> /dev/null
 }
 
+apply_cloud_init_conf() {
+  virt_type=$0
+  virt-install --debug --memory 4096 --vcpus 4 --name tdx-config-cloud-init \
+     --disk ${TMP_GUEST_IMG_PATH} \
+     --disk /tmp/ciiso.iso,device=cdrom \
+     --os-variant ubuntu24.04 \
+     --virt-type ${virt_type} \
+     --graphics none \
+     --import \
+     --wait=12 &>> ${LOGFILE}
+}
+
+
 config_cloud_init() {
     pushd ${SCRIPT_DIR}/cloud-init-data
     [ -e /tmp/ciiso.iso ] && rm /tmp/ciiso.iso
@@ -226,18 +239,17 @@ EOT
     info "(Check logfile for more details ${LOGFILE})"
     popd
 
-    virt-install --debug --memory 4096 --vcpus 4 --name tdx-config-cloud-init \
-        --disk ${TMP_GUEST_IMG_PATH} \
-        --disk /tmp/ciiso.iso,device=cdrom \
-        --os-variant ubuntu24.04 \
-        --virt-type kvm \
-        --graphics none \
-        --import \
-        --wait=12 &>> ${LOGFILE}
+    apply_cloud_init_conf kvm
     if [ $? -eq 0 ]; then
         ok "Apply cloud-init configuration with virt-install"
         sleep 1
     else
+        # if the failure is caused by lack of KVM support
+        # try qemu virt type
+        if [ ! -f /dev/kvm ]; then
+            apt install --yes qemu-system-x86
+            apply_cloud_init_conf qemu
+        fi
         warn "Please increase wait time(--wait=12) above and try again..."
         error "Failed to configure cloud init. Please check logfile \"${LOGFILE}\" for more information."
     fi
