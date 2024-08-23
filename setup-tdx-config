@@ -24,12 +24,12 @@
 # but for development purpose, users can change this list to
 # contain an arbitrary number of PPAs
 ################################################################
-TDX_PPA="tdx-release"
+TDX_PPA="tdx"
 
 ################################################################
 # The TDX PPA for attestation
 ################################################################
-TDX_PPA_ATTESTATION=tdx-attestation-release
+TDX_PPA_ATTESTATION=tdx-attestation
 
 ################################################################
 # Enable the installation of DCAP packages from Canonical's
@@ -38,7 +38,7 @@ TDX_PPA_ATTESTATION=tdx-attestation-release
 # Set to 1 to enable
 # By default, the attestation components are not installed
 ################################################################
-TDX_SETUP_ATTESTATION=0
+TDX_SETUP_ATTESTATION=1
 
 ################################################################
 # HOST                                                         #
