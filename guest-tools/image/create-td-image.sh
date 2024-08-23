@@ -201,7 +201,7 @@ config_cloud_init_cleanup() {
 }
 
 apply_cloud_init_conf() {
-  virt_type=$0
+  virt_type=$1
   virt-install --debug --memory 4096 --vcpus 4 --name tdx-config-cloud-init \
      --disk ${TMP_GUEST_IMG_PATH} \
      --disk /tmp/ciiso.iso,device=cdrom \
