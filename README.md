@@ -413,7 +413,7 @@ sudo ./check-production.sh
 	This agent is executed on system start up, registers the platform (if necessary), and gets deactivated.
 	Please check the following two logs to confirm successful registration:
 
-	1. Check the MPA service status.
+	1. Check the log of the MPA service:
 
 		```bash
 		sudo systemctl status mpa_registration_tool
