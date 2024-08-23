@@ -38,7 +38,7 @@ Pin: release o=${distro_id}
 Pin-Priority: 4000
 EOF
 
-  cat <<EOF | tee /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
+  cat <<EOF | tee /etc/apt/apt.conf.d/99unattended-upgrades-kobuk-${ppa_id}
 Unattended-Upgrade::Allowed-Origins {
   "${distro_id}:${distro_codename}";
 };

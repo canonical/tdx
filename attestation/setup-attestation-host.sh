@@ -27,7 +27,7 @@ source ${SCRIPT_DIR}/../setup-tdx-config
 source ${SCRIPT_DIR}/../setup-tdx-common
 
 apt install --yes software-properties-common
-add_kobuk_ppa ${TDX_PPA:-tdx-release}
+add_kobuk_ppa ${TDX_PPA_ATTESTATION:-tdx-attestation-release}
 
 apt update
 
