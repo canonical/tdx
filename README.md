@@ -32,7 +32,7 @@ The host OS and TD setup can be cutomized by editing the global configuration fi
 ## 2. Report an Issue
 Please submit issues [here](https://github.com/canonical/tdx/issues) and we'll get back to you ASAP.
 
-To help us with the debugging process, run the [system-report.sh](https://github.com/canonical/tdx/blob/noble-24.04/system-report.sh)
+To help us with the debugging process, run the `system-report.sh`
 tool and attach the report.  
 
 <a id="supported-hardware"></a>
@@ -204,7 +204,7 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
 1. [Recommended] Configure libvirt to be usable as non-root user.
    1. Apply the following settings to the file `/etc/libvirt/qemu.conf`.
 
-	    ```bash
+	    ```console
 	    user = <your_user_name>
 	    group = <your_group>
 	    dynamic_ownership = 0
@@ -238,13 +238,13 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
 
         Example output:
 
-        ```bash
+        ```console
         Id   Name                                                        State
         ---------------------------------------------------------------------------
         1    tdvirsh-trust_domain-f7210c2b-2657-4f30-adf3-639b573ea39f   running (ssh:32855, cid:3)
         ```
 
-        Note: `32855` in `ssh:32855` is the port number a user can use to connect to the TD via `ssh`.
+        NOTE: `32855` in `ssh:32855` is the port number a user can use to connect to the TD via `ssh`.
 
    * A TD can be removed with the following command:
 
@@ -273,17 +273,19 @@ cd tdx/guest-tools
 
 1. Log into the TD using one of the following commands.
 
-	NOTE: If you booted your TD with `td_virsh_tool.sh`, you will likely need
-	a different port number from the one below. The tool will print the appropriate port to use
-	after it has successfully booted the TD.
+   NOTE: If you booted your TD with `td_virsh_tool.sh`, you will likely need
+   a different port number from the one below. The tool will print the appropriate port to use
+   after it has successfully booted the TD.
 
-	```bash
-	# From localhost
-	ssh -p 10022 root@localhost
+   * From localhost
+   ```bash
+   ssh -p 10022 root@localhost
+   ```
 
-	# From remote host
-	ssh -p 10022 root@<host_ip>
-	```
+   * From remote host
+   ```bash
+   ssh -p 10022 root@<host_ip>
+   ```
 
 2. Verify Intel TDX is enabled in the TD:
 
@@ -323,7 +325,7 @@ For more on the basics of attestation, see [Attestation overview](https://docs.t
 
 ### 8.1 Check Hardware Status
 
-For attestation to work, you need _Production_ hardware. Run the following commands to verify.
+For attestation to work, you need _Production_ hardware. Run the `check-production.sh` script to verify.
 
 ```bash
 cd tdx/attestation
@@ -334,7 +336,7 @@ sudo ./check-production.sh
 
 1. Install the required DCAP packages from Canonical's PPA on the host OS.<a id="step-8-2-1"></a>
 
-	NOTE 1:  If you have already installed the attestation components as part of the host OS setup (see [step 2 in section 4.2](#step-4-2-3)), you can continue with [step 3](#verify-sgx-devices).
+	NOTE 1: If you have already installed the attestation components as part of the host OS setup (see [step 2 in section 4.2](#step-4-2-3)), you can continue with [step 3](#verify-sgx-devices).
 
 	NOTE 2: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
@@ -345,16 +347,21 @@ sudo ./check-production.sh
 
 2. Reboot the system.
 
-3. Verify that The Intel SGX devices have proper user and group.<a id="verify-sgx-devices"></a>
+3. Verify the Intel SGX devices belong to these groups and have proper permissions.<a id="verify-sgx-devices"></a>
 
-	NOTE: These devices are needed as Intel TDX's attestation flow is based on the Intel SGX attestation flow.
+   NOTE: These devices are needed as Intel TDX's attestation flow is based on the Intel SGX attestation flow.
 
-	```bash
-	$ ls -l /dev/sgx_*
-	crw-rw-rw- 1 root sgx     10, 125 Apr  3 21:14 /dev/sgx_enclave
-	crw-rw---- 1 root sgx_prv 10, 126 Apr  3 21:14 /dev/sgx_provision
-	crw-rw---- 1 root sgx     10, 124 Apr  3 21:14 /dev/sgx_vepc
-	```
+   ```bash
+   ls -l /dev/sgx_*
+   ```
+
+   Expected result:
+
+   ```console
+   crw-rw---- 1 root sgx     10, 125 Apr  3 21:14 /dev/sgx_enclave
+   crw-rw---- 1 root sgx_prv 10, 126 Apr  3 21:14 /dev/sgx_provision
+   crw-rw---- 1 root sgx     10, 124 Apr  3 21:14 /dev/sgx_vepc
+   ```
 
 4. Verify the QGS service is running properly:
 	```bash
@@ -365,36 +372,38 @@ sudo ./check-production.sh
 	```bash
 	sudo systemctl status pccs
 	```
-
-5. To setup the PCCS in the next step, you need a subscription to the [Intel PCS](https://api.portal.trustedservices.intel.com/provisioning-certification) service.
-   1. [Subscribe](https://api.portal.trustedservices.intel.com/products#product=liv-intel-software-guard-extensions-provisioning-certification-service) to Intel PCS.
-      For key rotation purpose, two subscription keys are generated.
-   2. [Retrieve](https://api.portal.trustedservices.intel.com/manage-subscriptions) one of your keys and use it in the next step.
+6. To setup the PCCS in the next step, you need a subscription key for the [Intel PCS](https://api.portal.trustedservices.intel.com/provisioning-certification).
+   1. If you did not request such a subscription key before, [subscribe](https://api.portal.trustedservices.intel.com/products#product=liv-intel-software-guard-extensions-provisioning-certification-service) 
+      to Intel PCS, which requires to log in (or create an account). Two subscription keys are generated (for key rotation) and both can be used for the following step.
+   2. If you did request such a subscription key before, [retrieve](https://api.portal.trustedservices.intel.com/manage-subscriptions) one of your keys, 
+      which requires to log in. You have two subscription keys (for key rotation) and both can be used for the following step.
 
 7. Configure the PCCS service:
 
-	```bash
-	sudo /usr/bin/pccs-configure
-	```
+   ```bash
+   sudo /usr/bin/pccs-configure
+   ```
 
-	An example configuration:
+   An example configuration:
 
-	```console
-	Checking nodejs version ...
-	nodejs is installed, continue...
-	Checking cracklib-runtime ...
-	Set HTTPS listening port [8081] (1024-65535) :
-	Set the PCCS service to accept local connections only? [Y] (Y/N) :
-	Set your Intel PCS API key (Press ENTER to skip) : <Enter your Intel PCS subscription key here>
-	Choose caching fill method : [LAZY] (LAZY/OFFLINE/REQ) :
-	Set PCCS server administrator password: <pccs-admin-password>
-	Re-enter administrator password: <pccs-admin-password>
-	Set PCCS server user password: <pccs-server-user-password>
-	Re-enter user password: <pccs-server-user-password>
-	Do you want to generate insecure HTTPS key and cert for PCCS service? [Y] (Y/N) :N
-	```
+   ```console
+   Checking nodejs version ...
+   nodejs is installed, continue...
+   Checking cracklib-runtime ...
+   Set HTTPS listening port [8081] (1024-65535) :
+   Set the PCCS service to accept local connections only? [Y] (Y/N) :
+   Set your Intel PCS API key (Press ENTER to skip) : <Enter your Intel PCS subscription key here>
+   Choose caching fill method : [LAZY] (LAZY/OFFLINE/REQ) :
+   Set PCCS server administrator password: <pccs-admin-password>
+   Re-enter administrator password: <pccs-admin-password>
+   Set PCCS server user password: <pccs-server-user-password>
+   Re-enter user password: <pccs-server-user-password>
+   Do you want to generate insecure HTTPS key and cert for PCCS service? [Y] (Y/N) :N
+   ```
 
-   NOTE: The resulting config file is located at `/opt/intel/sgx-dcap-pccs/config/default.json`.
+   NOTE 1: The resulting config file is located at `/opt/intel/sgx-dcap-pccs/config/default.json`.
+
+   NOTE 2: If you're behind a proxy, add your proxy URL in the `default.json` file.
 
 8. Restart the PCCS service:
 
@@ -410,7 +419,7 @@ sudo ./check-production.sh
 
 10. Register the platform.
 
-	Note that there are multiple alternatives to perform platform registration with different trade-offs and they are explained in detail in [Intel's Intel TDX Enabling Guide](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/02/infrastructure_setup/#platform-registration).
+	NOTE: There are multiple alternatives to perform platform registration with different trade-offs and they are explained in detail in [Intel's Intel TDX Enabling Guide](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/02/infrastructure_setup/#platform-registration).
 	In the following, we focus on the the direct registration variant that uses the Multi-package Registration Agent (MPA).
 	This agent is executed on system start up, registers the platform (if necessary), and gets deactivated.
 	Please check the following two logs to confirm successful registration:
