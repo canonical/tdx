@@ -408,7 +408,8 @@ sudo ./check-production.sh
 
 10. Register the platform.
 
-	The platform registration is done with the `mpa_registration_tool` tool.
+	Note that there are multiple alternatives to perform platform registration with different trade-offs and they are explained in detail in [Intel's Intel TDX Enabling Guide](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/02/infrastructure_setup/#platform-registration).
+	In the following, we focus on the the direct registration variant that uses the Multi-package Registration Agent (MPA).
 	This agent is executed on system start up, registers the platform (if necessary), and gets deactivated.
 	Please check the following two logs to confirm successful registration:
 
