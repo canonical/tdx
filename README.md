@@ -8,9 +8,10 @@
 * [5. Create TD Image](#create-td-image)
 * [6. Boot TD](#boot-td)
 * [7. Verify TD](#verify-td)
-* [8. Setup Remote Attestation on Host OS and inside TD](#setup-remote-attestation)
-* [9. Build Packages From Source](#build-packages-from-source)
-* [10. Run Tests](#sanity-functional-tests)
+* [8. Setup Remote Attestation on Host OS and Inside TD](#setup-remote-attestation)
+* [9. Perform Remote Attestation Using Intel Tiber Trust Services CLI](#perform-remote-attestation)
+* [10. Build Packages From Source](#build-packages-from-source)
+* [11. Run Tests](#sanity-functional-tests)
 
 <!-- headings -->
 <a id="introduction"></a>
@@ -25,15 +26,20 @@ For more information, see the [Intel TDX overview](https://www.intel.com/content
 This tech preview of Intel TDX on Ubuntu 24.04 provides base host OS, guest OS, and remote attestation functionalities.
 Follow these instructions to setup the Intel TDX host, create a TD, boot the TD, and attest the integrity of the TD's execution environment.
 
-The setup can be customized by editing the global configuration file: `setup-tdx-config`
+The host OS and TD setup can be cutomized by editing the global configuration file: `setup-tdx-config`.
 
 <a id="report-an-issue"></a>
 ## 2. Report an Issue
-Please submit an issue [here](https://github.com/canonical/tdx/issues) and we'll get back to you ASAP.
+Please submit issues [here](https://github.com/canonical/tdx/issues) and we'll get back to you ASAP.
+
+To help us with the debugging process, run the `system-report.sh`
+tool and attach the report.  
 
 <a id="supported-hardware"></a>
 ## 3. Supported Hardware
-This release supports 4th Generation Intel® Xeon® Scalable Processors with activated Intel® TDX and all 5th Generation Intel® Xeon® Scalable Processors.
+This release works with these Intel® Xeon® Processors:
+* 4th Gen Intel® Xeon® Scalable Processors (select SKUs with Intel® TDX)
+* 5th Gen Intel® Xeon® Scalable Processors
 
 <a id="setup-host-os"></a>
 ## 4. Setup Host OS
@@ -47,17 +53,28 @@ Download and install [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/ubu
 ### 4.2 Enable Intel TDX in Host OS
 
 1. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning the repository (at the appropriate tag/branch).
+   
+   For example: 
 
-2. Run the following script.<a id="step-4-2-2"></a>
+   ```bash
+   git clone -b noble-24.04 https://github.com/canonical/tdx.git
+   ```
+
+2. Customize the setup of the host and TD by editing the configuration file `setup-tdx-config`.  
+    By default, remote attestation components are not installed on the host and inside the TD.  
+    You can chose to automatically install remote attestation packages provided by Canonical by setting `TDX_SETUP_ATTESTATION=1`.  
+   In this case, you can skip [step 8.2.1](#step-8-2-1) and [step 8.3.3](#step-8-3-3).  
+
+3. Run the `setup-tdx-host.sh` script.<a id="step-4-2-3"></a>
 
     NOTE: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
-    ```bash
-	cd tdx
-	sudo ./setup-tdx-host.sh
-	```
+   ```bash
+   cd tdx
+   sudo ./setup-tdx-host.sh
+   ```
 
-3. Reboot.
+4. Reboot.
 
 ### 4.3 Enable Intel TDX in the Host's BIOS
 
@@ -69,17 +86,17 @@ Download and install [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/ubu
 
 2. Go to `Socket Configuration > Processor Configuration > TME, TME-MT, TDX`.
 
-	* Set `Memory Encryption (TME)` to `Enabled`
-	* Set `Total Memory Encryption Bypass` to `Enabled` (Optional setting for best host OS and regular VM performance.)
-	* Set `Total Memory Encryption Multi-Tenant (TME-MT)` to `Enabled`
-	* Set `TME-MT memory integrity` to `Disabled`
-	* Set `Trust Domain Extension (TDX)` to `Enabled`
-	* Set `TDX Secure Arbitration Mode Loader (SEAM Loader)` to `Enabled`. (NOTE: This allows loading Intel TDX Loader and Intel TDX Module from the ESP or BIOS.)
+	* Set `Memory Encryption (TME)` to `Enable`
+	* Set `Total Memory Encryption Bypass` to `Enable` (Optional setting for best host OS and regular VM performance.)
+	* Set `Total Memory Encryption Multi-Tenant (TME-MT)` to `Enable`
+	* Set `TME-MT memory integrity` to `Disable`
+	* Set `Trust Domain Extension (TDX)` to `Enable`
+	* Set `TDX Secure Arbitration Mode Loader (SEAM Loader)` to `Enable`. (NOTE: This allows loading Intel TDX Loader and Intel TDX Module from the ESP or BIOS.)
 	* Set `TME-MT/TDX key split` to a non-zero value
 
 3. Go to `Socket Configuration > Processor Configuration > Software Guard Extension (SGX)`.
 
-	* Set `SW Guard Extensions (SGX)` to `Enabled`
+	* Set `SW Guard Extensions (SGX)` to `Enable`
 
 4. Save the BIOS settings and boot up.
 
@@ -91,9 +108,9 @@ Verify that Intel TDX is enabled using the `dmesg` command:
 sudo dmesg | grep -i tdx
 ```
 
-The message `virt/tdx: module initialized` proves that the tdx has been properly initialized. Here is an example output:
+The message `virt/tdx: module initialized` proves that Intel TDX has initialized properly. Here is an example output:
 
-```
+```console
 ...
 [    5.205693] virt/tdx: BIOS enabled: private KeyID range [64, 128)
 [   29.884504] virt/tdx: 1050644 KB allocated for PAMT
@@ -104,11 +121,12 @@ The message `virt/tdx: module initialized` proves that the tdx has been properly
 <a id="create-td-image"></a>
 ## 5. Create TD Image
 
-In this section, you will create an Ubuntu 24.04-based TD image from scratch or convert an existing VM image into a TD image. This can be performed on any Ubuntu 22.04 or newer system - an Intel TDX-specific environment is not required.
+In this section, you will create an Ubuntu 24.04-based TD image from scratch or convert an existing VM image into a TD image. 
+This can be performed on any Ubuntu 22.04 or newer system - an Intel TDX-specific environment is not required.
 
 * The base image is an Ubuntu 24.04 cloud image.
-
-* By default, the generic kernel is used for the guest. The Intel kernel can be selected by changing the variable `TDX_SETUP_INTEL_KERNEL` in the configuration file `setup-tdx-config`.
+* By default, the Ubuntu generic kernel is used for the TD guest. The `-intel` kernel, which may have non-upstreamed and/or under-development features,
+  can be selected by setting the variable `TDX_SETUP_INTEL_KERNEL=1` in the `setup-tdx-config` configuration file.
 
 ### 5.1 Create a New TD Image
 
@@ -118,7 +136,6 @@ Please note the most important options described after the commands and have a l
 
 ```bash
 cd tdx/guest-tools/image/
-# create tdx-guest-ubuntu-24.04-generic.qcow2
 sudo ./create-td-image.sh
 ```
 
@@ -126,10 +143,11 @@ Important options for TD image creation:
 * If you're behind a proxy, use `sudo -E` to preserve user environment.
 * To adjust the base image, set the following two environment variables before running the script:
 
-	```bash
-	export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/noble/current/"
-	export CLOUD_IMG="noble-server-cloudimg-amd64.img"
-	```
+    ```bash
+    export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/noble/current/"
+    export CLOUD_IMG="noble-server-cloudimg-amd64.img"
+    ```
+
 * The used kernel type (`generic` or `intel`) will be reflected in the name of the resulting image so it is easy to distinguish.
 
 ### 5.2 Convert a Regular VM Image into a TD Image
@@ -184,18 +202,19 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
 ### 6.2 Boot TD with virsh (libvirt)
 
 1. [Recommended] Configure libvirt to be usable as non-root user.
-	* Apply the following settings to the file `/etc/libvirt/qemu.conf`.
+   1. Apply the following settings to the file `/etc/libvirt/qemu.conf`.
 
-		```bash
-		user = <your_user_name>
-		group = <your_group>
-		dynamic_ownership = 0
-		```
-	* Restart the `libvirtd` service
+	    ```console
+	    user = <your_user_name>
+	    group = <your_group>
+	    dynamic_ownership = 0
+	    ```
 
-		```bash
-		systemctl restart libvirtd
-		```
+   2. Restart the `libvirtd` service
+
+	    ```bash
+	    systemctl restart libvirtd
+	    ```
 
 2. Boot TD using the following commands.
 
@@ -204,64 +223,71 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
 	./tdvirsh new
 	```
 
-Details about `tdvirsh`:
-* To manage the lifecycle of TDs, we developed a wrapper around the `virsh` tool.
-This new `tdvirsh` tool extends `virsh` with new capabilities to create/remove TDs.
-* By default, `tdvirsh` will use an image located at `./image/tdx-guest-ubuntu-24.04-generic.qcow2` with the `generic` Ubuntu kernel.
-A different qcow2 image (e.g., one with an `intel` kernel) can be used by using the command-line option `-i IMAGE_PATH`.
-* By default, `tdvirsh` will use a XML libvirt template located at `./trust_domain.xml.template`.
-A different XML libvirt template can be used by using the command-line option `-t XML_PATH`.
-* All VMs can be listed with the following command:
-	```
-	./tdvirsh list --all
-	```
+   Details about `tdvirsh`:
+   * To manage the lifecycle of TDs, we developed a wrapper around the `virsh` tool.
+   This new `tdvirsh` tool extends `virsh` with new capabilities to create/remove TDs.
+   * By default, `tdvirsh` will use an image located at `./image/tdx-guest-ubuntu-24.04-generic.qcow2` with the `generic` Ubuntu kernel.
+   A different qcow2 image (e.g., one with an `intel` kernel) can be used by using the command-line option `-i IMAGE_PATH`.
+   * By default, `tdvirsh` will use a XML libvirt template located at `./trust_domain.xml.template`.
+   A different XML libvirt template can be used by using the command-line option `-t XML_PATH`.
+   * All VMs can be listed with the following command:
 
-	Example of output:
-
+        ```bash
+        ./tdvirsh list --all
         ```
-        $ ./tdvirsh list --all
+
+        Example output:
+
+        ```console
         Id   Name                                                        State
         ---------------------------------------------------------------------------
         1    tdvirsh-trust_domain-f7210c2b-2657-4f30-adf3-639b573ea39f   running (ssh:32855, cid:3)
         ```
 
-        `ssh:32855` displays the port user can use to connect to the VM via `ssh`.
-* A TD can be removed with the following command:
-	```
-	./tdvirsh delete [domain]
-	```
-* All available options can be displayed with the following command:
-	```
-	./tdvirsh -h
-	```
+        NOTE: `32855` in `ssh:32855` is the port number a user can use to connect to the TD via `ssh`.
+
+   * A TD can be removed with the following command:
+
+        ```bash
+        ./tdvirsh delete [domain]
+        ```
+
+   * All available options can be displayed with the following command:
+
+        ```bash
+        ./tdvirsh -h
+        ```
 
 ### 6.3 Secure Boot TD
 
-To run a TD with secure boot enabled, use the `tdvirsh` tool with
-dedicated libvirt configuration:
+We provide a libvirt template (`trust_domain-sb.xml.template`) that shows how a TD can be booted with secure boot.
+As a result, you can easily boot a TD with secure boot enabled using the following commands:
 
-	cd tdx/guest-tools
-	./tdvirsh new -t trust_domain-sb.xml.template
-
+```bash
+cd tdx/guest-tools
+./tdvirsh new -t trust_domain-sb.xml.template
+```
 
 <a id="verify-td"></a>
 ## 7. Verify TD
 
 1. Log into the TD using one of the following commands.
 
-	NOTE: If you booted your TD with `td_virsh_tool.sh`, you will likely need
-	a different port number from the one below. The tool will print the appropriate port to use
-	after it has successfully booted the TD.
+   NOTE: If you booted your TD with `td_virsh_tool.sh`, you will likely need
+   a different port number from the one below. The tool will print the appropriate port to use
+   after it has successfully booted the TD.
 
-	```bash
-	# From localhost
-	ssh -p 10022 root@localhost
+   * From localhost
+   ```bash
+   ssh -p 10022 root@localhost
+   ```
 
-	# From remote host
-	ssh -p 10022 root@<host_ip>
-	```
+   * From remote host
+   ```bash
+   ssh -p 10022 root@<host_ip>
+   ```
 
-2. Verify Intel TDX is enabled in the guest using the following command:
+2. Verify Intel TDX is enabled in the TD:
 
 	```bash
 	dmesg | grep -i tdx
@@ -269,7 +295,7 @@ dedicated libvirt configuration:
 
 	An example output:
 
-	```
+	```console
 	[    0.000000] tdx: Guest detected
 	[    0.000000] DMI: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 2023.05-2+tdx1.0~ubuntu23.10.1 10/17/2023
 	[    0.395218] process: using TDX aware idle routine
@@ -285,12 +311,12 @@ dedicated libvirt configuration:
 
 	Should give the following output:
 
-	```
+	```console
 	tdx_guest
 	```
 
 <a id="setup-remote-attestation"></a>
-## 8. Setup Remote Attestation on Host OS and inside TD
+## 8. Setup Remote Attestation on Host OS and Inside TD
 Attestation is a process in which the attester requests the verifier (e.g., Intel Tiber Trust Services) to confirm that a TD is operating in a secure and trusted environment.
 This process involves the attester generating a "TD Quote", which contains measurements of the Trusted Execution Environment (TEE) and other cryptographic evidence.
 The TD Quote is sent to the verifier who then confirms its validity against reference values and policies.
@@ -299,18 +325,18 @@ For more on the basics of attestation, see [Attestation overview](https://docs.t
 
 ### 8.1 Check Hardware Status
 
-For attestation to work, you need _Production_ hardware. Run the following commands to verify.
+For attestation to work, you need _Production_ hardware. Run the `check-production.sh` script to verify.
 
 ```bash
 cd tdx/attestation
 sudo ./check-production.sh
 ```
 
-### 8.2 Setup Intel® SGX Data Center Attestation Primitives (Intel® SGX DCAP) inside the Host OS
+### 8.2 Setup Intel® SGX Data Center Attestation Primitives (Intel® SGX DCAP) on the Host OS
 
-1. Install the required DCAP packages inside the host OS.
+1. Install the required DCAP packages from Canonical's PPA on the host OS.<a id="step-8-2-1"></a>
 
-	NOTE 1:  If you have already installed Canonical's attestation components as part of the host OS setup (see [step 2 in section 4.2](#step-4-2-2)), you can continue with [step 3](#verify-sgx-devices).
+	NOTE 1: If you have already installed the attestation components as part of the host OS setup (see [step 2 in section 4.2](#step-4-2-3)), you can continue with [step 3](#verify-sgx-devices).
 
 	NOTE 2: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
@@ -321,84 +347,92 @@ sudo ./check-production.sh
 
 2. Reboot the system.
 
-3. Verify that The Intel SGX devices have proper user and group.<a id="verify-sgx-devices"></a>
+3. Verify the Intel SGX devices belong to these groups and have proper permissions.<a id="verify-sgx-devices"></a>
 
-	NOTE: These devices are needed as Intel TDX's attestation flow is based on the Intel SGX attestation flow.
+   NOTE: These devices are needed as Intel TDX's attestation flow is based on the Intel SGX attestation flow.
 
-	```bash
-	$ ls -l /dev/sgx_*
-	crw-rw-rw- 1 root sgx     10, 125 Apr  3 21:14 /dev/sgx_enclave
-	crw-rw---- 1 root sgx_prv 10, 126 Apr  3 21:14 /dev/sgx_provision
-	crw-rw---- 1 root sgx     10, 124 Apr  3 21:14 /dev/sgx_vepc
-	```
+   ```bash
+   ls -l /dev/sgx_*
+   ```
 
-3. Verify the QGS service is running properly:
+   Expected result:
+
+   ```console
+   crw-rw---- 1 root sgx     10, 125 Apr  3 21:14 /dev/sgx_enclave
+   crw-rw---- 1 root sgx_prv 10, 126 Apr  3 21:14 /dev/sgx_provision
+   crw-rw---- 1 root sgx     10, 124 Apr  3 21:14 /dev/sgx_vepc
+   ```
+
+4. Verify the QGS service is running properly:
 	```bash
 	sudo systemctl status qgsd
 	```
 
-4. Verify the PCCS service is running properly:
+5. Verify the PCCS service is running properly:
 	```bash
 	sudo systemctl status pccs
 	```
+6. To setup the PCCS in the next step, you need a subscription key for the [Intel PCS](https://api.portal.trustedservices.intel.com/provisioning-certification).
+   1. If you did not request such a subscription key before, [subscribe](https://api.portal.trustedservices.intel.com/products#product=liv-intel-software-guard-extensions-provisioning-certification-service) 
+      to Intel PCS, which requires to log in (or create an account). Two subscription keys are generated (for key rotation) and both can be used for the following step.
+   2. If you did request such a subscription key before, [retrieve](https://api.portal.trustedservices.intel.com/manage-subscriptions) one of your keys, 
+      which requires to log in. You have two subscription keys (for key rotation) and both can be used for the following step.
 
-5. To setup the PCCS in the next step, you need a subscription key for the [Intel PCS](https://api.portal.trustedservices.intel.com/provisioning-certification).
-	* If you did not request such a subscription key before, [subscribe](https://api.portal.trustedservices.intel.com/products#product=liv-intel-software-guard-extensions-provisioning-certification-service) to Intel PCS, which requires to log in (or create an account).
-	Two subscription keys are generated (for key rotation) and both can be used for the following step.
-	* If you did request such a subscription key before, [retrieve](https://api.portal.trustedservices.intel.com/manage-subscriptions) one of your keys, which requires to log in.
-	You have two subscription keys (for key rotation) and both can be used for the following step.
+7. Configure the PCCS service:
 
-6. Configure the PCCS service:
+   ```bash
+   sudo /usr/bin/pccs-configure
+   ```
 
-	```bash
-	sudo /usr/bin/pccs-configure
-	```
+   An example configuration:
 
-	An example configuration you can use:
+   ```console
+   Checking nodejs version ...
+   nodejs is installed, continue...
+   Checking cracklib-runtime ...
+   Set HTTPS listening port [8081] (1024-65535) :
+   Set the PCCS service to accept local connections only? [Y] (Y/N) :
+   Set your Intel PCS API key (Press ENTER to skip) : <Enter your Intel PCS subscription key here>
+   Choose caching fill method : [LAZY] (LAZY/OFFLINE/REQ) :
+   Set PCCS server administrator password: <pccs-admin-password>
+   Re-enter administrator password: <pccs-admin-password>
+   Set PCCS server user password: <pccs-server-user-password>
+   Re-enter user password: <pccs-server-user-password>
+   Do you want to generate insecure HTTPS key and cert for PCCS service? [Y] (Y/N) :N
+   ```
 
-	```
-	Checking nodejs version ...
-	nodejs is installed, continue...
-	Checking cracklib-runtime ...
-	Set HTTPS listening port [8081] (1024-65535) :
-	Set the PCCS service to accept local connections only? [Y] (Y/N) :
-	Set your Intel PCS API key (Press ENTER to skip) : <Enter your Intel PCS subscription key here>
-	You didn't set Intel PCS API key. You can set it later in config/default.json.
-	Choose caching fill method : [LAZY] (LAZY/OFFLINE/REQ) :
-	Set PCCS server administrator password: <PCCS-ADMIN-PASSWORD>
-	Re-enter administrator password: <PCCS-ADMIN-PASSWORD>
-	Set PCCS server user password: <PCCS-SERVER-USER-PASSWORD>
-	Re-enter user password: <PCCS-SERVER-USER-PASSWORD>
-	Do you want to generate insecure HTTPS key and cert for PCCS service? [Y] (Y/N) :N
-	```
+   NOTE 1: The resulting config file is located at `/opt/intel/sgx-dcap-pccs/config/default.json`.
 
-7. Restart the PCCS service:
+   NOTE 2: If you're behind a proxy, add your proxy URL in the `default.json` file.
+
+8. Restart the PCCS service:
 
 	```bash
 	sudo systemctl restart pccs
 	```
 
-8. Verify the PCCS service is running properly:
+9. Verify the PCCS service is running properly:
 
 	```bash
 	sudo systemctl status pccs
 	```
 
-9. Platform registration.
+10. Register the platform.
 
-	The platform registration is done with the `mpa_registration_tool` tool.
-	This service is executed on system start up, registers the platform, and gets deactivated.
+	NOTE: There are multiple alternatives to perform platform registration with different trade-offs and they are explained in detail in [Intel's Intel TDX Enabling Guide](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/02/infrastructure_setup/#platform-registration).
+	In the following, we focus on the the direct registration variant that uses the Multi-package Registration Agent (MPA).
+	This agent is executed on system start up, registers the platform (if necessary), and gets deactivated.
 	Please check the following two logs to confirm successful registration:
 
-	1. Check service logs with following command:
+	1. Check the log of the MPA service:
 
 		```bash
 		sudo systemctl status mpa_registration_tool
 		```
 
-		A successful example output:
+		Example output:
 
-		```bash
+		```console
 		mpa_registration_tool.service - Intel MPA Registration
 			Loaded: loaded (/usr/lib/systemd/system/mpa_registration_tool.service; enabled; preset: enabled)
 			Active: inactive (dead) since Tue 2024-04-09 22:54:50 UTC; 11h ago
@@ -409,26 +443,31 @@ sudo ./check-production.sh
 		Apr 09 22:54:50 right-glider-515046 systemd[1]: Started mpa_registration_tool.service - Intel MPA Registratio>
 		Apr 09 22:54:50 right-glider-515046 systemd[1]: mpa_registration_tool.service: Deactivated successfully.
 		```
-	2. Check MPA log file with following command:
+
+	2. Check the log file of the MPA:
 		```bash
 		cat /var/log/mpa_registration.log
 		```
 
-		A successful example output:
+		An example output of successful registration:
 
-		```bash
+		```console
 		[04-06-2024 03:05:53] INFO: SGX Registration Agent version: 1.20.100.2
 		[04-06-2024 03:05:53] INFO: Starts Registration Agent Flow.
 		[04-06-2024 03:05:54] INFO: Registration Flow - PLATFORM_ESTABLISHMENT or TCB_RECOVERY passed successfully.
 		[04-06-2024 03:05:54] INFO: Finished Registration Agent Flow.
 		```
 
-	If an error is reported in one of the logs, boot into the BIOS, go to
-	`Socket Configuration > Processor Configuration > Software Guard Extension (SGX)`, and set
-	- `SGX Factory Reset` to `Enabled`
-	- `SGX Auto MP Registration` to `Enabled`
+	If an error is reported, re-do the registration from scratch with these steps:
+	1. Remove the MPA log file:  `sudo rm /var/log/mpa_registration.log`.
+	2. Reboot.
+	3. Go into the BIOS.
+	4. Navigate to `Socket Configuration > Processor Configuration > Software Guard Extension (SGX)`.
+	5. Set these:
+	  - `SGX Factory Reset` to `Enable`
+	  - `SGX Auto MP Registration` to `Enable`
 
-### 8.3 Setup [Intel Tiber Trust Services CLI](https://github.com/intel/trustauthority-client-for-go) inside TD
+### 8.3 Setup [Intel Tiber Trust Services CLI](https://github.com/intel/trustauthority-client-for-go) Inside TD
 
 NOTE: If you have already installed the attestation components as part of the TD image creation,
 you proceed to [step 4](#verify-itts-client-version).
@@ -437,7 +476,7 @@ you proceed to [step 4](#verify-itts-client-version).
 
 2. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning the repository (at the appropriate tag/branch).
 
-3. Install the Intel Tiber Trust Service CLI.
+3. Install the Intel Tiber Trust Service CLI.<a id="step-8-3-3"></a>
 
 	```bash
 	cd tdx/attestation
@@ -452,57 +491,50 @@ you proceed to [step 4](#verify-itts-client-version).
 
 	An example output:
 
-	```
+	```console
 	Intel® Trust Authority CLI for TDX
-	Version: 1.2.0-
-	Build Date: 2024-03-07T17:35:34+00:00
+	Version: 1.5.0-
+	Build Date: 2024-07-08T09:53:15+00:00
 	```
 
-### 8.4 Perform Attestation using Intel Tiber Trust Services CLI
+<a id="perform-remote-attestation"></a>
+### 9. Perform Remote Attestation Using Intel Tiber Trust Services CLI
 
 1. [Boot a TD](#boot-td) and connect to it.
 
 2. Inside the TD, generate a sample TD Quote to prove the Quote Generation Service is working properly.
 
 	```bash
-	cd /usr/share/doc/libtdx-attest-dev/examples/
-	./test_tdx_attest
+	trustauthority-cli quote
 	```
 
 	An example output of a successful quote generation:
 
+	```console
+        [4 0 2 0 129 0 0 0 0 0 0 0 147 154 114 51 247 156 76 169 148 10 13 179 149 127 6 7 153 37 33 
+         114 143 8 198 185 144 222 132 242 244 129 151 76 0 0 0 0 5 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 28 
+         198 161 122 183 153 233 166 147 250 199 83 107 230 28 18 238 30 15 171 173 168 45 12 153 15 
+         8 204 238 42 168 109 231 123 8 112 245 88 197 112 231 255 229 93 109 71 250 4 0 0 0 0 0 0 0
+         0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+         0 0 0 0 0 0 16 0 0 0 0 231 2 6 0 0 0 0 0 71 161 204 7 75 145 77 248 89 107 173 14 209 61 80
+         213 97 173 30 255 199 247 204 83 10 184 109 167 234 73 255 192 62 87 231 218 130 159 140 18
+         156 98 156 57 112 80 83 35 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+	                                       ....
+	                                       ....
+	                                       ....
+         15 43 88 111 53 111 47 115 88 54 79 57 81 87 120 72 82 65 118 90 85 71 79 100 82 81 55 99 
+         118 113 82 88 97 113 73 61 10 45 45 45 45 45 69 78 68 32 67 69 82 84 73 70 73 67 65 84 69 
+         45 45 45 45 45 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+         0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+
 	```
-			TDX report data
-
-	00000000: 1a d0 79 02 45 df 7e 77 2b 9f a2 43 8c 69 4f 8a
-	00000010: f3 0b 53 44 01 87 15 e1 44 1b 27 f1 c0 eb 14 da
-	00000020: bb 8d dd 00 6c 5b 78 97 fa 1a da 86 83 2a 10 76
-	00000030: 35 63 bb 36 ea d0 17 2f eb 3e 20 ab 2a 34 86 e5
-
-			TDX report
-
-	00000000: 81 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-	00000010: 06 06 16 18 03 ff 00 04 00 00 00 00 00 00 00 00
-	00000020: ae ef a8 61 f5 b5 f0 4f b5 ad 95 8c 1b ae f7 5f
-	00000030: 2c 05 e0 e1 5e cd 5f 87 96 85 0a 10 cf ca a7 58
-	....
-	....
-
-	Successfully get the TD Quote
-	Wrote TD Quote to quote.dat
-	Failed to extend rtmr[2]
-	Failed to extend rtmr[3]
-	```
-
-	NOTE: You can ignore the `Failed to extend rtmr` messages.
-
-	You should also find a `quote.dat` file generated.
 
 3. Attest with the [Intel Tiber Trust Service](https://www.intel.com/content/www/us/en/security/trust-authority.html).
-	* Obtain an API key following the [tutorial](https://docs.trustauthority.intel.com/main/articles/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client).
-	* Create a `config.json` file like the example below:
+   1. Obtain an API key following this [tutorial](https://docs.trustauthority.intel.com/main/articles/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client).
 
-		```
+   2. Create a `config.json` file like the example below:
+
+		```console
 		{
 			"trustauthority_url": "https://portal.trustauthority.intel.com",
 			"trustauthority_api_url": "https://api.trustauthority.intel.com",
@@ -510,7 +542,7 @@ you proceed to [step 4](#verify-itts-client-version).
 		}
 		```
 
-	* Use the Intel Tiber Trust Service CLI to generation an attestation token.
+   3. Use the Intel Tiber Trust Service CLI to generation an attestation token.
 		Under the hood, the CLI will generate a TD Quote using the CPU, send the TD Quote to the external Intel Tiber Trust Service for TD Quote verification, and receive an attestation token on success.
 
 		```bash
@@ -519,7 +551,7 @@ you proceed to [step 4](#verify-itts-client-version).
 
 		An example of a successful attestation token generation:
 
-		```
+		```console
 		2024/04/30 22:55:17 [DEBUG] GET https://api.trustauthority.intel.com/appraisal/v1/nonce
 		2024/04/30 22:55:18 [DEBUG] POST https://api.trustauthority.intel.com/appraisal/v1/attest
 		Trace Id: U5sA2GNVoAMEPkQ=
@@ -532,7 +564,7 @@ you proceed to [step 4](#verify-itts-client-version).
 		```
 
 <a id="build-packages-from-source"></a>
-## 9. Build Packages from Source
+## 10. Build Packages from Source
 
 Even though the Intel TDX components live in a separate PPA from the rest of the Ubuntu packages,
 they follow the Ubuntu standards and offer users the same facilities for code source access and building.
@@ -589,6 +621,6 @@ Here are example instructions for building QEMU (for normal user with sudo right
 
 
 <a id="sanity-functional-tests"></a>
-## 10. Running Tests
+## 11. Run Tests
 
 Please follow [tests/README](tests/README.md) to run Intel TDX tests.
