@@ -33,16 +33,16 @@ CPU_MODEL=$(cat /proc/cpuinfo | awk 'match($0,/model.+: ([0-9]+)/,m){ print m[1]
 CPU_GEN="unknown generation"
 # ref : https://github.com/qemu/qemu/blob/master/target/i386/cpu.c
 if [ "$CPU_MODEL" = "143" ]; then
-    CPU_GEN="Sapphire Rapids"
+    CPU_GEN="4th Gen Intel® Xeon® Scalable Processors (codename: Sapphire Rapids)"
 fi
 if [ "$CPU_MODEL" = "173" ]; then
-    CPU_GEN="Granite Rapids"
+    CPU_GEN="Intel® Xeon® 6 with P-cores (codename: Granite Rapids)"
 fi
 if [ "$CPU_MODEL" = "175" ]; then
-    CPU_GEN="Sierra Forest"
+    CPU_GEN="Intel® Xeon® 6 with E-cores (codename: Sierra Forest)"
 fi
 if [ "$CPU_MODEL" = "207" ]; then
-    CPU_GEN="Emeralds Rapids"
+    CPU_GEN="5th Gen Intel® Xeon® Scalable Processors (codename: Emerald Rapids)"
 fi
 
 echo "CPU: ${CPU_GEN}"
