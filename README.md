@@ -11,7 +11,8 @@
 * [8. Setup Remote Attestation on Host OS and Inside TD](#setup-remote-attestation)
 * [9. Perform Remote Attestation Using Intel Tiber Trust Services CLI](#perform-remote-attestation)
 * [10. Build Packages From Source](#build-packages-from-source)
-* [11. Run Tests](#sanity-functional-tests)
+* [11. Build Kernel From Source](#build-kernel-from-source)
+* [12. Run Tests](#sanity-functional-tests)
 
 <!-- headings -->
 <a id="introduction"></a>
@@ -620,7 +621,42 @@ Here are example instructions for building QEMU (for normal user with sudo right
 	For details, you can refer to https://wiki.debian.org/BuildingTutorial#Installing_and_testing_the_modified_package
 
 
+<a id="build-kernel-from-source"></a>
+## 11. Build Kernel from Source
+
+1. Initialize a matching build environment.
+
+	```bash
+	git clone https://kernel.ubuntu.com/gitea/kernel/kteam-tools.git
+	sudo apt install schroot devscripts ubuntu-dev-tools
+	# Some additional package might be installed in next step
+	# A session restart might be required at next step to take permission changes into account
+	kteam-tools/cranky/cranky chroot create-base "noble"
+	kteam-tools/cranky/cranky chroot create-session noble:linux
+	```
+
+2. Clone the kernel source.
+
+	```bash
+	kteam-tools/cranky/cranky checkout noble:linux-intel
+	```
+
+3. Build the kernel.
+
+	```bash
+	cd <kernel repository>
+	<path-to-kteam-tools>/cranky/cranky fdr clean binary
+	```
+
+4. Install the kernel.
+
+Example of kernel installation:
+
+	```bash
+	sudo dpkg -i ../linux-image-unsigned-6.8.0-1011-intel_6.8.0-1011.18_amd64.deb ../linux-modules-6.8.0-1011-intel_6.8.0-1011.18_amd64.deb
+	```
+
 <a id="sanity-functional-tests"></a>
-## 11. Run Tests
+## 12. Run Tests
 
 Please follow [tests/README](tests/README.md) to run Intel TDX tests.
