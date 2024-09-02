@@ -180,11 +180,30 @@ create_guest_image() {
     resize_guest_image
 }
 
+# To resize the guest image
+# 1) we add additionnal space to the qcow image using qemu-img tool
+# 2) we extend (using growpart) the partition sda1 to fill empty space until end of disk
+#    since sda1 is the last partition, it will take all space we previously added
+# 3) we resize the file system to cover all partition space
+#
+# NB: We should not use static name for the disk device (sda) because it can
+# change on boot (the main disk is named sdb). Using sda naming can cause failure
+# of the resizeing operation from time to time.
+# Instead, we access the disk by ID:
+#
+# /dev/disk/by-id:
+# total 0
+# lrwxrwxrwx 1 0 0  9 Sep  2 12:59 scsi-0QEMU_QEMU_HARDDISK_appliance -> ../../sdb
+# lrwxrwxrwx 1 0 0  9 Sep  2 12:59 scsi-0QEMU_QEMU_HARDDISK_hd0 -> ../../sda
+# lrwxrwxrwx 1 0 0 10 Sep  2 12:59 scsi-0QEMU_QEMU_HARDDISK_hd0-part1 -> ../../sda1
+# lrwxrwxrwx 1 0 0 11 Sep  2 12:59 scsi-0QEMU_QEMU_HARDDISK_hd0-part14 -> ../../sda14
+# lrwxrwxrwx 1 0 0 11 Sep  2 12:59 scsi-0QEMU_QEMU_HARDDISK_hd0-part15 -> ../../sda15
+# lrwxrwxrwx 1 0 0 11 Sep  2 12:59 scsi-0QEMU_QEMU_HARDDISK_hd0-part16 -> ../../sda16
 resize_guest_image() {
     qemu-img resize ${TMP_GUEST_IMG_PATH} +${SIZE}G
     virt-customize -a ${TMP_GUEST_IMG_PATH} \
-        --run-command 'growpart /dev/sda 1' \
-        --run-command 'resize2fs /dev/sda1' \
+        --run-command 'growpart /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_hd0 1' \
+        --run-command 'resize2fs /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_hd0-part1' \
         --run-command 'systemctl mask pollinate.service'
     if [ $? -eq 0 ]; then
         ok "Resize the guest image to ${SIZE}G"
