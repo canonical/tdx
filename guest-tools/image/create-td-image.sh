@@ -187,7 +187,7 @@ create_guest_image() {
 # 3) we resize the file system to cover all partition space
 #
 # NB: We should not use static name for the disk device (sda) because it can
-# change on boot (the main disk is named sdb). Using sda naming can cause failure
+# change on boot (e.g., the main disk might be named sdb). Using sda naming can cause failure
 # of the resizeing operation from time to time.
 # Instead, we access the disk by ID:
 #
