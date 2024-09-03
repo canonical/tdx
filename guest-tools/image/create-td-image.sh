@@ -181,7 +181,7 @@ create_guest_image() {
 }
 
 # To resize the guest image
-# 1) we add additionnal space to the qcow image using qemu-img tool
+# 1) we add additional space to the qcow image using qemu-img tool
 # 2) we extend (using growpart) the partition sda1 to fill empty space until end of disk
 #    since sda1 is the last partition, it will take all space we previously added
 # 3) we resize the file system to cover all partition space
