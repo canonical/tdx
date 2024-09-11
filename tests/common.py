@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-#
 # Copyright 2024 Canonical Ltd.
 # Authors:
 # - Hector Cao <hector.cao@canonical.com>
@@ -18,25 +16,12 @@
 #
 
 import os
-import time
-
 import Qemu
-import util
-from common import *
 
-script_path=os.path.dirname(os.path.realpath(__file__))
+script_path=os.path.dirname(os.path.realpath(__file__)) + '/'
+# put in /var/tmp instead of /tmp to be persistent across reboots 
+guest_workdir='/var/tmp/tdxtest'
 
-def test_guest_report():
-    """
-    Boot measurements check
-    """
-    qm = Qemu.QemuMachine()
-    qm.run()
-
-    m = Qemu.QemuSSH(qm)
-
-    deploy_and_setup(m)
-
-    m.check_exec(f'python3 {guest_workdir}/tests/guest/test_tdreport.py')
-
-    qm.stop()
+def deploy_and_setup(m : Qemu.QemuSSH):
+    m.rsync_file(f'{script_path}', f'{guest_workdir}')
+    m.check_exec(f'cd {guest_workdir} && ./setup_guest.sh')
