@@ -253,6 +253,12 @@ class QemuCommand:
         ]
         return self.monitor_file
 
+    def add_vsock(self, guest_cid):
+        self.command = self.command + [
+            '-device', 'vhost-vsock-pci,guest-cid=%d' % (guest_cid),
+        ]
+        return self.monitor_file # why are all of these returning monitor file?
+
     def add_monitor(self):
         try:
             if self.monitor_file is not None:
