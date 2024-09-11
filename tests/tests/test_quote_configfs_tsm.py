@@ -20,6 +20,7 @@ import time
 
 import Qemu
 import util
+from common import *
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
@@ -31,8 +32,9 @@ def test_quote_check_configfs_tsm():
     qm.run()
 
     m = Qemu.QemuSSH(qm)
-    m.rsync_file(f'{script_path}/../lib', '/tmp/tdxtest/')
-    m.check_exec('cd /tmp/tdxtest/lib/tdx-tools/ && python3 -m pip install --break-system-packages ./')
+
+    deploy_and_setup(m)
+
     m.check_exec('tdtsmcheck')
 
     qm.stop()

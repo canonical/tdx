@@ -439,7 +439,7 @@ class QemuMachine:
         self._create_image()
 
         # TODO : WA for log, to be removed
-        print('\n\nQemuMachine created.')
+        print(f'\n\nQemuMachine created (debug={self.debug}).')
 
         self.qcmd = QemuCommand(
             self.workdir_name,
