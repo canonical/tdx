@@ -110,7 +110,10 @@ grub_set_kernel
 # just force the installation of modules-extra to make sure we have it
 apt install --yes --allow-downgrades linux-modules-extra-${KERNEL_RELEASE}
 
-grub_cmdline_kvm || true
+# in recent -intel kernel, tdx is enabled by default in kvm_intel
+# so this is not necessary anymore
+#grub_cmdline_kvm || true
+
 grub_cmdline_nohibernate || true
 add_user_to_kvm || true
 
