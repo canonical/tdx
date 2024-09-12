@@ -82,31 +82,24 @@ def test_guest_disable_tdx_fail():
     tdx_disabled test case (See https://github.com/intel/tdx/wiki/Tests)
     """
 
-    # Setup tdx=0 in driver
-    cs = subprocess.run(['sudo', 'rmmod', 'kvm_intel'], check=True)
-    assert cs.returncode == 0, 'Failed rmmod'
-    cs = subprocess.run(['sudo', 'modprobe', 'kvm_intel', 'tdx=0'], check=True)
-    assert cs.returncode == 0, 'Failed modprobe'
+    with KvmIntelModuleReloader('tdx=0') as module:
+        # Run Qemu and verify failure
+        qm = Qemu.QemuMachine()
+        qm.run()
 
-    # Run Qemu and verify failure
-    qm = Qemu.QemuMachine()
-    qm.run()
+        # expect qemu quit immediately with specific error message
+        _, err = qm.communicate()
+        assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
 
-    # Qemu should fail
-    err = ""
-    try:
-        [tmpout, tmperr] = qm.communicate()
-        err += str(tmperr)
-    except Exception as e:
-        assert False, print(f'Failed communicating with QEMU with Exception {e}')
-
-    # Qemu should fail w/ "-accel kvm: vm-type tdx not supported by KVM"
-    assert qm.proc.returncode != 0, "Qemu didn't fail properly"
-    assert "-accel kvm: vm-type tdx not supported by KVM" in err, \
-            "Qemu didn't fail with proper error"
-
-    # Reinstall kvm_intel "normally"
-    cs = subprocess.run(['sudo', 'rmmod', 'kvm_intel'], check=True)
-    assert cs.returncode == 0, 'Failed rmmod'
-    cs = subprocess.run(['sudo', 'modprobe', 'kvm_intel'], check=True)
-    assert cs.returncode == 0, 'Failed modprobe'
+class KvmIntelModuleReloader:
+    """
+    kvm_intel module reloader (context manager)
+    Allow to reload kvm_intel module with custom arguments
+    """
+    def __init__(self, module_args=''):
+        self.args = module_args
+    def __enter__(self):
+        subprocess.check_call('sudo rmmod kvm_intel', shell=True)
+        subprocess.check_call(f'sudo modprobe kvm_intel {self.args}', shell=True)
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        subprocess.check_call('sudo modprobe kvm_intel', shell=True)
