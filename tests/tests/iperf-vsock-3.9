@@ -173,8 +173,8 @@ func_exec_program ()
     fi
     # remove .libs from thisdir
     case "$thisdir" in
-    *[\\/].libs ) thisdir=`$ECHO "$thisdir" | /usr/bin/sed 's%[\\/][^\\/]*$%%'` ;;
-    .libs )   thisdir=. ;;
+    *[\\/]lib ) thisdir=`$ECHO "$thisdir" | /usr/bin/sed 's%[\\/][^\\/]*$%%'` ;;
+    lib )   thisdir=. ;;
     esac
   fi
 
@@ -183,12 +183,12 @@ func_exec_program ()
   test -n "$absdir" && thisdir="$absdir"
 
   program='iperf3'
-  progdir="$thisdir/.libs"
+  progdir="$thisdir/bin"
 
 
   if test -f "$progdir/$program"; then
     # Add our own library path to LD_LIBRARY_PATH
-    LD_LIBRARY_PATH="$(dirname "$0")/.libs:$LD_LIBRARY_PATH"
+    LD_LIBRARY_PATH="$thisdir/lib:$LD_LIBRARY_PATH"
 
     # Some systems cannot cope with colon-terminated LD_LIBRARY_PATH
     # The second colon is a workaround for a bug in BeOS R4 sed
