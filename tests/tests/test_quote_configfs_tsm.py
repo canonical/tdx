@@ -22,8 +22,6 @@ import Qemu
 import util
 from common import *
 
-script_path=os.path.dirname(os.path.realpath(__file__))
-
 def test_quote_check_configfs_tsm():
     """
     Check that the configfs tsm for quote generation is available

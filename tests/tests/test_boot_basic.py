@@ -19,8 +19,6 @@ import os
 import Qemu
 from common import *
 
-script_path=os.path.dirname(os.path.realpath(__file__))
-
 def test_guest_boot():
     """
     Boot TD

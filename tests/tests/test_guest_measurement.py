@@ -24,8 +24,6 @@ import Qemu
 import util
 from common import *
 
-script_path=os.path.dirname(os.path.realpath(__file__))
-
 def test_guest_measurement_check_rtmr():
     """
     Boot measurements check
