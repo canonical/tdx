@@ -17,6 +17,7 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import re
 import subprocess
 
 def test_host_tdx_software():
@@ -28,25 +29,21 @@ def test_host_tdx_software():
 
     subprocess.check_call('grep Y /sys/module/kvm_intel/parameters/sgx', shell=True)
 
-def test_host_tdx_uefi():
+def test_host_tdx_module_load():
     """
+    Check the tdx module has been loaded successfuly on the host
+    Check a log in dmesg with appropriate versioning information
+
     tdx_uefi test case (See https://github.com/intel/tdx/wiki/Tests)
     """
 
-    # Get dmesg and make sure it has the attributes line indicating uefi
+    # Get dmesg and make sure it has the tdx module load message
     cs = subprocess.run(['sudo', 'dmesg'], check=True, capture_output=True)
     assert cs.returncode == 0, 'Failed getting dmesg'
-    dmesg_str = str(cs.stdout)
-    assert "tdx: TDX module: attributes" in dmesg_str, "Could not find tdx module init in dmesg"
+    dmesg_str = cs.stdout.decode('utf-8')
 
-    # Adding this for maybe doing more verification of the information here in the future
-    # Parsing the line into pairs of "attributs,0x0", "vendor_id, 0x8086", ...
-    i1 = dmesg_str.find('tdx: TDX module: attributes')
-    i2 = dmesg_str[i1:].find('\\n')
-    pairs = dmesg_str[i1+17:i1+i2].split(',')
-    for p in pairs:
-        print(p.strip().split(' '))
-
+    items=re.findall(r'tdx: TDX module: attributes 0x[0-9]+, vendor_id 0x8086, major_version [0-9]+, minor_version [0-9]+, build_date [0-9]+, build_num [0-9]+', dmesg_str)
+    assert len(items) > 0
 
 if __name__ == '__main__':
     test_host_tdx_software()
