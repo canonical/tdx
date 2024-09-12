@@ -36,9 +36,7 @@ cleanup() {
 }
 
 install_deps() {
-  sudo apt install -y python3-parameterized \
-         sshpass \
-         python3-cpuinfo  &> /dev/null
+  sudo apt install -y sshpass
 }
 
 rm -rf /var/tmp/tdxtest
