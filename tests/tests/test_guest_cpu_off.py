@@ -66,30 +66,25 @@ def test_guest_cpu_pinned_off():
     for i in range(1,20):
         print(f'Iteration: {i}')
         qm = Qemu.QemuMachine()
-        qm.run()
+        qm.run_and_wait()
 
-        # get pid of Qemu machine (not written immediately sometimes)
-        tries = 0
-        cs = subprocess.run(['cat', f'{qm.workdir.name}/qemu.pid'], capture_output=True)
-        while cs.returncode != 0 and tries < 10:
-            cs = subprocess.run(['cat', f'{qm.workdir.name}/qemu.pid'], capture_output=True)
-            tries += 1
-        assert cs.returncode == 0, 'Failed getting qemu pid'
-        pid = int(cs.stdout.strip())
+        cpu = pin_process_on_random_cpu(qm.pid)
+
+        cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 0)
 
         m = Qemu.QemuSSH(qm)
-
-        # pin pid to a particular cpu
-        cs = subprocess.run(['sudo', 'taskset', '-pc', '18', f'{pid}'], capture_output=True)
-        assert cs.returncode == 0, 'Failed pinning qemu pid to cpu 18'
-
-        cpu_on_off('/sys/devices/system/cpu/cpu18/online', 0)
-
         m.check_exec('sudo init 0 &')
 
         qm.stop()
 
-        cpu_on_off('/sys/devices/system/cpu/cpu18/online', 1)
+        cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
+
+def pin_process_on_random_cpu(pid):
+    # pin pid to a particular cpu
+    cpu = cpu_select()
+    cs = subprocess.run(['sudo', 'taskset', '-pc', f'{cpu}', f'{pid}'], capture_output=True)
+    assert cs.returncode == 0, 'Failed pinning qemu pid to cpu 18'
+    return cpu
 
 def cpu_off_random():
     cpu = cpu_select()
