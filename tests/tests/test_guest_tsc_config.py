@@ -88,6 +88,38 @@ def test_guest_set_tsc_frequency():
     tsc_guest = ecx * ebx / eax
     assert tsc_guest == tsc_frequency, "TSC frequency not set correctly"
 
+def test_guest_tsc_deadline_enable():
+    """
+    tdx_tsc_deadline_enable test case (See https://github.com/intel/tdx/wiki/Tests)
+    """
+    qm = Qemu.QemuMachine()
+    qm.run()
+
+    m = Qemu.QemuSSH(qm)
+
+    stdout, _ = m.check_exec('lscpu')
+    output = stdout.read().decode('utf-8')
+    assert 'Flags' in output
+    assert 'tsc_deadline_timer' in output
+
+    qm.stop()
+
+def test_guest_tsc_deadline_disable():
+    """
+    tdx_tsc_deadline_disable test case (See https://github.com/intel/tdx/wiki/Tests)
+    """
+    qm = Qemu.QemuMachine()
+    qm.qcmd.plugins['cpu'].cpu_flags += f',-tsc-deadline'
+    qm.run()
+
+    m = Qemu.QemuSSH(qm)
+
+    stdout, _ = m.check_exec('lscpu')
+    output = stdout.read().decode('utf-8')
+    assert 'Flags' in output
+    assert 'tsc_deadline_timer' not in output
+
+    qm.stop()
 
 # helper function for parsing cpuid value into registers
 def parse_cpuid_0x15_values(val_str):
