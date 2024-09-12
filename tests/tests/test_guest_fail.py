@@ -37,45 +37,24 @@ def test_guest_noept_fail():
     assert cs.returncode == 0, 'Failed getting dmesg'
     dmesg_start = str(cs.stdout)
 
-    # Setup ept=0 in driver
-    cs = subprocess.run(['sudo', 'rmmod', 'kvm_intel'], check=True)
-    assert cs.returncode == 0, 'Failed rmmod'
-    cs = subprocess.run(['sudo', 'modprobe', 'kvm_intel', 'tdx=1', 'pt_mode=1', 'ept=0'], check=True)
-    assert cs.returncode == 0, 'Failed modprobe'
+    with KvmIntelModuleReloader('pt_mode=1 ept=0') as module:
+        # Get after modprobe dmesg contents
+        cs = subprocess.run(['sudo', 'dmesg'], check=True, capture_output=True)
+        assert cs.returncode == 0, 'Failed getting dmesg'
+        dmesg_end = str(cs.stdout)
 
-    # Get after modprobe dmesg contents
-    cs = subprocess.run(['sudo', 'dmesg'], check=True, capture_output=True)
-    assert cs.returncode == 0, 'Failed getting dmesg'
-    dmesg_end = str(cs.stdout)
+        # Verify "TDX requires mmio caching" in dmesg (but only one more time)
+        dmesg_start_count = dmesg_start.count("TDX requires TDP MMU.  Please enable TDP MMU for TDX")
+        dmesg_end_count = dmesg_end.count("TDX requires TDP MMU.  Please enable TDP MMU for TDX")
+        assert dmesg_end_count == dmesg_start_count+1, "dmesg missing proper message"
 
-    # Verify "TDX requires mmio caching" in dmesg (but only one more time)
-    dmesg_start_count = dmesg_start.count("TDX requires TDP MMU.  Please enable TDP MMU for TDX")
-    dmesg_end_count = dmesg_end.count("TDX requires TDP MMU.  Please enable TDP MMU for TDX")
-    assert dmesg_end_count == dmesg_start_count+1, "dmesg missing proper message"
+        # Run Qemu and verify failure
+        qm = Qemu.QemuMachine()
+        qm.run()
 
-    # Run Qemu and verify failure
-    qm = Qemu.QemuMachine()
-    qm.run()
-
-    # Qemu should fail (capture error string)
-    err = ""
-    try:
-        [tmpout, tmperr] = qm.communicate()
-        err += str(tmperr)
-    except Exception as e:
-        assert False, print(f'Failed communicating with QEMU with Exception {e}')
-
-    # Qemu should fail w/ "-accel kvm: vm-type tdx not supported by KVM"
-    assert qm.proc.returncode != 0, "Qemu didn't fail properly"
-    assert "-accel kvm: vm-type tdx not supported by KVM" in err, \
-            "Qemu didn't fail with proper error"
-
-    # Reinstall kvm_intel "normally"
-    cs = subprocess.run(['sudo', 'rmmod', 'kvm_intel'], check=True)
-    assert cs.returncode == 0, 'Failed rmmod'
-    cs = subprocess.run(['sudo', 'modprobe', 'kvm_intel'], check=True)
-    assert cs.returncode == 0, 'Failed modprobe'
-
+        # expect qemu quit immediately with specific error message
+        _, err = qm.communicate()
+        assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
 
 def test_guest_disable_tdx_fail():
     """
