@@ -104,6 +104,12 @@ parts:
     source: tests
     organize:
       '*': providers/checkbox-provider-tdx/bin/
+  provider-iperf:
+    plugin: dump
+    source: iperf
+    organize:
+      '*': providers/checkbox-provider-tdx/iperf/
+      '.*': providers/checkbox-provider-tdx/iperf/
   provider-lib:
     plugin: dump
     source: lib
