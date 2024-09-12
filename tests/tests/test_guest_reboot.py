@@ -20,8 +20,6 @@
 import os
 import Qemu
 
-script_path=os.path.dirname(os.path.realpath(__file__))
-
 def test_guest_reboot():
     """
     Boot TD several times

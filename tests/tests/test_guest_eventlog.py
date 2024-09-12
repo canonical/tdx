@@ -22,8 +22,7 @@ import time
 
 import Qemu
 import util
-
-script_path=os.path.dirname(os.path.realpath(__file__))
+from common import *
 
 def test_guest_eventlog():
     """
@@ -34,8 +33,7 @@ def test_guest_eventlog():
 
     m = Qemu.QemuSSH(qm)
 
-    m.rsync_file(f'{script_path}/../lib', '/tmp/tdxtest/')
-    m.check_exec('cd /tmp/tdxtest/lib/tdx-tools/ && python3 -m pip install --break-system-packages ./')
+    deploy_and_setup(m)
 
     stdout, stderr = m.check_exec('tdeventlog')
     for l in stderr.readlines():
@@ -52,8 +50,7 @@ def test_guest_eventlog_initrd():
 
     m = Qemu.QemuSSH(qm)
 
-    m.rsync_file(f'{script_path}/../lib', '/tmp/tdxtest/')
-    m.check_exec('cd /tmp/tdxtest/lib/tdx-tools/ && python3 -m pip install --break-system-packages ./')
+    deploy_and_setup(m)
 
     stdout, stderr = m.check_exec('tdeventlog_check_initrd')
     for l in stderr.readlines():
