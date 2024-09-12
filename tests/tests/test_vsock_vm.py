@@ -42,14 +42,11 @@ def run_iperf_server_on_guest(ssh):
 
 def test_vsock_vm_client():
     """
-    vsock vm guest client and host as server
+    vsock vm guest client and host as server (Intel Case ID: 028)
     """
     qm = Qemu.QemuMachine()
     qm.qcmd.add_vsock(guest_cid)
     qm.run()
-
-    mon = Qemu.QemuMonitor(qm)
-    mon.wait_for_state('running')
 
     ssh = Qemu.QemuSSH(qm)
     ssh.rsync_file(f'{script_path}/../iperf', '/tmp/')
@@ -67,14 +64,11 @@ def test_vsock_vm_client():
 
 def test_vsock_vm_server():
     """
-    vsock vm guest server and host as client
+    vsock vm guest server and host as client (Intel Case ID: 027)
     """
     qm = Qemu.QemuMachine()
     qm.qcmd.add_vsock(guest_cid)
     qm.run()
-
-    mon = Qemu.QemuMonitor(qm)
-    mon.wait_for_state('running')
 
     ssh = Qemu.QemuSSH(qm)
     ssh.rsync_file(f'{script_path}/../iperf', '/tmp/')
