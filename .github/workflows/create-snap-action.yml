@@ -1,11 +1,18 @@
-name: Do a snap build
+name: Do a snap build of checkbox provider
 
 run-name: ${{ github.actor }} is creating testing snap
 
 on:
   push:
     branches: 
-      - main
+      - noble-24.04
+    paths:
+      - 'tests/**'
+  pull_request:
+    branches:
+      - noble-24.04
+    paths:
+      - 'tests/**'
   workflow_dispatch: # Allow manual trigger
 
 jobs:
