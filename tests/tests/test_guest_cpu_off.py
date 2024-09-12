@@ -21,6 +21,8 @@ import os
 import subprocess
 import time
 import re
+import multiprocessing
+import random
 
 import Qemu
 import util
@@ -38,10 +40,7 @@ def test_guest_cpu_off():
     m = Qemu.QemuSSH(qm)
 
     # turn off arbitrary cpus
-    cpu_on_off('/sys/devices/system/cpu/cpu17/online', 0)
-    cpu_on_off('/sys/devices/system/cpu/cpu60/online', 0)
-    cpu_on_off('/sys/devices/system/cpu/cpu109/online', 0)
-
+    cpu = cpu_off_random()
     
     # make sure the VM still does things
     still_working = True
@@ -53,12 +52,9 @@ def test_guest_cpu_off():
     qm.stop()
 
     # turn back on cpus
-    cpu_on_off('/sys/devices/system/cpu/cpu17/online', 1)
-    cpu_on_off('/sys/devices/system/cpu/cpu60/online', 1)
-    cpu_on_off('/sys/devices/system/cpu/cpu109/online', 1)
+    cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
 
-    assert still_working, print(f'Failed parsing cpuid registers {e}')
-
+    assert still_working, 'VM dysfunction when a cpu is brought offline'
 
 def test_guest_cpu_pinned_off():
     """
@@ -95,6 +91,16 @@ def test_guest_cpu_pinned_off():
 
         cpu_on_off('/sys/devices/system/cpu/cpu18/online', 1)
 
+def cpu_off_random():
+    cpu = cpu_select()
+    cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
+    cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 0)
+    return cpu
+
+def cpu_select():
+    cpu_count = multiprocessing.cpu_count()
+    cpu = random.randint(0, cpu_count-1)
+    return cpu
 
 # Helper function for turning cpu on/off
 def cpu_on_off(file_str, val):
