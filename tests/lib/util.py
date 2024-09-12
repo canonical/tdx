@@ -20,6 +20,7 @@
 import socket
 import time
 from functools import wraps
+import subprocess
 
 def timeit(func):
     @wraps(func)
@@ -39,3 +40,42 @@ def tcp_port_available():
     port = sock.getsockname()[1]
     sock.close()
     return port
+
+def get_max_td_vms():
+    cmd = ['rdmsr', '0x87']
+    rc = subprocess.run(cmd, capture_output=True)
+    assert rc.returncode == 0, "Failed getting max td vms"
+    data = rc.stdout.decode().split()
+    assert len(data) > 0, "Failed getting max td vms"
+    rdmsr = int(data[0], 16)
+    max_td_vms = (rdmsr >> 32) - 1
+    return max_td_vms
+
+def get_num_cpus():
+    cmd = ['grep', '-c', 'processor', '/proc/cpuinfo']
+    rc = subprocess.run(cmd, capture_output=True)
+    assert rc.returncode == 0, "Failed getting number of cpus"
+    return int(rc.stdout.decode())
+
+def get_memory_free_gb():
+    cmd = ['free', '-hg']
+    rc = subprocess.run(cmd, capture_output=True)
+    assert rc.returncode == 0, "Failed getting free memory"
+    lines = rc.stdout.decode().split('\n')
+    assert len(lines) >= 2, "Invalid response to free command"
+    assert "Mem" in lines[1], "Invalid response to free command"
+    assert len(lines[1].split()) > 3, "Invalid response to free command"
+    free_mem = lines[1].split()[3]
+    assert 'Gi' in free_mem, "Invalid response to free command"
+    return float(free_mem.split('Gi')[0])
+
+def get_current_td_vms():
+    current_td_vms = 0
+    cmd = ['ps', 'wwaux']
+    rc = subprocess.run(cmd, capture_output=True)
+    assert rc.returncode == 0, "Failed getting max td vms"
+    lines = rc.stdout.decode().split('\n')
+    for l in lines:
+        if "qemu-system" in l and "tdx" in l:
+            current_td_vms += 1
+    return current_td_vms

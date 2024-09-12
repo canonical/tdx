@@ -20,15 +20,37 @@
 import os
 import Qemu
 
-script_path=os.path.dirname(os.path.realpath(__file__))
 
-def test_guest_reboot():
+def test_4vcpus_1socket_10times():
     """
-    Boot TD several times
+    Test 4vcpus 1socket 10 times (Intel Case ID 009)
     """
+
     qm = Qemu.QemuMachine()
+    qm.qcmd.plugins['cpu'].nb_cores = 4
+
+    Qemu.QemuMonitor.CONNECT_RETRIES = 10
+
+    for i in range(0,10):
+        qm.run()
+        mon = Qemu.QemuMonitor(qm)
+        mon.wait_for_state('running')
+        qm.stop()
+
+
+def test_4vcpus_2sockets_5times():
+    """
+    Test 4vcpus 2sockets 5 times (Intel Case ID 010)
+    """
+
+    qm = Qemu.QemuMachine()
+    qm.qcmd.plugins['cpu'].nb_cores = 4
+    qm.qcmd.plugins['cpu'].nb_sockets = 2
+
+    Qemu.QemuMonitor.CONNECT_RETRIES = 10
 
     for i in range(0,5):
         qm.run()
-        m = Qemu.QemuSSH(qm)
+        mon = Qemu.QemuMonitor(qm)
+        mon.wait_for_state('running')
         qm.stop()
