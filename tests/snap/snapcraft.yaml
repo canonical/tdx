@@ -106,7 +106,7 @@ parts:
       '*': providers/checkbox-provider-tdx/bin/
   provider-iperf:
     plugin: dump
-    source: tests
+    source: iperf-vsock
     organize:
       '../iperf/*': providers/checkbox-provider-tdx/iperf/
       '../iperf/.*': providers/checkbox-provider-tdx/iperf/

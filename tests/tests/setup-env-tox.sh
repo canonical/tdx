@@ -43,7 +43,7 @@ install_deps() {
 
 rm -rf /var/tmp/tdxtest
 mkdir -p /var/tmp/tdxtest
-${SCRIPT_DIR}/build_iperf_vsock.sh
+${SCRIPT_DIR}/../iperf-vsock/build_iperf_vsock.sh
 
 if [ -z "${TDXTEST_GUEST_IMG}" ]; then
   if ! test -f $LOCAL_IMG; then
