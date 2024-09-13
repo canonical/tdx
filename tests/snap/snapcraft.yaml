@@ -109,7 +109,6 @@ parts:
     source: iperf-vsock
     organize:
       '../iperf/*': providers/checkbox-provider-tdx/iperf/
-      '../iperf/.*': providers/checkbox-provider-tdx/iperf/
     override-build: |
       apt install git -y
       ./build_iperf_vsock.sh

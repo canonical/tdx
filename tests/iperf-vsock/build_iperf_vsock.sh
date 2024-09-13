@@ -24,20 +24,20 @@ if [ ! -f "${SCRIPT_DIR}/../iperf/bin/iperf3" ]; then
     TMP_DIR=$(mktemp -d)
     pushd ${TMP_DIR}
     git clone https://github.com/stefano-garzarella/iperf-vsock.git --branch iperf-vsock-3.9
-    if [ $? -eq 0 ]; then
+    rc=$?
+    if [ $rc -eq 0 ]; then
         cd iperf-vsock
         mkdir build
         cd build
         ../configure --prefix=${SCRIPT_DIR}/../iperf
-    fi
-    if [ $? -eq 0 ]; then
         make install
+        rc=$?
         cp ${TMP_DIR}/iperf-vsock/LICENSE ${SCRIPT_DIR}/../iperf
         cp ${SCRIPT_DIR}/iperf-vsock-3.9 ${SCRIPT_DIR}/../iperf
     fi
     rm -rf ${TMP_DIR}
     popd
-    if [ $? -eq 0 ]; then
+    if [ $rc -eq 0 ]; then
         echo "Successfull installed iperf"
         exit 0
     else
