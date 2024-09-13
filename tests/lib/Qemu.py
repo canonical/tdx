@@ -251,13 +251,11 @@ class QemuCommand:
         self.command = self.command + [
             '-qmp', f'unix:{self.qmp_file},server=on,wait=off',
         ]
-        return self.monitor_file
 
     def add_vsock(self, guest_cid):
         self.command = self.command + [
             '-device', 'vhost-vsock-pci,guest-cid=%d' % (guest_cid),
         ]
-        return self.monitor_file # why are all of these returning monitor file?
 
     def add_monitor(self):
         try:
