@@ -20,7 +20,6 @@
 import os
 import Qemu
 
-
 def test_4vcpus_1socket_10times():
     """
     Test 4vcpus 1socket 10 times (Intel Case ID 009)

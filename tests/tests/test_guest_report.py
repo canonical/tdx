@@ -22,8 +22,7 @@ import time
 
 import Qemu
 import util
-
-script_path=os.path.dirname(os.path.realpath(__file__))
+from common import *
 
 def test_guest_report():
     """
@@ -33,10 +32,9 @@ def test_guest_report():
     qm.run()
 
     m = Qemu.QemuSSH(qm)
-    m.rsync_file(f'{script_path}/../lib', '/tmp/tdxtest/')
-    m.rsync_file(f'{script_path}/guest', '/tmp/tdxtest/')
-    m.check_exec('cd /tmp/tdxtest/lib/tdx-tools/ && python3 -m pip install --break-system-packages ./')
 
-    m.check_exec('python3 /tmp/tdxtest/guest/test_tdreport.py')
+    deploy_and_setup(m)
+
+    m.check_exec(f'python3 {guest_workdir}/tests/guest/test_tdreport.py')
 
     qm.stop()

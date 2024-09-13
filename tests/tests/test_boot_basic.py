@@ -17,8 +17,7 @@
 
 import os
 import Qemu
-
-script_path=os.path.dirname(os.path.realpath(__file__))
+from common import *
 
 def test_guest_boot():
     """
@@ -28,8 +27,8 @@ def test_guest_boot():
     qm.run()
 
     m = Qemu.QemuSSH(qm)
-    m.rsync_file(f'{script_path}/../lib', '/tmp/tdxtest/')
-    m.check_exec('cd /tmp/tdxtest/lib/tdx-tools/ && python3 -m pip install --break-system-packages ./')
+
+    deploy_and_setup(m)
 
     # tdx guest device driver
     m.check_exec('ls -la /dev/tdx_guest')
