@@ -21,6 +21,7 @@ import threading
 import time
 
 import Qemu
+from common import deploy_and_setup
 
 # Global Variables
 script_path=os.path.dirname(os.path.realpath(__file__))
@@ -49,6 +50,7 @@ def test_vsock_vm_client():
     qm.run()
 
     ssh = Qemu.QemuSSH(qm)
+    deploy_and_setup(ssh)
 
     t = threading.Thread(target=run_iperf_server_on_host)
     t.start()
@@ -70,6 +72,7 @@ def test_vsock_vm_server():
     qm.run()
 
     ssh = Qemu.QemuSSH(qm)
+    deploy_and_setup(ssh)
 
     t = threading.Thread(target=run_iperf_server_on_guest, args=(ssh,))
     t.start()
