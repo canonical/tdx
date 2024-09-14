@@ -29,12 +29,12 @@ guest_cid=25
 # Helper Functions
 
 def run_iperf_server_on_host():
-    cmd = [f'{script_path}/../iperf/iperf-vsock-3.9', '--vsock', '-s', '-1']
+    cmd = ['iperf3', '--vsock', '-s', '-1']
     subprocess.run(cmd, stderr=subprocess.STDOUT, timeout=30)
 
 
 def run_iperf_server_on_guest(ssh):
-    cmd = '/tmp/iperf/iperf-vsock-3.9 --vsock -s -1'
+    cmd = 'iperf3 --vsock -s -1'
     stdout, stderr = ssh.check_exec(cmd)
 
 
@@ -49,12 +49,11 @@ def test_vsock_vm_client():
     qm.run()
 
     ssh = Qemu.QemuSSH(qm)
-    ssh.rsync_file(f'{script_path}/../iperf', '/tmp/')
 
     t = threading.Thread(target=run_iperf_server_on_host)
     t.start()
 
-    cmd = '/tmp/iperf/iperf-vsock-3.9 --vsock -c 2'
+    cmd = 'iperf3 --vsock -c 2'
     stdout, stderr = ssh.check_exec(cmd)
     assert 0 == stdout.channel.recv_exit_status(), 'Failed iperf server on client test'
 
@@ -71,7 +70,6 @@ def test_vsock_vm_server():
     qm.run()
 
     ssh = Qemu.QemuSSH(qm)
-    ssh.rsync_file(f'{script_path}/../iperf', '/tmp/')
 
     t = threading.Thread(target=run_iperf_server_on_guest, args=(ssh,))
     t.start()
@@ -79,7 +77,7 @@ def test_vsock_vm_server():
     # Give time to iperf server to start
     time.sleep(1)
 
-    cmd = [f'{script_path}/../iperf/iperf-vsock-3.9', '--vsock', '-c', '%d' % (guest_cid)]
+    cmd = ['iperf3', '--vsock', '-c', '%d' % (guest_cid)]
     rc = subprocess.run(cmd, stderr=subprocess.STDOUT, timeout=30)
     assert 0 == rc.returncode, 'Failed iperf server on guest test'
 

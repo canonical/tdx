@@ -104,14 +104,6 @@ parts:
     source: tests
     organize:
       '*': providers/checkbox-provider-tdx/bin/
-  provider-iperf:
-    plugin: dump
-    source: iperf-vsock
-    organize:
-      '../iperf/*': providers/checkbox-provider-tdx/iperf/
-    override-build: |
-      apt install git -y
-      ./build_iperf_vsock.sh
   provider-lib:
     plugin: dump
     source: lib

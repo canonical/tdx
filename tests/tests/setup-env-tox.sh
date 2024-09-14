@@ -44,11 +44,14 @@ install_deps() {
   # (one of the tests installed it with NOEPT)
   sudo rmmod kvm_intel || true
   sudo modprobe kvm_intel
+  sudo apt remove iperf3 -y
+  sudo add-apt-repository ppa:kobuk-team/testing -y
+  sudo apt update
+  sudo apt install iperf-vsock -y
 }
 
 rm -rf /var/tmp/tdxtest
 mkdir -p /var/tmp/tdxtest
-${SCRIPT_DIR}/../iperf-vsock/build_iperf_vsock.sh
 
 if [ -z "${TDXTEST_GUEST_IMG}" ]; then
   if ! test -f $LOCAL_IMG; then
