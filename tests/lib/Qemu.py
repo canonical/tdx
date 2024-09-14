@@ -60,7 +60,7 @@ class QemuCpu:
     def args(self):
         smp = ['-smp', f'{self.nb_cores},sockets={self.nb_sockets}']
         if self.cpu_flags != '':
-            cpu = ['-cpu', self.cpu_type, self.cpu_flags]
+            cpu = ['-cpu', self.cpu_type + self.cpu_flags]
         else:
             cpu = ['-cpu', self.cpu_type]
         return cpu + smp
@@ -443,7 +443,7 @@ class QemuMachine:
         self._create_image()
 
         # TODO : WA for log, to be removed
-        print('\n\nQemuMachine created.')
+        print(f'\n\nQemuMachine created (debug={self.debug}).')
 
         self.qcmd = QemuCommand(
             self.workdir_name,
@@ -482,6 +482,13 @@ class QemuMachine:
             self.workdir = tempfile.TemporaryDirectory(prefix=f'tdxtest-{self.name}-')
         self.workdir_name = self.workdir.name
 
+    @property
+    def pid(self):
+        cs = subprocess.run(['cat', f'{self.workdir.name}/qemu.pid'], capture_output=True)
+        assert cs.returncode == 0, 'Failed getting qemu pid'
+        pid = int(cs.stdout.strip())
+        return pid
+
     def rsync_file(self, fname, dest, sudo=False):
         """
         fname : local file or folder
@@ -509,6 +516,17 @@ class QemuMachine:
         self.proc = subprocess.Popen(cmd,
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
+
+    def run_and_wait(self):
+        """
+        Run qemu and wait for its start (by waiting for monitor file's availability)
+        """
+        cmd = self.qcmd.get_command()
+        print(' '.join(cmd))
+        self.proc = subprocess.Popen(cmd,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE)
+        QemuMonitor(self)
 
     def communicate(self):
         """
