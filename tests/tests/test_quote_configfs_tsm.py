@@ -19,6 +19,7 @@ import os
 import time
 
 import Qemu
+from common import deploy_and_setup
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
@@ -46,9 +47,6 @@ def test_qgs_socket():
 
     qm = Qemu.QemuMachine()
     qm.run()
-
-    mon = Qemu.QemuMonitor(qm)
-    mon.wait_for_state('running')
 
     # do basic tsm_config test on guest
     ssh = Qemu.QemuSSH(qm)

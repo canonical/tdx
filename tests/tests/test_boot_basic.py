@@ -47,7 +47,6 @@ def test_early_printk():
     qm.qcmd.plugins['boot'].append = "earlyprintk=ttyS0,115200"
     qm.run()
 
-    mon = Qemu.QemuMonitor(qm)
-    mon.wait_for_state('running')
+    ssh = Qemu.QemuSSH(qm)
 
     qm.stop()

@@ -28,12 +28,9 @@ def test_4vcpus_1socket_10times():
     qm = Qemu.QemuMachine()
     qm.qcmd.plugins['cpu'].nb_cores = 4
 
-    Qemu.QemuMonitor.CONNECT_RETRIES = 10
-
     for i in range(0,10):
         qm.run()
-        mon = Qemu.QemuMonitor(qm)
-        mon.wait_for_state('running')
+        ssh = Qemu.QemuSSH(qm)
         qm.stop()
 
 
@@ -46,10 +43,7 @@ def test_4vcpus_2sockets_5times():
     qm.qcmd.plugins['cpu'].nb_cores = 4
     qm.qcmd.plugins['cpu'].nb_sockets = 2
 
-    Qemu.QemuMonitor.CONNECT_RETRIES = 10
-
     for i in range(0,5):
         qm.run()
-        mon = Qemu.QemuMonitor(qm)
-        mon.wait_for_state('running')
+        ssh = Qemu.QemuSSH(qm)
         qm.stop()

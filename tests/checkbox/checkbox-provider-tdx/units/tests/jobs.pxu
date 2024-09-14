@@ -81,7 +81,7 @@ requires:
   executable.name == 'qemu-system-x86_64'
 command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-  setup-env-and-run test_multiple_boot.py
+  setup-env-and-run test_boot_multiple.py
 
 id: tdx-stress/td-resource-limits
 category_id: tdx-stress
@@ -93,7 +93,7 @@ requires:
   executable.name == 'qemu-system-x86_64'
 command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-  setup-env-and-run test_resource_limits.py
+  setup-env-and-run test_stress_resources.py
 
 #id: tdx-stress/td-stress-boot
 #category_id: tdx-stress
@@ -129,7 +129,7 @@ requires:
   executable.name == 'qemu-system-x86_64'
 command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
-  setup-env-and-run test_multiple_boot.py
+  setup-env-and-run test_boot_multiple.py
 
 id: tdx-guest/td-guest-report
 category_id: tdx-guest

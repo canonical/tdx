@@ -34,8 +34,7 @@ def test_huge_resource_vm():
     qm.qcmd.plugins['memory'].memory = '%dG' % (huge_mem_gb)
     qm.run()
 
-    mon = Qemu.QemuMonitor(qm)
-    mon.wait_for_state('running')
+    ssh = Qemu.QemuSSH(qm)
 
     qm.stop()
 
@@ -52,8 +51,7 @@ def test_max_vcpus():
     qm.qcmd.plugins['cpu'].nb_cores = num_cpus
     qm.run()
 
-    mon = Qemu.QemuMonitor(qm)
-    mon.wait_for_state('running')
+    ssh = Qemu.QemuSSH(qm)
 
     qm.stop()
 
@@ -79,8 +77,7 @@ def test_max_guests():
     # wait for all machines running
     for i in range(max_td_vms):
         print("Waiting for machine %d" % (i))
-        mon = Qemu.QemuMonitor(qm[i])
-        mon.wait_for_state('running')
+        ssh = Qemu.QemuSSH(qm[i])
 
     # stop all machines
     for i in range(max_td_vms):
