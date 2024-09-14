@@ -16,6 +16,7 @@
 import os
 import subprocess
 import time
+import multiprocessing
 
 import Qemu
 import util
@@ -27,7 +28,7 @@ def test_huge_resource_vm():
 
     # choose half available memory per Intel case spec
     huge_mem_gb = int(util.get_memory_free_gb() / 2)
-    num_cpus = int(util.get_num_cpus() / 2)
+    num_cpus = int(multiprocessing.cpu_count() / 2)
 
     qm = Qemu.QemuMachine()
     qm.qcmd.plugins['cpu'].nb_cores = num_cpus
@@ -43,7 +44,7 @@ def test_max_vcpus():
     """
     Test max vcpus (No Intel Case ID)
     """
-    num_cpus = util.get_num_cpus()
+    num_cpus = multiprocessing.cpu_count()
     if num_cpus > 255:
         num_cpus = 255 # max possible right now
 
@@ -63,6 +64,7 @@ def test_max_guests():
 
     # get max number of TD VMs we can create (max - current)
     max_td_vms = util.get_max_td_vms() - util.get_current_td_vms()
+    assert max_td_vms > 0, "No available space for TD VMs"
     qm = [None] * max_td_vms
 
     # initialize machines

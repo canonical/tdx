@@ -51,12 +51,6 @@ def get_max_td_vms():
     max_td_vms = (rdmsr >> 32) - 1
     return max_td_vms
 
-def get_num_cpus():
-    cmd = ['grep', '-c', 'processor', '/proc/cpuinfo']
-    rc = subprocess.run(cmd, capture_output=True)
-    assert rc.returncode == 0, "Failed getting number of cpus"
-    return int(rc.stdout.decode())
-
 def get_memory_free_gb():
     cmd = ['free', '-hg']
     rc = subprocess.run(cmd, capture_output=True)

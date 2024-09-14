@@ -50,8 +50,7 @@ def test_qgs_socket():
 
     # do basic tsm_config test on guest
     ssh = Qemu.QemuSSH(qm)
-    ssh.rsync_file(f'{script_path}/../lib', '/tmp/tdxtest/')
-    ssh.check_exec('cd /tmp/tdxtest/lib/tdx-tools/ && python3 -m pip install --break-system-packages ./')
+    deploy_and_setup(ssh)
     ssh.check_exec('tdtsmcheck')
 
     qm.stop()
