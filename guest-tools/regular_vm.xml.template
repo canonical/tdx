@@ -1,6 +1,6 @@
 <domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
   <name>DOMAIN</name>
-  <memory unit='KiB'>2097152</memory>
+  <memory unit='GiB'>2</memory>
   <vcpu placement="static">16</vcpu>
   <os>
     <type arch='x86_64' machine='q35'>hvm</type>

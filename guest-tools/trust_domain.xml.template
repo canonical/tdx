@@ -1,6 +1,6 @@
 <domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
   <name>DOMAIN</name>
-  <memory unit='KiB'>2097152</memory>
+  <memory unit='GiB'>2</memory>
   <memoryBacking>
     <source type="anonymous"/>
     <access mode="private"/>
