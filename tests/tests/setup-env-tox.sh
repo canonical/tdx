@@ -44,6 +44,10 @@ install_deps() {
   # (one of the tests installed it with NOEPT)
   sudo rmmod kvm_intel || true
   sudo modprobe kvm_intel
+  sudo apt remove iperf3 -y
+  sudo add-apt-repository ppa:kobuk-team/testing -y
+  sudo apt update
+  sudo apt install iperf-vsock -y
 }
 
 rm -rf /var/tmp/tdxtest

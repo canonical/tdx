@@ -22,7 +22,7 @@ apt update
 
 # Utilities packages for automated testing
 # linux-tools-common for perf, please make sure that linux-tools is also installed
-apt install -y cpuid linux-tools-common msr-tools
+apt install -y cpuid linux-tools-common msr-tools python3 python3-pip
 
 # setup ssh
 # allow password auth + root login

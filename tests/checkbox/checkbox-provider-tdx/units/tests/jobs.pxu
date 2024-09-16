@@ -47,6 +47,18 @@ command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
   setup-env-and-run test_boot_basic.py
 
+id: tdx-boot/td-nmi
+category_id: tdx-boot
+flags: simple
+_summary: Test TD nmi after boot
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  setup-env-and-run test_nmi_debug_off.py
+
 id: tdx-boot/td-coexist
 category_id: tdx-boot
 flags: simple
@@ -179,3 +191,14 @@ command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
   setup-env-and-run test_quote_configfs_tsm.py
 
+id: tdx-guest/td-vsock
+category_id: tdx-guest
+flags: simple
+_summary: Test TD vsock between host and VM
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  setup-env-and-run test_vsock_vm.py
