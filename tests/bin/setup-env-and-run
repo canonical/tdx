@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# This file is part of Canonical's TDX repository which includes tools
+# to setup and configure a confidential computing environment
+# based on Intel TDX technology.
+# See the LICENSE file in the repository for the license text.
+
+# Copyright 2024 Canonical Ltd.
+# SPDX-License-Identifier: GPL-3.0-only
+
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranties
+# of MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+PROVIDER_FOLDER=${SNAP}/providers/checkbox-provider-tdx
+
+# for provider python simple utilities
+export PYTHONPATH=${PYTHONPATH}:${PROVIDER_FOLDER}/lib
+# for tdxtools package
+export PYTHONPATH=${PYTHONPATH}:${SNAP}/lib/python3.10/site-packages/
+
+PYTEST_CACHE=${PLAINBOX_SESSION_SHARE}/pytest/.pytest_cache
+mkdir -p ${PYTEST_CACHE}
+
+# -s : do not capture logs
+# -v : increase verbosity
+pytest -o cache_dir=${PYTEST_CACHE} -s -v ${PROVIDER_FOLDER}/tests/$1
