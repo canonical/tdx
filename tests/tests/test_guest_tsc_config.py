@@ -57,10 +57,10 @@ def test_guest_tsc_config():
     tsc_guest = ecx * ebx / eax
     assert tsc_guest == tsc_host, "TSC host and guest don't match"
 
-    # Verify tsc detected in dmesg logs
-    cs = subprocess.run(['sudo', 'dmesg'], check=True, capture_output=True)
-    assert cs.returncode == 0, 'Failed getting dmesg'
-    assert "tsc: Detected" in str(cs.stdout), "tsc not found in dmesg"
+    # Verify tsc detected in guest dmesg logs
+    stdout, _ = m.check_exec('dmesg')
+    output = stdout.read().decode('utf-8')
+    assert 'tsc: Detected' in output
 
     qm.stop()
 
