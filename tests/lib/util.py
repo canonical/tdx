@@ -63,6 +63,18 @@ def get_memory_free_gb():
     assert 'Gi' in free_mem, "Invalid response to free command"
     return float(free_mem.split('Gi')[0])
 
+def get_memory_available_gb():
+    cmd = ['free', '-hg']
+    rc = subprocess.run(cmd, capture_output=True)
+    assert rc.returncode == 0, "Failed getting available memory"
+    lines = rc.stdout.decode().split('\n')
+    assert len(lines) >= 2, "Invalid response to free command"
+    assert "Mem" in lines[1], "Invalid response to free command"
+    assert len(lines[1].split()) > 6, "Invalid response to free command"
+    free_mem = lines[1].split()[6]
+    assert 'Gi' in free_mem, "Invalid response to free command"
+    return float(free_mem.split('Gi')[0])
+
 def get_current_td_vms():
     current_td_vms = 0
     cmd = ['ps', 'wwaux']

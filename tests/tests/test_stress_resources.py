@@ -39,6 +39,22 @@ def test_huge_resource_vm():
 
     qm.stop()
 
+def test_memory_limit_resource_vm():
+    """
+    Test memory limit resource  (No Intel Case)
+    """
+
+    # choose half available memory per Intel case spec
+    huge_mem_gb = int(util.get_memory_available_gb())
+
+    qm = Qemu.QemuMachine()
+    qm.qcmd.plugins['memory'].memory = '%dG' % (huge_mem_gb)
+    qm.run()
+
+    ssh = Qemu.QemuSSH(qm)
+
+    qm.stop()
+
 
 def test_max_vcpus():
     """
