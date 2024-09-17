@@ -84,8 +84,8 @@ apt update
 apt install --yes software-properties-common gawk &> /dev/null
 
 # cleanup
-rm -f /etc/apt/preferences.d/kobuk-team-tdx-*
-rm -f /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
+rm -f /etc/apt/preferences.d/*tdx-*
+rm -f /etc/apt/apt.conf.d/99unattended-upgrades-tdx*
 
 # stop at error
 set -e

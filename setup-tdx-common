@@ -26,19 +26,33 @@
 # in case the packages in the PPA have older versions than the ones
 # from Ubuntu archive
 add_kobuk_ppa() {
+  # this function takes one argument as input
+  # the argument is the PPA name and optionally followed by the pin_priority with "/"
+  # as separator character
+  # Examples of valid arguments : tdx ; tdx-release/1000
   ppa_id=$1
-  distro_id=LP-PPA-kobuk-team-${ppa_id}
+  pin_priority=4000
+  team=kobuk-team
+  if [[ $1 == */*/* ]]; then
+    ppa_full=$(echo $1 | tr "/" "\n")
+    set -- $ppa_full
+    team=$1
+    ppa_id=$2
+    pin_priority=${3:-4000}
+    echo "Add TDX PPA : $ppa_id (pin: $pin_priority)"
+  fi
+  distro_id=LP-PPA-${team}-${ppa_id}
   distro_codename=noble
 
-  add-apt-repository -y ppa:kobuk-team/${ppa_id}
+  add-apt-repository -y ppa:${team}/${ppa_id}
 
-  cat <<EOF | tee /etc/apt/preferences.d/kobuk-team-${ppa_id}-pin-4000
+  cat <<EOF | tee /etc/apt/preferences.d/tdx-${team}-${ppa_id}-pin-${pin_priority}
 Package: *
 Pin: release o=${distro_id}
-Pin-Priority: 4000
+Pin-Priority: ${pin_priority}
 EOF
 
-  cat <<EOF | tee /etc/apt/apt.conf.d/99unattended-upgrades-kobuk-${ppa_id}
+  cat <<EOF | tee /etc/apt/apt.conf.d/99unattended-upgrades-tdx-${team}-${ppa_id}
 Unattended-Upgrade::Allowed-Origins {
   "${distro_id}:${distro_codename}";
 };
