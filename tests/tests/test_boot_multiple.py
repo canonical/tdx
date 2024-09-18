@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+#
 # Copyright 2024 Canonical Ltd.
 # Authors:
 # - Hector Cao <hector.cao@canonical.com>
@@ -16,26 +18,32 @@
 #
 
 import os
-
-from Qemu import QemuEfiMachine, QemuEfiFlashSize, QemuMachineService
 import Qemu
 
-import util
+def test_4vcpus_1socket_10times():
+    """
+    Test 4vcpus 1socket 10 times (Intel Case ID 009)
+    """
 
-def test_multiple_vms():
-    """
-    Boot 10 TDs in parralel
-    """
-    qm = []
+    qm = Qemu.QemuMachine()
+    qm.qcmd.plugins['cpu'].nb_cores = 4
+
     for i in range(0,10):
-        m = Qemu.QemuMachine('td',
-                            QemuEfiMachine.OVMF_Q35_TDX,
-                             service_blacklist = [QemuMachineService.QEMU_MACHINE_PORT_FWD])
-        m.run()
-        qm.append(m)
-    for m in qm:
-        m = Qemu.QemuMonitor(m)
-        m.wait_for_state('running')
+        qm.run()
+        ssh = Qemu.QemuSSH(qm)
+        qm.stop()
 
-    for m in qm:
-        m.stop()
+
+def test_4vcpus_2sockets_5times():
+    """
+    Test 4vcpus 2sockets 5 times (Intel Case ID 010)
+    """
+
+    qm = Qemu.QemuMachine()
+    qm.qcmd.plugins['cpu'].nb_cores = 4
+    qm.qcmd.plugins['cpu'].nb_sockets = 2
+
+    for i in range(0,5):
+        qm.run()
+        ssh = Qemu.QemuSSH(qm)
+        qm.stop()

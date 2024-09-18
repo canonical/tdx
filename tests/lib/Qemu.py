@@ -177,16 +177,21 @@ class QemuBootType:
     def __init__(self,
                  image_path=None,
                  kernel=None,
-                 initrd=None):
+                 initrd=None,
+                 append=None):
         self.image_path = image_path
         self.kernel = kernel
         self.initrd = initrd
+        self.append = append
 
     def args(self):
         _args = []
         if self.kernel:
             _args.extend(['-kernel', self.kernel])
-            _args.extend(['-append', '"root=/dev/vda1 console=ttyS0"'])
+            if self.append:
+                _args.extend(['-append', f'"{self.append}"'])
+            else:
+                _args.extend(['-append', '"root=/dev/vda1 console=ttyS0"'])
         if self.initrd:
             _args.extend(['-initrd', self.initrd])
         _args.extend([
@@ -317,7 +322,8 @@ class QemuMonitor():
         for _ in range(retries):
             msgs = self.send_command("info status")
             if len(msgs) <= 0 or len(msgs[0]) <= 0:
-                break
+                time.sleep(1)
+                continue
             for m in msgs:
                 if s in m:
                     return True

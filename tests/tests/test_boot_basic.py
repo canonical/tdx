@@ -36,3 +36,17 @@ def test_guest_boot():
     m.check_exec('ls -la /sys/firmware/acpi/tables/CCEL')
 
     qm.stop()
+
+def test_early_printk():
+    """
+    Test Early Printk with Debug Off (Intel Case ID 018)
+    """
+
+    qm = Qemu.QemuMachine()
+    qm.qcmd.plugins['boot'].kernel = "/boot/vmlinuz"
+    qm.qcmd.plugins['boot'].append = "earlyprintk=ttyS0,115200"
+    qm.run()
+
+    ssh = Qemu.QemuSSH(qm)
+
+    qm.stop()
