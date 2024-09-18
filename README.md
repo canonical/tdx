@@ -49,7 +49,7 @@ the host OS into an Intel TDX-enabled host OS, optionally install remote attesta
 
 ### 4.1 Install Ubuntu 24.04 Server Image
 
-Download and install [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/ubuntu-24.04-live-server-amd64.iso) on the host machine.
+Download and install [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/) on the host machine.
 
 ### 4.2 Enable Intel TDX in Host OS
 
