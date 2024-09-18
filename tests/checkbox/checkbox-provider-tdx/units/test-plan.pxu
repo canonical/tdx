@@ -1,6 +1,6 @@
 id: intel-tdx
 unit: test plan
-_name: Intel Trusted Domain eXtension (TDX) tests
+_name: Intel Trusted Domain eXtension (TDX) full tests
 include:
     tdx-host/.*
     tdx-guest/.*
@@ -8,62 +8,74 @@ include:
     tdx-perf/.*
     tdx-quote/.*
     tdx-stress/.*
-#mandatory_include:
-#    com.canonical.certification::miscellanea/submission-resources
+mandatory_include:
+    com.canonical.certification::miscellanea/submission-resources
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
 
 id: intel-tdx-host
 unit: test plan
-_name: Intel Trusted Domain eXtension (TDX) tests
+_name: Intel Trusted Domain eXtension (TDX) host tests
 include:
     tdx-host/.*
+mandatory_include:
+    com.canonical.certification::miscellanea/submission-resources
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
 
 id: intel-tdx-guest
 unit: test plan
-_name: Intel Trusted Domain eXtension (TDX) tests
+_name: Intel Trusted Domain eXtension (TDX) guest tests
 include:
     tdx-guest/.*
+mandatory_include:
+    com.canonical.certification::miscellanea/submission-resources
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
 
 id: intel-tdx-boot
 unit: test plan
-_name: Intel Trusted Domain eXtension (TDX) tests
+_name: Intel Trusted Domain eXtension (TDX) guest boot tests
 include:
     tdx-boot/.*
+mandatory_include:
+    com.canonical.certification::miscellanea/submission-resources
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
 
 id: intel-tdx-perf
 unit: test plan
-_name: Intel Trusted Domain eXtension (TDX) tests
+_name: Intel Trusted Domain eXtension (TDX) perf tests
 include:
     tdx-perf/.*
+mandatory_include:
+    com.canonical.certification::miscellanea/submission-resources
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
 
 id: intel-tdx-quote
 unit: test plan
-_name: Intel Trusted Domain eXtension (TDX) tests
+_name: Intel Trusted Domain eXtension (TDX) attestation tests
 include:
     tdx-quote/.*
+mandatory_include:
+    com.canonical.certification::miscellanea/submission-resources
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
 
 id: intel-tdx-stress
 unit: test plan
-_name: Intel Trusted Domain eXtension (TDX) tests
+_name: Intel Trusted Domain eXtension (TDX) stress tests
 include:
     tdx-stress/.*
+mandatory_include:
+    com.canonical.certification::miscellanea/submission-resources
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap

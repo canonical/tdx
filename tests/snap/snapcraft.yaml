@@ -6,7 +6,7 @@ version: '2.0'
 confinement: classic
 grade: stable
 
-base: core24
+base: core22
 
 # Here are the available applications of the TDX checkbox provider snap
 # To run : snap run checkbox-tdx-classic.<app>
@@ -92,6 +92,7 @@ parts:
     stage-packages:
       - python3-parameterized
       - python3-paramiko
+      - python3-pytest
       - sshpass
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
@@ -99,11 +100,31 @@ parts:
       checkbox-provider-tools validate
       checkbox-provider-tools build
       checkbox-provider-tools install --layout=relocatable --prefix=/providers/checkbox-provider-tdx --root="$SNAPCRAFT_PART_INSTALL"
+    override-prime: |
+      snapcraftctl prime
+      # python3-pytest does not install the /usr/bin/pytest but only /usr/bin/pytest-3
+      # we have to make the symlink ourself
+      ln -sf pytest-3 usr/bin/pytest
+
+  tdx-tools:
+    plugin: python
+    source: lib/tdx-tools/
+    source-type: local
+    stage-packages:
+      - python3.10-minimal
+
   provider-bin:
+    plugin: dump
+    source: bin
+    organize:
+      '*': providers/checkbox-provider-tdx/bin/
+
+  provider-tests:
     plugin: dump
     source: tests
     organize:
-      '*': providers/checkbox-provider-tdx/bin/
+      '*': providers/checkbox-provider-tdx/tests/
+
   provider-lib:
     plugin: dump
     source: lib

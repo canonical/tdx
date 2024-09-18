@@ -78,37 +78,37 @@ $ sudo snap install ./checkbox-tdx-classic_2.0_amd64.snap --dangerous --classic
 - Run sanity tests to check the host setup:
 
 ```
-$ sudo -E checkbox-tdx-classic.test-runner-automated-host
+$ checkbox-tdx-classic.test-runner-automated-host
 ```
 
 - Run guest tests:
 
 ```
-$ sudo -E checkbox-tdx-classic.test-runner-automated-guest
+$ checkbox-tdx-classic.test-runner-automated-guest
 ```
 
 - Run boot tests:
 
 ```
-$ sudo -E checkbox-tdx-classic.test-runner-automated-boot
+$ checkbox-tdx-classic.test-runner-automated-boot
 ```
 
 - Run perf tests:
 
 ```
-$ sudo -E checkbox-tdx-classic.test-runner-automated-perf
+$ checkbox-tdx-classic.test-runner-automated-perf
 ```
 
 - Run quote tests:
 
 ```
-$ sudo -E checkbox-tdx-classic.test-runner-automated-quote
+$ checkbox-tdx-classic.test-runner-automated-quote
 ```
 
 - Run stress tests:
 
 ```
-$ sudo -E checkbox-tdx-classic.test-runner-automated-stress
+$ checkbox-tdx-classic.test-runner-automated-stress
 ```
 
 - Run all tests:
@@ -116,7 +116,7 @@ $ sudo -E checkbox-tdx-classic.test-runner-automated-stress
 Please note that the performance tests can take a long time to run.
 
 ```
-$ sudo -E checkbox-tdx-classic.test-runner-automated
+$ checkbox-tdx-classic.test-runner-automated
 ```
 
 
