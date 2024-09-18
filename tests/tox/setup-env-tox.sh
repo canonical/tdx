@@ -36,22 +36,12 @@ cleanup() {
 }
 
 install_deps() {
-  sudo apt install -y python3-parameterized \
-         sshpass \
-         cpuid \
-         python3-cpuinfo
-  # Make sure kvm_intel is installed properly
-  # (one of the tests installed it with NOEPT)
-  sudo rmmod kvm_intel || true
-  sudo modprobe kvm_intel
+  sudo apt install -y sshpass
   sudo apt remove iperf3 -y
   sudo add-apt-repository ppa:kobuk-team/testing -y
-  sudo apt update
+  sudo apt update || true
   sudo apt install iperf-vsock -y
 }
-
-rm -rf /var/tmp/tdxtest
-mkdir -p /var/tmp/tdxtest
 
 if [ -z "${TDXTEST_GUEST_IMG}" ]; then
   if ! test -f $LOCAL_IMG; then
