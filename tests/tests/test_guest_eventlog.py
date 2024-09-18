@@ -28,32 +28,32 @@ def test_guest_eventlog():
     """
     Dump event log
     """
-    qm = Qemu.QemuMachine()
-    qm.run()
+    with Qemu.QemuMachine() as qm:
+        qm.run()
 
-    m = Qemu.QemuSSH(qm)
+        m = Qemu.QemuSSH(qm)
 
-    deploy_and_setup(m)
+        deploy_and_setup(m)
 
-    stdout, stderr = m.check_exec('tdeventlog')
-    for l in stderr.readlines():
-        print(l.rstrip())
+        stdout, stderr = m.check_exec('tdeventlog')
+        for l in stderr.readlines():
+            print(l.rstrip())
 
-    qm.stop()
+        qm.stop()
 
 def test_guest_eventlog_initrd():
     """
     Check presence of event log for initrd measurement
     """
-    qm = Qemu.QemuMachine()
-    qm.run()
+    with Qemu.QemuMachine() as qm:
+        qm.run()
 
-    m = Qemu.QemuSSH(qm)
+        m = Qemu.QemuSSH(qm)
 
-    deploy_and_setup(m)
+        deploy_and_setup(m)
 
-    stdout, stderr = m.check_exec('tdeventlog_check_initrd')
-    for l in stderr.readlines():
-        print(l.rstrip())
+        stdout, stderr = m.check_exec('tdeventlog_check_initrd')
+        for l in stderr.readlines():
+            print(l.rstrip())
 
-    qm.stop()
+        qm.stop()

@@ -437,6 +437,8 @@ class QemuMachineService:
 
 class QemuMachine:
     debug_enabled = False
+    # hold all qemu instances
+    qemu_instances = []
 
     def __init__(self,
                  name='default',
@@ -470,6 +472,8 @@ class QemuMachine:
         self.out = None
         self.err = None
 
+        QemuMachine.qemu_instances.append(self)
+
     @staticmethod
     def is_debug_enabled():
         return QemuMachine.debug_enabled
@@ -477,6 +481,11 @@ class QemuMachine:
     @staticmethod
     def set_debug(debug : bool):
         QemuMachine.debug_enabled = debug
+
+    @staticmethod
+    def stop_all_running_qemus():
+        for qemu in QemuMachine.qemu_instances:
+            qemu.stop()
 
     def _create_image(self):
         # create an overlay image backed by the original image
@@ -487,6 +496,8 @@ class QemuMachine:
                               shell=True)
 
     def _setup_workdir(self):
+        # if /run/user/ user folder exists, use it to store the work dir
+        # if not use the default path for tempfile that is /tmp/
         run_path = pathlib.Path('/run/user/%d/' % (os.getuid()))
         if run_path.exists():
             tempfile.tempdir = str(run_path)
@@ -555,7 +566,7 @@ class QemuMachine:
 
     def stop(self):
         """
-        Stop qemu
+        Stop qemu process
         """
         # self.proc.returncode== None -> not yet terminated
         if self.proc.returncode is None:
@@ -567,9 +578,27 @@ class QemuMachine:
 
     def __del__(self):
         """
-        Make sure we stop the qemu process and clean up the working dir
+        Make sure we stop the qemu process if it is still running
+        and clean up the working dir
         """
         self.stop()
         needs_cleanup = (not QemuMachine.is_debug_enabled())
         if needs_cleanup:
             self.workdir.cleanup()
+
+        QemuMachine.qemu_instances.remove(self)
+
+    def __enter__(self):
+        """
+        Context manager enter function
+        """
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Context manager exit function
+        On context exit, we only stop the qemu process
+        Other cleanup (workdir) is still delegated to object destruction hook, this is
+        useful if we want to avoid these cleanup actions (test failure, debug flag, ...)
+        """
+        self.stop()

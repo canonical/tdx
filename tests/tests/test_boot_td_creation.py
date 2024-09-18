@@ -27,13 +27,13 @@ def test_create_td_without_ovmf():
       Cannot find TDX_METADATA_OFFSET_GUID
       failed to parse TDVF for TDX VM
     """
-    qm = Qemu.QemuMachine()
-    # remove ovmf
-    qm.qcmd.plugins.pop('ovmf')
-    qm.run()
+    with Qemu.QemuMachine() as qm:
+        # remove ovmf
+        qm.qcmd.plugins.pop('ovmf')
+        qm.run()
 
-    # expect qemu quit immediately 
-    _, err = qm.communicate()
-    assert "failed to parse TDVF for TDX VM" in err.decode()
+        # expect qemu quit immediately 
+        _, err = qm.communicate()
+        assert "failed to parse TDVF for TDX VM" in err.decode()
 
-    qm.stop()
+        qm.stop()

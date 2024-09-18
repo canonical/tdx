@@ -41,6 +41,7 @@ def test_boot_time(name, machine, memory):
         qm.run()
         m = Qemu.QemuSSH(qm, timeout=200)
 
-    util.timeit(boot_vm_and_wait_ssh)()
+    with qm:
+        util.timeit(boot_vm_and_wait_ssh)()
 
-    qm.stop()
+        qm.stop()

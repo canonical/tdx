@@ -28,13 +28,13 @@ def test_guest_report():
     """
     Boot measurements check
     """
-    qm = Qemu.QemuMachine()
-    qm.run()
+    with Qemu.QemuMachine() as qm:
+        qm.run()
 
-    m = Qemu.QemuSSH(qm)
+        m = Qemu.QemuSSH(qm)
 
-    deploy_and_setup(m)
+        deploy_and_setup(m)
 
-    m.check_exec(f'python3 {guest_workdir}/tests/guest/test_tdreport.py')
+        m.check_exec(f'python3 {guest_workdir}/tests/guest/test_tdreport.py')
 
-    qm.stop()
+        qm.stop()

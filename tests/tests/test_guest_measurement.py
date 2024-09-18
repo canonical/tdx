@@ -28,14 +28,14 @@ def test_guest_measurement_check_rtmr():
     """
     Boot measurements check
     """
-    qm = Qemu.QemuMachine()
-    qm.run()
+    with Qemu.QemuMachine() as qm:
+        qm.run()
 
-    m = Qemu.QemuSSH(qm)
+        m = Qemu.QemuSSH(qm)
 
-    deploy_and_setup(m)
+        deploy_and_setup(m)
 
-    m.check_exec('tdrtmrcheck')
+        m.check_exec('tdrtmrcheck')
 
-    qm.stop()
+        qm.stop()
 

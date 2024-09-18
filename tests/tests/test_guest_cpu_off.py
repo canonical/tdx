@@ -35,26 +35,26 @@ def test_guest_cpu_off():
     """
 
     # Startup Qemu and connect via SSH
-    qm = Qemu.QemuMachine()
-    qm.run()
-    m = Qemu.QemuSSH(qm)
+    with Qemu.QemuMachine() as qm:
+        qm.run()
+        m = Qemu.QemuSSH(qm)
 
-    # turn off arbitrary cpus
-    cpu = cpu_off_random()
+        # turn off arbitrary cpus
+        cpu = cpu_off_random()
     
-    # make sure the VM still does things
-    still_working = True
-    try:
-        m.check_exec('ls /tmp')
-    except Exception as e:
-        still_working = False
+        # make sure the VM still does things
+        still_working = True
+        try:
+            m.check_exec('ls /tmp')
+        except Exception as e:
+            still_working = False
 
-    qm.stop()
+        qm.stop()
 
-    # turn back on cpus
-    cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
+        # turn back on cpus
+        cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
 
-    assert still_working, 'VM dysfunction when a cpu is brought offline'
+        assert still_working, 'VM dysfunction when a cpu is brought offline'
 
 def test_guest_cpu_pinned_off():
     """
@@ -65,19 +65,19 @@ def test_guest_cpu_pinned_off():
     # the pinned cpu and making sure host still works
     for i in range(1,20):
         print(f'Iteration: {i}')
-        qm = Qemu.QemuMachine()
-        qm.run_and_wait()
+        with Qemu.QemuMachine() as qm:
+            qm.run_and_wait()
 
-        cpu = pin_process_on_random_cpu(qm.pid)
+            cpu = pin_process_on_random_cpu(qm.pid)
 
-        cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 0)
+            cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 0)
 
-        m = Qemu.QemuSSH(qm)
-        m.check_exec('sudo init 0 &')
+            m = Qemu.QemuSSH(qm)
+            m.check_exec('sudo init 0 &')
 
-        qm.stop()
+            qm.stop()
 
-        cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
+            cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
 
 def pin_process_on_random_cpu(pid):
     # pin pid to a particular cpu

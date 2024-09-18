@@ -27,16 +27,16 @@ def test_quote_check_configfs_tsm():
     """
     Check that the configfs tsm for quote generation is available
     """
-    qm = Qemu.QemuMachine()
-    qm.run()
+    with Qemu.QemuMachine() as qm:
+        qm.run()
 
-    m = Qemu.QemuSSH(qm)
+        m = Qemu.QemuSSH(qm)
 
-    deploy_and_setup(m)
+        deploy_and_setup(m)
 
-    m.check_exec('tdtsmcheck')
+        m.check_exec('tdtsmcheck')
 
-    qm.stop()
+        qm.stop()
 
 def test_qgs_socket():
     """
@@ -54,4 +54,3 @@ def test_qgs_socket():
     ssh.check_exec('tdtsmcheck')
 
     qm.stop()
-

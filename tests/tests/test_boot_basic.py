@@ -23,19 +23,19 @@ def test_guest_boot():
     """
     Boot TD
     """
-    qm = Qemu.QemuMachine()
-    qm.run()
+    with Qemu.QemuMachine() as qm:
+        qm.run()
 
-    m = Qemu.QemuSSH(qm)
+        m = Qemu.QemuSSH(qm)
 
-    deploy_and_setup(m)
+        deploy_and_setup(m)
 
-    # tdx guest device driver
-    m.check_exec('ls -la /dev/tdx_guest')
-    # CCEL table (event log)
-    m.check_exec('ls -la /sys/firmware/acpi/tables/CCEL')
+        # tdx guest device driver
+        m.check_exec('ls -la /dev/tdx_guest')
+        # CCEL table (event log)
+        m.check_exec('ls -la /sys/firmware/acpi/tables/CCEL')
 
-    qm.stop()
+        qm.stop()
 
 def test_early_printk():
     """

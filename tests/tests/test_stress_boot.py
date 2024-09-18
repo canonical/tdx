@@ -28,7 +28,7 @@ def test_boot():
     """
     for i in range(0,100):
         print(f'\nBooting TD nb={i}')
-        qm = Qemu.QemuMachine()
-        qm.run()
-        m = Qemu.QemuSSH(qm)
-        qm.stop()
+        with Qemu.QemuMachine() as qm:
+            qm.run()
+            m = Qemu.QemuSSH(qm)
+            qm.stop()
