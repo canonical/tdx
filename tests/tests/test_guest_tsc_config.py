@@ -27,7 +27,7 @@ import util
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
-def test_guest_tsc_config():
+def test_guest_tsc_config(qm):
     """
     tdx_tsc_config test case (See https://github.com/intel/tdx/wiki/Tests)
     """
@@ -42,57 +42,54 @@ def test_guest_tsc_config():
     # calculate tsc value
     tsc_host = ecx * ebx / eax
 
-    with Qemu.QemuMachine() as qm:
-        qm.run()
+    qm.run()
 
-        # Get cpuid value from guest and parse it
-        m = Qemu.QemuSSH(qm)
-        out_str = ''
-        [outlines, err] = m.check_exec('cpuid -rl 0x15 -1')
-        for l in outlines.readlines():
-            out_str += l
-        eax, ebx, ecx, edx = parse_cpuid_0x15_values(out_str)
+    # Get cpuid value from guest and parse it
+    m = Qemu.QemuSSH(qm)
+    out_str = ''
+    [outlines, err] = m.check_exec('cpuid -rl 0x15 -1')
+    for l in outlines.readlines():
+        out_str += l
+    eax, ebx, ecx, edx = parse_cpuid_0x15_values(out_str)
 
-        # calculate tsc value on guest and make sure same as host
-        tsc_guest = ecx * ebx / eax
-        assert tsc_guest == tsc_host, "TSC host and guest don't match"
+    # calculate tsc value on guest and make sure same as host
+    tsc_guest = ecx * ebx / eax
+    assert tsc_guest == tsc_host, "TSC host and guest don't match"
 
-        # Verify tsc detected in guest dmesg logs
-        stdout, _ = m.check_exec('dmesg')
-        output = stdout.read().decode('utf-8')
-        assert 'tsc: Detected' in output
+    # Verify tsc detected in guest dmesg logs
+    stdout, _ = m.check_exec('dmesg')
+    output = stdout.read().decode('utf-8')
+    assert 'tsc: Detected' in output
 
-        qm.stop()
+    qm.stop()
 
 
-def test_guest_set_tsc_frequency():
+def test_guest_set_tsc_frequency(qm):
     """
     tdx_tsc_config test case (See https://github.com/intel/tdx/wiki/Tests)
     """
 
     # Set guest tsc frequency
     tsc_frequency = 3000000000
-    with Qemu.QemuMachine() as qm:
-        qm.qcmd.plugins['cpu'].cpu_flags += f',tsc-freq={tsc_frequency}'
-        qm.run()
+    qm.qcmd.plugins['cpu'].cpu_flags += f',tsc-freq={tsc_frequency}'
+    qm.run()
 
-        # Get cpuid value from guest and parse it
-        m = Qemu.QemuSSH(qm)
-        out_str = ''
-        [outlines, err] = m.check_exec('cpuid -rl 0x15 -1')
-        for l in outlines.readlines():
-            out_str += l
-        eax, ebx, ecx, edx = parse_cpuid_0x15_values(out_str)
+    # Get cpuid value from guest and parse it
+    m = Qemu.QemuSSH(qm)
+    out_str = ''
+    [outlines, err] = m.check_exec('cpuid -rl 0x15 -1')
+    for l in outlines.readlines():
+        out_str += l
+    eax, ebx, ecx, edx = parse_cpuid_0x15_values(out_str)
 
-        # calculate tsc on guest and make sure its equal to value set
-        tsc_guest = ecx * ebx / eax
-        assert tsc_guest == tsc_frequency, "TSC frequency not set correctly"
+    # calculate tsc on guest and make sure its equal to value set
+    tsc_guest = ecx * ebx / eax
+    assert tsc_guest == tsc_frequency, "TSC frequency not set correctly"
 
-def test_guest_tsc_deadline_enable():
+def test_guest_tsc_deadline_enable(qm):
     """
     tdx_tsc_deadline_enable test case (See https://github.com/intel/tdx/wiki/Tests)
     """
-    qm = Qemu.QemuMachine()
     qm.run()
 
     m = Qemu.QemuSSH(qm)
@@ -104,22 +101,21 @@ def test_guest_tsc_deadline_enable():
 
     qm.stop()
 
-def test_guest_tsc_deadline_disable():
+def test_guest_tsc_deadline_disable(qm):
     """
     tdx_tsc_deadline_disable test case (See https://github.com/intel/tdx/wiki/Tests)
     """
-    with Qemu.QemuMachine() as qm:
-        qm.qcmd.plugins['cpu'].cpu_flags += f',-tsc-deadline'
-        qm.run()
+    qm.qcmd.plugins['cpu'].cpu_flags += f',-tsc-deadline'
+    qm.run()
 
-        m = Qemu.QemuSSH(qm)
+    m = Qemu.QemuSSH(qm)
 
-        stdout, _ = m.check_exec('lscpu')
-        output = stdout.read().decode('utf-8')
-        assert 'Flags' in output
-        assert 'tsc_deadline_timer' not in output
+    stdout, _ = m.check_exec('lscpu')
+    output = stdout.read().decode('utf-8')
+    assert 'Flags' in output
+    assert 'tsc_deadline_timer' not in output
 
-        qm.stop()
+    qm.stop()
 
 # helper function for parsing cpuid value into registers
 def parse_cpuid_0x15_values(val_str):

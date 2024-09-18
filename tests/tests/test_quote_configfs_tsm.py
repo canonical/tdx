@@ -23,29 +23,27 @@ from common import deploy_and_setup
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
-def test_quote_check_configfs_tsm():
+def test_quote_check_configfs_tsm(qm):
     """
     Check that the configfs tsm for quote generation is available
     """
-    with Qemu.QemuMachine() as qm:
-        qm.run()
+    qm.run()
 
-        m = Qemu.QemuSSH(qm)
+    m = Qemu.QemuSSH(qm)
 
-        deploy_and_setup(m)
+    deploy_and_setup(m)
 
-        m.check_exec('tdtsmcheck')
+    m.check_exec('tdtsmcheck')
 
-        qm.stop()
+    qm.stop()
 
-def test_qgs_socket():
+def test_qgs_socket(qm):
     """
     Test QGS socket (No Intel Case ID)
     """
     object = '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}'
     Qemu.QemuMachineType.Qemu_Machine_Params[Qemu.QemuEfiMachine.OVMF_Q35_TDX][1] = object
 
-    qm = Qemu.QemuMachine()
     qm.run()
 
     # do basic tsm_config test on guest

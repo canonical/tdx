@@ -19,30 +19,28 @@ import os
 import Qemu
 from common import *
 
-def test_guest_boot():
+def test_guest_boot(qm):
     """
     Boot TD
     """
-    with Qemu.QemuMachine() as qm:
-        qm.run()
+    qm.run()
 
-        m = Qemu.QemuSSH(qm)
+    m = Qemu.QemuSSH(qm)
 
-        deploy_and_setup(m)
+    deploy_and_setup(m)
 
-        # tdx guest device driver
-        m.check_exec('ls -la /dev/tdx_guest')
-        # CCEL table (event log)
-        m.check_exec('ls -la /sys/firmware/acpi/tables/CCEL')
+    # tdx guest device driver
+    m.check_exec('ls -la /dev/tdx_guest')
+    # CCEL table (event log)
+    m.check_exec('ls -la /sys/firmware/acpi/tables/CCEL')
 
-        qm.stop()
+    qm.stop()
 
-def test_early_printk():
+def test_guest_early_printk(qm):
     """
     Test Early Printk with Debug Off (Intel Case ID 018)
     """
 
-    qm = Qemu.QemuMachine()
     qm.qcmd.plugins['boot'].kernel = "/boot/vmlinuz"
     qm.qcmd.plugins['boot'].append = "earlyprintk=ttyS0,115200"
     qm.run()

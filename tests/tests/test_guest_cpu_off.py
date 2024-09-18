@@ -29,32 +29,31 @@ import util
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
-def test_guest_cpu_off():
+def test_guest_cpu_off(qm):
     """
     tdx_VMP_cpu_onoff test case (See https://github.com/intel/tdx/wiki/Tests)
     """
 
     # Startup Qemu and connect via SSH
-    with Qemu.QemuMachine() as qm:
-        qm.run()
-        m = Qemu.QemuSSH(qm)
+    qm.run()
+    m = Qemu.QemuSSH(qm)
 
-        # turn off arbitrary cpus
-        cpu = cpu_off_random()
+    # turn off arbitrary cpus
+    cpu = cpu_off_random()
     
-        # make sure the VM still does things
-        still_working = True
-        try:
-            m.check_exec('ls /tmp')
-        except Exception as e:
-            still_working = False
+    # make sure the VM still does things
+    still_working = True
+    try:
+        m.check_exec('ls /tmp')
+    except Exception as e:
+        still_working = False
 
-        qm.stop()
+    qm.stop()
 
-        # turn back on cpus
-        cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
+    # turn back on cpus
+    cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
 
-        assert still_working, 'VM dysfunction when a cpu is brought offline'
+    assert still_working, 'VM dysfunction when a cpu is brought offline'
 
 def test_guest_cpu_pinned_off():
     """

@@ -21,7 +21,7 @@ import multiprocessing
 import Qemu
 import util
 
-def test_huge_resource_vm():
+def test_huge_resource_vm(qm):
     """
     Test huge resources  (Intel Case ID 007)
     """
@@ -30,7 +30,6 @@ def test_huge_resource_vm():
     huge_mem_gb = int(util.get_memory_free_gb() / 2)
     num_cpus = int(multiprocessing.cpu_count() / 2)
 
-    qm = Qemu.QemuMachine()
     qm.qcmd.plugins['cpu'].nb_cores = num_cpus
     qm.qcmd.plugins['memory'].memory = '%dG' % (huge_mem_gb)
     qm.run()
@@ -39,7 +38,7 @@ def test_huge_resource_vm():
 
     qm.stop()
 
-def test_memory_limit_resource_vm():
+def test_memory_limit_resource_vm(qm):
     """
     Test memory limit resource  (No Intel Case)
     """
@@ -47,7 +46,6 @@ def test_memory_limit_resource_vm():
     # choose half available memory per Intel case spec
     huge_mem_gb = int(util.get_memory_available_gb())
 
-    qm = Qemu.QemuMachine()
     qm.qcmd.plugins['memory'].memory = '%dG' % (huge_mem_gb)
     qm.run()
 
@@ -56,7 +54,7 @@ def test_memory_limit_resource_vm():
     qm.stop()
 
 
-def test_max_vcpus():
+def test_max_vcpus(qm):
     """
     Test max vcpus (No Intel Case ID)
     """
@@ -64,7 +62,6 @@ def test_max_vcpus():
     if num_cpus > 255:
         num_cpus = 255 # max possible right now
 
-    qm = Qemu.QemuMachine()
     qm.qcmd.plugins['cpu'].nb_cores = num_cpus
     qm.run()
 

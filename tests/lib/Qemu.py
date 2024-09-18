@@ -568,6 +568,8 @@ class QemuMachine:
         """
         Stop qemu process
         """
+        if self.proc is None:
+            return
         # self.proc.returncode== None -> not yet terminated
         if self.proc.returncode is None:
             try:

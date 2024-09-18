@@ -24,17 +24,16 @@ import Qemu
 import util
 from common import *
 
-def test_guest_report():
+def test_guest_report(qm):
     """
     Boot measurements check
     """
-    with Qemu.QemuMachine() as qm:
-        qm.run()
+    qm.run()
 
-        m = Qemu.QemuSSH(qm)
+    m = Qemu.QemuSSH(qm)
 
-        deploy_and_setup(m)
+    deploy_and_setup(m)
 
-        m.check_exec(f'python3 {guest_workdir}/tests/guest/test_tdreport.py')
+    m.check_exec(f'python3 {guest_workdir}/tests/guest/test_tdreport.py')
 
-        qm.stop()
+    qm.stop()

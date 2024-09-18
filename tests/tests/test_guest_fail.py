@@ -27,7 +27,7 @@ import util
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
-def test_guest_noept_fail(release_kvm_use):
+def test_guest_noept_fail(qm, release_kvm_use):
     """
     tdx_NOEPT test case (See https://github.com/intel/tdx/wiki/Tests)
     """
@@ -49,26 +49,24 @@ def test_guest_noept_fail(release_kvm_use):
         assert dmesg_end_count == dmesg_start_count+1, "dmesg missing proper message"
 
         # Run Qemu and verify failure
-        with Qemu.QemuMachine() as qm:
-            qm.run()
+        qm.run()
 
-            # expect qemu quit immediately with specific error message
-            _, err = qm.communicate()
-            assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
+        # expect qemu quit immediately with specific error message
+        _, err = qm.communicate()
+        assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
 
-def test_guest_disable_tdx_fail(release_kvm_use):
+def test_guest_disable_tdx_fail(qm, release_kvm_use):
     """
     tdx_disabled test case (See https://github.com/intel/tdx/wiki/Tests)
     """
 
     with KvmIntelModuleReloader('tdx=0') as module:
         # Run Qemu and verify failure
-        with Qemu.QemuMachine() as qm:
-            qm.run()
+        qm.run()
 
-            # expect qemu quit immediately with specific error message
-            _, err = qm.communicate()
-            assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
+        # expect qemu quit immediately with specific error message
+        _, err = qm.communicate()
+        assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
 
 class KvmIntelModuleReloader:
     """

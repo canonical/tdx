@@ -24,36 +24,34 @@ import Qemu
 import util
 from common import *
 
-def test_guest_eventlog():
+def test_guest_eventlog(qm):
     """
     Dump event log
     """
-    with Qemu.QemuMachine() as qm:
-        qm.run()
+    qm.run()
 
-        m = Qemu.QemuSSH(qm)
+    m = Qemu.QemuSSH(qm)
 
-        deploy_and_setup(m)
+    deploy_and_setup(m)
 
-        stdout, stderr = m.check_exec('tdeventlog')
-        for l in stderr.readlines():
-            print(l.rstrip())
+    stdout, stderr = m.check_exec('tdeventlog')
+    for l in stderr.readlines():
+        print(l.rstrip())
 
-        qm.stop()
+    qm.stop()
 
-def test_guest_eventlog_initrd():
+def test_guest_eventlog_initrd(qm):
     """
     Check presence of event log for initrd measurement
     """
-    with Qemu.QemuMachine() as qm:
-        qm.run()
+    qm.run()
 
-        m = Qemu.QemuSSH(qm)
+    m = Qemu.QemuSSH(qm)
 
-        deploy_and_setup(m)
+    deploy_and_setup(m)
 
-        stdout, stderr = m.check_exec('tdeventlog_check_initrd')
-        for l in stderr.readlines():
-            print(l.rstrip())
+    stdout, stderr = m.check_exec('tdeventlog_check_initrd')
+    for l in stderr.readlines():
+        print(l.rstrip())
 
-        qm.stop()
+    qm.stop()
