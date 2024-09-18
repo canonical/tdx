@@ -430,20 +430,21 @@ class QemuMachineService:
     QEMU_MACHINE_QMP = enum.auto()
 
 class QemuMachine:
+    debug_enabled = False
+
     def __init__(self,
                  name='default',
                  machine=QemuEfiMachine.OVMF_Q35_TDX,
                  memory='2G',
                  service_blacklist=[]):
         self.name = name
-        self.debug = os.environ.get('TDXTEST_DEBUG', False)
         self.image_dir = '/var/tmp/tdxtest/'
         self.guest_initial_img = os.environ.get('TDXTEST_GUEST_IMG', f'{self.image_dir}/tdx-guest.qcow2')
         self._setup_workdir()
         self._create_image()
 
         # TODO : WA for log, to be removed
-        print(f'\n\nQemuMachine created (debug={self.debug}).')
+        print(f'\n\nQemuMachine created.')
 
         self.qcmd = QemuCommand(
             self.workdir_name,
@@ -463,6 +464,14 @@ class QemuMachine:
         self.out = None
         self.err = None
 
+    @staticmethod
+    def is_debug_enabled():
+        return QemuMachine.debug_enabled
+
+    @staticmethod
+    def set_debug(debug : bool):
+        QemuMachine.debug_enabled = debug
+
     def _create_image(self):
         # create an overlay image backed by the original image
         # See https://wiki.qemu.org/Documentation/CreateSnapshot
@@ -475,9 +484,10 @@ class QemuMachine:
         run_path = pathlib.Path('/run/user/%d/' % (os.getuid()))
         if run_path.exists():
             tempfile.tempdir = str(run_path)
+        # delete=False : we want to manage cleanup ourself for debugging purposes
         # delete parameter is only available from 3.12
         if (sys.version_info[0]==3) and (sys.version_info[1]>11):
-            self.workdir = tempfile.TemporaryDirectory(prefix=f'tdxtest-{self.name}-', delete=not self.debug)
+            self.workdir = tempfile.TemporaryDirectory(prefix=f'tdxtest-{self.name}-', delete=False)
         else:
             self.workdir = tempfile.TemporaryDirectory(prefix=f'tdxtest-{self.name}-')
         self.workdir_name = self.workdir.name
@@ -554,5 +564,6 @@ class QemuMachine:
         Make sure we stop the qemu process and clean up the working dir
         """
         self.stop()
-        if not self.debug:
+        needs_cleanup = (not QemuMachine.is_debug_enabled())
+        if needs_cleanup:
             self.workdir.cleanup()
