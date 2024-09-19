@@ -78,6 +78,7 @@ class KvmIntelModuleReloader:
     def __enter__(self):
         subprocess.check_call('sudo rmmod kvm_intel', shell=True)
         subprocess.check_call(f'sudo modprobe kvm_intel {self.args}', shell=True)
+        return self
     def __exit__(self, exc_type, exc_value, exc_tb):
         # reload the kvm_intel
         subprocess.check_call('sudo rmmod kvm_intel', shell=True)

@@ -21,6 +21,9 @@ import socket
 import time
 from functools import wraps
 import subprocess
+import multiprocessing
+import random
+import os
 
 def timeit(func):
     @wraps(func)
@@ -85,3 +88,58 @@ def get_current_td_vms():
         if "qemu-system" in l and "tdx" in l:
             current_td_vms += 1
     return current_td_vms
+
+def pin_process_on_cpu(pid, cpu):
+    cs = subprocess.run(['sudo', 'taskset', '-pc', f'{cpu}', f'{pid}'], capture_output=True)
+    assert cs.returncode == 0, f'Failed pinning qemu pid {pid} to cpu {cpu} : {cs.returncode}'
+
+def cpu_off_random():
+    cpu = cpu_select()
+    cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
+    cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 0)
+    return cpu
+
+def cpu_select():
+    """
+    Select cpu core to set online/offline
+    NB: On some system, cpu0 cannot be set offline because the IRQ is wired on that core
+    so try several times to avoid selecting core that does not support "on/off" feature
+    """
+    cpu_count = multiprocessing.cpu_count()
+    for _ in range(5):
+        cpu = random.randint(0, cpu_count-1)
+        if os.path.exists(f'/sys/devices/system/cpu/cpu{cpu}/online'):
+            return cpu
+    return None
+
+# Helper function for turning cpu on/off
+def cpu_on_off(file_str, val):
+    dev_f = open(file_str, 'w')
+    cs = subprocess.run(['echo', f'{val}'], check=True, stdout=dev_f)
+    assert cs.returncode == 0, 'Failed turning cpu off'
+    dev_f.close()
+
+class CpuOnOff:
+    """
+    CPU core on/off
+    """
+    def __init__(self, cpu):
+        self.initial_state = 1
+        self.cpu = cpu
+
+    def set_state(self, state):
+        if state != self.state:
+            cpu_on_off(f'/sys/devices/system/cpu/cpu{self.cpu}/online', state)
+
+    @property
+    def state(self):
+        with open(f'/sys/devices/system/cpu/cpu{self.cpu}/online') as f:
+            return int(f.read())
+        return None
+
+    def __enter__(self):
+        self.initial_state = self.state
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        self.set_state(self.initial_state)
