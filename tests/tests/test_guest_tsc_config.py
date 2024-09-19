@@ -27,7 +27,7 @@ import util
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
-def test_guest_tsc_config():
+def test_guest_tsc_config(qm):
     """
     tdx_tsc_config test case (See https://github.com/intel/tdx/wiki/Tests)
     """
@@ -42,7 +42,6 @@ def test_guest_tsc_config():
     # calculate tsc value
     tsc_host = ecx * ebx / eax
 
-    qm = Qemu.QemuMachine()
     qm.run()
 
     # Get cpuid value from guest and parse it
@@ -65,14 +64,13 @@ def test_guest_tsc_config():
     qm.stop()
 
 
-def test_guest_set_tsc_frequency():
+def test_guest_set_tsc_frequency(qm):
     """
     tdx_tsc_config test case (See https://github.com/intel/tdx/wiki/Tests)
     """
 
     # Set guest tsc frequency
     tsc_frequency = 3000000000
-    qm = Qemu.QemuMachine()
     qm.qcmd.plugins['cpu'].cpu_flags += f',tsc-freq={tsc_frequency}'
     qm.run()
 
@@ -88,11 +86,10 @@ def test_guest_set_tsc_frequency():
     tsc_guest = ecx * ebx / eax
     assert tsc_guest == tsc_frequency, "TSC frequency not set correctly"
 
-def test_guest_tsc_deadline_enable():
+def test_guest_tsc_deadline_enable(qm):
     """
     tdx_tsc_deadline_enable test case (See https://github.com/intel/tdx/wiki/Tests)
     """
-    qm = Qemu.QemuMachine()
     qm.run()
 
     m = Qemu.QemuSSH(qm)
@@ -104,11 +101,10 @@ def test_guest_tsc_deadline_enable():
 
     qm.stop()
 
-def test_guest_tsc_deadline_disable():
+def test_guest_tsc_deadline_disable(qm):
     """
     tdx_tsc_deadline_disable test case (See https://github.com/intel/tdx/wiki/Tests)
     """
-    qm = Qemu.QemuMachine()
     qm.qcmd.plugins['cpu'].cpu_flags += f',-tsc-deadline'
     qm.run()
 

@@ -29,16 +29,17 @@ def test_coexist_boot():
     qm = Qemu.QemuMachine('td',
                                QemuEfiMachine.OVMF_Q35_TDX,
                                service_blacklist = [QemuMachineService.QEMU_MACHINE_PORT_FWD])
-    qm.run()
     qm_normal = Qemu.QemuMachine('normal',
                                       QemuEfiMachine.OVMF_Q35,
                                       service_blacklist = [QemuMachineService.QEMU_MACHINE_PORT_FWD])
-    qm_normal.run()
+    with qm, qm_normal:
+        qm.run()
+        qm_normal.run()
 
-    m = Qemu.QemuMonitor(qm)
-    m.wait_for_state('running')
-    m_normal = Qemu.QemuMonitor(qm_normal)
-    m_normal.wait_for_state('running')
+        m = Qemu.QemuMonitor(qm)
+        m.wait_for_state('running')
+        m_normal = Qemu.QemuMonitor(qm_normal)
+        m_normal.wait_for_state('running')
 
-    qm.stop()
-    qm_normal.stop()
+        qm.stop()
+        qm_normal.stop()

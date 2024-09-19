@@ -24,11 +24,10 @@ import Qemu
 import util
 from common import *
 
-def test_guest_eventlog():
+def test_guest_eventlog(qm):
     """
     Dump event log
     """
-    qm = Qemu.QemuMachine()
     qm.run()
 
     m = Qemu.QemuSSH(qm)
@@ -41,11 +40,10 @@ def test_guest_eventlog():
 
     qm.stop()
 
-def test_guest_eventlog_initrd():
+def test_guest_eventlog_initrd(qm):
     """
     Check presence of event log for initrd measurement
     """
-    qm = Qemu.QemuMachine()
     qm.run()
 
     m = Qemu.QemuSSH(qm)

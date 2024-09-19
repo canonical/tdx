@@ -20,14 +20,13 @@ import os
 from Qemu import QemuEfiMachine, QemuEfiFlashSize, QemuMachineService
 import Qemu
 
-def test_create_td_without_ovmf():
+def test_create_td_without_ovmf(qm):
     """
     TD creation should be impossible without OVMF
     qemu-system-x86_64 should output the errors:
       Cannot find TDX_METADATA_OFFSET_GUID
       failed to parse TDVF for TDX VM
     """
-    qm = Qemu.QemuMachine()
     # remove ovmf
     qm.qcmd.plugins.pop('ovmf')
     qm.run()

@@ -20,12 +20,11 @@
 import os
 import Qemu
 
-def test_4vcpus_1socket_10times():
+def test_4vcpus_1socket_10times(qm):
     """
     Test 4vcpus 1socket 10 times (Intel Case ID 009)
     """
 
-    qm = Qemu.QemuMachine()
     qm.qcmd.plugins['cpu'].nb_cores = 4
 
     for i in range(0,10):
@@ -34,12 +33,11 @@ def test_4vcpus_1socket_10times():
         qm.stop()
 
 
-def test_4vcpus_2sockets_5times():
+def test_4vcpus_2sockets_5times(qm):
     """
     Test 4vcpus 2sockets 5 times (Intel Case ID 010)
     """
 
-    qm = Qemu.QemuMachine()
     qm.qcmd.plugins['cpu'].nb_cores = 4
     qm.qcmd.plugins['cpu'].nb_sockets = 2
 

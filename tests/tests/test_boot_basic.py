@@ -19,11 +19,10 @@ import os
 import Qemu
 from common import *
 
-def test_guest_boot():
+def test_guest_boot(qm):
     """
     Boot TD
     """
-    qm = Qemu.QemuMachine()
     qm.run()
 
     m = Qemu.QemuSSH(qm)
@@ -37,12 +36,11 @@ def test_guest_boot():
 
     qm.stop()
 
-def test_early_printk():
+def test_guest_early_printk(qm):
     """
     Test Early Printk with Debug Off (Intel Case ID 018)
     """
 
-    qm = Qemu.QemuMachine()
     qm.qcmd.plugins['boot'].kernel = "/boot/vmlinuz"
     qm.qcmd.plugins['boot'].append = "earlyprintk=ttyS0,115200"
     qm.run()
