@@ -19,11 +19,10 @@ import Qemu
 
 # Tests
 
-def test_nmi_debug_off():
+def test_nmi_debug_off(qm):
     """
     Boot TDX VM and make sure nmi runs without issue in monitor (Intel Case ID: 006)
     """
-    qm = Qemu.QemuMachine()
     qm.run()
 
     mon = Qemu.QemuMonitor(qm)

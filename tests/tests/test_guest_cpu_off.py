@@ -29,13 +29,12 @@ import util
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
-def test_guest_cpu_off():
+def test_guest_cpu_off(qm):
     """
     tdx_VMP_cpu_onoff test case (See https://github.com/intel/tdx/wiki/Tests)
     """
 
     # Startup Qemu and connect via SSH
-    qm = Qemu.QemuMachine()
     qm.run()
     m = Qemu.QemuSSH(qm)
 
@@ -65,19 +64,19 @@ def test_guest_cpu_pinned_off():
     # the pinned cpu and making sure host still works
     for i in range(1,20):
         print(f'Iteration: {i}')
-        qm = Qemu.QemuMachine()
-        qm.run_and_wait()
+        with Qemu.QemuMachine() as qm:
+            qm.run_and_wait()
 
-        cpu = pin_process_on_random_cpu(qm.pid)
+            cpu = pin_process_on_random_cpu(qm.pid)
 
-        cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 0)
+            cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 0)
 
-        m = Qemu.QemuSSH(qm)
-        m.check_exec('sudo init 0 &')
+            m = Qemu.QemuSSH(qm)
+            m.check_exec('sudo init 0 &')
 
-        qm.stop()
+            qm.stop()
 
-        cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
+            cpu_on_off(f'/sys/devices/system/cpu/cpu{cpu}/online', 1)
 
 def pin_process_on_random_cpu(pid):
     # pin pid to a particular cpu

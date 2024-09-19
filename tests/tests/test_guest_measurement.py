@@ -24,11 +24,10 @@ import Qemu
 import util
 from common import *
 
-def test_guest_measurement_check_rtmr():
+def test_guest_measurement_check_rtmr(qm):
     """
     Boot measurements check
     """
-    qm = Qemu.QemuMachine()
     qm.run()
 
     m = Qemu.QemuSSH(qm)

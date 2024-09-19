@@ -24,11 +24,10 @@ import Qemu
 import util
 from common import *
 
-def test_guest_report():
+def test_guest_report(qm):
     """
     Boot measurements check
     """
-    qm = Qemu.QemuMachine()
     qm.run()
 
     m = Qemu.QemuSSH(qm)

@@ -26,3 +26,18 @@ def pytest_exception_interact(node, call, report):
     if report.failed:
         # enable debug flag to avoid cleanup to happen
         Qemu.QemuMachine.set_debug(True)
+
+@pytest.fixture()
+def release_kvm_use():
+    """
+    Clean all running instances of qemu to release the kvm_intel driver use
+    """
+    Qemu.QemuMachine.stop_all_running_qemus()
+
+@pytest.fixture()
+def qm():
+    """
+    Fixture to create a QEMU machine as context manager
+    """
+    with Qemu.QemuMachine() as qm:
+        yield qm
