@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 #
 # Copyright 2024 Canonical Ltd.
-# Authors:
-# - Hector Cao <hector.cao@canonical.com>
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License version 3, as published
@@ -19,22 +17,23 @@
 
 import os
 import time
+import json
+import subprocess
 
 import Qemu
-import util
 from common import *
 
 def test_guest_measurement_check_rtmr(qm):
     """
     Boot measurements check
     """
-    qm.run()
+    with Qemu.QemuMachine() as qm:
+        qm.run()
 
-    m = Qemu.QemuSSH(qm)
+        m = Qemu.QemuSSH(qm)
 
-    deploy_and_setup(m)
+        deploy_and_setup(m)
 
-    m.check_exec('tdrtmrcheck')
+        m.check_exec('tdrtmrcheck')
 
-    qm.stop()
-
+        qm.stop()
