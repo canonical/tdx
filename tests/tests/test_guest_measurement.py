@@ -28,19 +28,17 @@ def test_guest_measurement_check_rtmr(qm):
     """
     Boot measurements check
     """
-    qm.run()
+    with Qemu.QemuMachine() as qm:
+        qm.run()
 
-    m = Qemu.QemuSSH(qm)
+        m = Qemu.QemuSSH(qm)
 
-    deploy_and_setup(m)
+        deploy_and_setup(m)
 
-    m.check_exec('tdrtmrcheck')
+        m.check_exec('tdrtmrcheck')
 
-    qm.stop()
+        qm.stop()
 
-# This test assumes TDX_SETUP_ATTESTATION=1 in setup-tdx-config
-# when guest image generated and setup-attestation-host.sh has been
-# run.  See TDX repository readme for more info on enabling attestation.
 def test_guest_measurement_trust_authority_success():
     """
     Trust Authority CLI quote generation success
@@ -51,9 +49,6 @@ def test_guest_measurement_trust_authority_success():
     assert len(quote) > 0, "Quote not valid: %s" % (quote_str)
 
 
-# This test assumes TDX_SETUP_ATTESTATION=1 in setup-tdx-config
-# when guest image generated and setup-attestation-host.sh has been
-# run.  See TDX repository readme for more info on enabling attestation.
 def test_guest_measurement_trust_authority_failure():
     """
     Trust Authority CLI quote generation failure
@@ -76,15 +71,15 @@ def run_trust_authority():
     object = '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}'
     Qemu.QemuMachineType.Qemu_Machine_Params[Qemu.QemuEfiMachine.OVMF_Q35_TDX][1] = object
 
-    qm = Qemu.QemuMachine()
-    qm.qcmd.add_vsock(3)
-    qm.run()
+    quote_str = ""
+    with Qemu.QemuMachine() as qm:
+        qm.qcmd.add_vsock(3)
+        qm.run()
 
-    ssh = Qemu.QemuSSH(qm)
+        ssh = Qemu.QemuSSH(qm)
 
-    deploy_and_setup(ssh)
+        deploy_and_setup(ssh)
 
-    stdout, stderr = ssh.check_exec('trustauthority-cli quote')
-    quote_str = stdout.read().decode()
-
+        stdout, stderr = ssh.check_exec('trustauthority-cli quote')
+        quote_str = stdout.read().decode()
     return quote_str
