@@ -534,32 +534,36 @@ class QemuMachine:
                               shell=True,
                               stdout=subprocess.DEVNULL)
 
-    def run(self):
+    def run(self, shell=False):
         """
         Run qemu
         """
         cmd = self.qcmd.get_command()
-        print(' '.join(cmd))
-        self.proc = subprocess.Popen(cmd,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
+        cmd_str = ' '.join(cmd)
+        print(cmd_str)
+        # if shell=True is enabled, we replace the shell with qemu process
+        # this will allow to properly terminate the qemu process and shell
+        # with self.proc.terminate()
+        # otherwise, the shell process still live as zombie and block
+        # the collection of logs with communicate()
+        if shell:
+            cmd = f'exec {cmd_str}'
+        self.proc = subprocess.Popen(cmd, shell=shell,
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE)
 
-    def run_and_wait(self):
+    def run_and_wait(self, shell=False):
         """
         Run qemu and wait for its start (by waiting for monitor file's availability)
         """
-        cmd = self.qcmd.get_command()
-        print(' '.join(cmd))
-        self.proc = subprocess.Popen(cmd,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
+        self.run(shell=shell)
         QemuMonitor(self)
 
     def communicate(self):
         """
         Wait for qemu to exit
         """
-        self.out, self.err = self.proc.communicate()
+        self.out, self.err = self.proc.communicate(5)
         if self.proc.returncode != 0:
             print(self.err.decode())
         return self.out, self.err

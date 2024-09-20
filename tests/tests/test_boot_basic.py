@@ -42,8 +42,12 @@ def test_guest_early_printk(qm):
     """
 
     qm.qcmd.plugins['boot'].kernel = "/boot/vmlinuz"
-    qm.qcmd.plugins['boot'].append = "earlyprintk=ttyS0,115200"
-    qm.run()
+    qm.qcmd.plugins['boot'].append = "root=/dev/vda1 earlyprintk=ttyS0,115200"
+
+    # for an unknown reason, when we run the qemu process with Popen(...,shell=False)
+    # with earlyprintk enabled, we cannot ssh into the machine
+    # to be able to run the VM properly, we have to use Popen(...,shell=True)
+    qm.run(shell=True)
 
     ssh = Qemu.QemuSSH(qm)
 
