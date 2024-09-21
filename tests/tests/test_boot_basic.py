@@ -42,7 +42,7 @@ def test_guest_early_printk(qm):
     """
 
     qm.qcmd.plugins['boot'].kernel = "/boot/vmlinuz"
-    qm.qcmd.plugins['boot'].append = "earlyprintk=ttyS0,115200"
+    qm.qcmd.plugins['boot'].append = "root=/dev/vda1 earlyprintk=ttyS0,115200"
     qm.run()
 
     ssh = Qemu.QemuSSH(qm)

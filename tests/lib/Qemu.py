@@ -189,9 +189,9 @@ class QemuBootType:
         if self.kernel:
             _args.extend(['-kernel', self.kernel])
             if self.append:
-                _args.extend(['-append', f'"{self.append}"'])
+                _args.extend(['-append', f'{self.append}'])
             else:
-                _args.extend(['-append', '"root=/dev/vda1 console=ttyS0"'])
+                _args.extend(['-append', 'root=/dev/vda1 console=ttyS0'])
         if self.initrd:
             _args.extend(['-initrd', self.initrd])
         _args.extend([
