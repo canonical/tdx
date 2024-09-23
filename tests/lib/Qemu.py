@@ -578,6 +578,19 @@ class QemuMachine:
             except Exception as e:
                 print(f'Exception {e}')
 
+    def reboot(self):
+        """
+        Reboot the QEMU machine
+        Since VM might not support reboot just poweroff and start gain
+        """
+        m = QemuSSH(self)
+        # sync data and poweroff
+        m.check_exec('sync && systemctl poweroff')
+        # check that VM quits properly
+        self.communicate()
+        # run the VM again
+        self.run()
+
     def __del__(self):
         """
         Make sure we stop the qemu process if it is still running

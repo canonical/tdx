@@ -41,10 +41,19 @@ def test_guest_early_printk(qm):
     Test Early Printk with Debug Off (Intel Case ID 018)
     """
 
-    qm.qcmd.plugins['boot'].kernel = "/boot/vmlinuz"
-    qm.qcmd.plugins['boot'].append = "root=/dev/vda1 earlyprintk=ttyS0,115200"
     qm.run()
 
-    ssh = Qemu.QemuSSH(qm)
+    m = Qemu.QemuSSH(qm)
+    add_earlyprintk_cmd = r'''
+      sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 earlyprintk=ttyS0,115200\"/g" /etc/default/grub
+      update-grub
+      grub-install
+    '''
+    m.check_exec(add_earlyprintk_cmd)
+
+    qm.reboot()
+
+    m = Qemu.QemuSSH(qm)
+    m.check_exec('grep earlyprintk=ttyS0,115200 /proc/cmdline')
 
     qm.stop()
