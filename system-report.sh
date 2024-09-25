@@ -90,7 +90,9 @@ print_section "Operating system details" "${result}"
 result=$(uname -rvpio) # show everything but hostname
 print_section "Kernel version" "${result}"
 
-result=$(sudo dmesg | grep -i tdx)
+dmesg_head=$(sudo dmesg | grep -i tdx | head -n 10)
+dmesg_tail=$(sudo dmesg | grep -i tdx | tail -n 20)
+result="${dmesg_head}\n...\n${dmesg_tail}"
 print_section "TDX kernel logs" "${result}"
 
 result=$( \
