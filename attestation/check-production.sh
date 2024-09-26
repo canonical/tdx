@@ -38,9 +38,6 @@ fi
 if [ "$CPU_MODEL" = "173" ]; then
     CPU_GEN="Intel® Xeon® 6 with P-cores (codename: Granite Rapids)"
 fi
-if [ "$CPU_MODEL" = "175" ]; then
-    CPU_GEN="Intel® Xeon® 6 with E-cores (codename: Sierra Forest)"
-fi
 if [ "$CPU_MODEL" = "207" ]; then
     CPU_GEN="5th Gen Intel® Xeon® Scalable Processors (codename: Emerald Rapids)"
 fi

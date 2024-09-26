@@ -41,6 +41,7 @@ tool and attach the report.
 This release works with these Intel® Xeon® Processors:
 * 4th Gen Intel® Xeon® Scalable Processors (select SKUs with Intel® TDX)
 * 5th Gen Intel® Xeon® Scalable Processors
+* Intel® Xeon® 6 Processors with P-Cores
 
 <a id="setup-host-os"></a>
 ## 4. Setup Host OS
@@ -214,7 +215,7 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
    2. Restart the `libvirtd` service
 
 	    ```bash
-	    systemctl restart libvirtd
+	    sudo systemctl restart libvirtd
 	    ```
 
 2. Boot TD using the following commands.
