@@ -67,5 +67,3 @@ if [ $cnt == 0 ]; then
 fi
 
 echo "Kexec Successfully Performed"
-
-

@@ -15,14 +15,6 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-# sudo apt install linux-crashdump
-# reboot
-# kdump-config show
-# cat /proc/cmdline --> verify crashkernel value in place 
-# validate cat /proc/sys/kernel/sysrq > 0
-# trigger crash --> sudo "echo c > /proc/sysrq-trigger"
-# find crashdump in /var/crash
-
 if [ ! -v DEVICE_IP ]; then
     DEVICE_IP="192.168.102.125"
 fi
@@ -54,7 +46,7 @@ if [ $cnt == 0 ]; then
     exit -4
 fi
 
-echo "System came back up"
+echo "System came back up, printing out useful debug info"
 
 ssh ubuntu@$DEVICE_IP sudo kdump-config show
 if [ $? != 0 ]; then
@@ -68,6 +60,7 @@ if [ $? != 0 ]; then
     exit -6
 fi
 
+# Get crash directory before to compare later
 CRASH_DIR_BEFORE="$(ssh ubuntu@$DEVICE_IP ls /var/crash)"
 if [ $? != 0 ]; then
     echo "Failed getting crash directory"
@@ -75,7 +68,7 @@ if [ $? != 0 ]; then
 fi
 
 echo "Crashing system"
-ssh ubuntu@$DEVICE_IP "echo c | sudo tee /proc/sysrq-trigger" &
+ssh ubuntu@$DEVICE_IP "echo c | sudo tee /proc/sysrq-trigger" > /dev/null &
 
 sleep 10
 echo "Waiting for system to come back up"
@@ -101,10 +94,10 @@ fi
 echo Before crash directory listing: $CRASH_DIR_BEFORE
 echo After crash directory listing: $CRASH_DIR_AFTER
 
-# Verifyng crash directory are not the same (extra entry in place)
+# Verifyng crash directory are not the same (extra entry should be in place)
 if [ "$CRASH_DIR_BEFORE" == "$CRASH_DIR_AFTER" ]; then
     echo "Crash directories are the same"
     exit -12
 fi
 
-echo "Success!"
+echo "Kdump Successfully Performed"
