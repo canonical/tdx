@@ -56,24 +56,23 @@ fi
 
 echo "System came back up"
 
-KDUMP_CONFIG="$(ssh ubuntu@$DEVICE_IP sudo kdump-config show)"
+ssh ubuntu@$DEVICE_IP sudo kdump-config show
 if [ $? != 0 ]; then
     echo "Failed getting kdump config"
     exit -5
 fi
 
-CMDLINE="$(ssh ubuntu@$DEVICE_IP cat /proc/cmdline)"
+ssh ubuntu@$DEVICE_IP cat /proc/cmdline
 if [ $? != 0 ]; then
     echo "Failed getting cmd line"
     exit -6
 fi
 
-CRASH_DIR="$(ssh ubuntu@$DEVICE_IP ls /var/crash)"
+CRASH_DIR_BEFORE="$(ssh ubuntu@$DEVICE_IP ls /var/crash)"
 if [ $? != 0 ]; then
     echo "Failed getting crash directory"
     exit -7
 fi
-
 
 echo "Crashing system"
 ssh ubuntu@$DEVICE_IP "echo c | sudo tee /proc/sysrq-trigger" &
@@ -93,14 +92,19 @@ if [ $cnt == 0 ]; then
 fi
 
 echo "System came back up"
-CRASH_DIR2="$(ssh ubuntu@$DEVICE_IP ls /var/crash)"
+CRASH_DIR_AFTER="$(ssh ubuntu@$DEVICE_IP ls /var/crash)"
 if [ $? != 0 ]; then
     echo "Failed getting crash directory"
     exit -11
 fi
 
-echo $CRASH_DIR
-echo "----------------------------------------------------"
-echo "----------------------------------------------------"
-echo "----------------------------------------------------"
-echo $CRASH_DIR2
+echo Before crash directory listing: $CRASH_DIR_BEFORE
+echo After crash directory listing: $CRASH_DIR_AFTER
+
+# Verifyng crash directory are not the same (extra entry in place)
+if [ "$CRASH_DIR_BEFORE" == "$CRASH_DIR_AFTER" ]; then
+    echo "Crash directories are the same"
+    exit -12
+fi
+
+echo "Success!"
