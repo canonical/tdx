@@ -27,11 +27,11 @@ MEMORY_FILE='memory.bin'
 CHECK_EXEC='export INCLEAR=6150079244'
 
 def check_for_string(filename, needle):
-    cs = subprocess.run(['sudo', 'grep', needle, filename], check=True, capture_output=True)
+    cs = subprocess.run(['sudo', 'grep', needle, filename], capture_output=True)
     return cs.returncode
 
 def remove_file(filename):
-    cs = subprocess.run(['sudo', 'rm', '-f', filename], check=True, capture_output=True)
+    cs = subprocess.run(['sudo', 'rm', '-f', filename], capture_output=True)
     return cs.returncode
 
 def test_guest_memory_confidentiality_no_tdx(qm):
