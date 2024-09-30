@@ -16,7 +16,8 @@
 #
 
 if [ ! -v DEVICE_IP ]; then
-    DEVICE_IP="192.168.102.125"
+    echo "Must define DEVICE_IP"
+    exit -13
 fi
 
 echo "Installing linux-crashdump and rebooting"
@@ -32,12 +33,12 @@ if [ $? != 0 ]; then
     exit -2
 fi
 
-sleep 30
+sleep 15
 echo "Waiting for system to come back up"
 
 cnt=0
 until ssh ubuntu@$DEVICE_IP ls &> /dev/null; do sleep 1; cnt=$(expr $cnt + 1); if [ $cnt -gt 120 ]; then break; fi; done
-if [ $cnt -gt 60 ]; then
+if [ $cnt -gt 120 ]; then
     echo "Timed out waiting for $DEVICE_IP to come back up ($cnt)"
     exit -3
 fi
@@ -75,7 +76,7 @@ echo "Waiting for system to come back up"
 
 cnt=0
 until ssh ubuntu@$DEVICE_IP ls &> /dev/null; do sleep 1; cnt=$(expr $cnt + 1); if [ $cnt -gt 120 ]; then break; fi; done
-if [ $cnt -gt 60 ]; then
+if [ $cnt -gt 120 ]; then
     echo "Timed out waiting for $DEVICE_IP to come back up ($cnt)"
     exit -9
 fi

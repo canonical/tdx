@@ -16,7 +16,8 @@
 #
 
 if [ ! -v DEVICE_IP ]; then
-    DEVICE_IP="192.168.102.125"
+    echo "Must define DEVICE_IP"
+    exit -13
 fi
 
 echo "Getting information for kexec call"
@@ -56,8 +57,8 @@ sleep 10
 echo "Waiting for system to come back up"
 
 cnt=0
-until ssh ubuntu@$DEVICE_IP ls &> /dev/null; do sleep 1; cnt=$(expr $cnt + 1); if [ $cnt -gt 60 ]; then break; fi; done
-if [ $cnt -gt 60 ]; then
+until ssh ubuntu@$DEVICE_IP ls &> /dev/null; do sleep 1; cnt=$(expr $cnt + 1); if [ $cnt -gt 120 ]; then break; fi; done
+if [ $cnt -gt 120 ]; then
     echo "Timed out waiting for $DEVICE_IP to come back up ($cnt)"
     exit -5
 fi
