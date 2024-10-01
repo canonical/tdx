@@ -173,7 +173,7 @@ print_all() {
                     awk '/guest-cid/ {print $3}'
                      )
             host_ip=$(
-               virsh domifaddr ${td_domain}  |
+               virsh domifaddr ${td_domain} 2>&1 |
                     awk '/vnet/ {print $4}'
                      )
             extra_info="(ip:${host_ip}, ssh:$host_port, cid:${guest_cid})"
