@@ -17,7 +17,7 @@
 
 if [ ! -v DEVICE_IP ]; then
     echo "Must define DEVICE_IP"
-    exit -13
+    exit -1
 fi
 
 echo "Getting information for kexec call"
@@ -35,20 +35,20 @@ fi
 ssh ubuntu@$DEVICE_IP ls $INITRD > /dev/null
 if [ $? != 0 ]; then
     echo "Can't find $INITRD"
-    exit -2
+    exit -1
 fi
 
 CMDLINE="$(ssh ubuntu@$DEVICE_IP cat /proc/cmdline)"
 if [ $? != 0 ]; then
     echo "Failed getting command line"
-    exit -3
+    exit -1
 fi
 
 echo "Calling kexec: ssh ubuntu@$DEVICE_IP sudo kexec -l $KERNEL --initrd=$INITRD --command-line=\"$CMDLINE\""
 ssh ubuntu@$DEVICE_IP sudo kexec -l $KERNEL --initrd=$INITRD --command-line=\"$CMDLINE\"
 if [ $? != 0 ]; then
     echo "Failed kexec load: ssh ubuntu@$DEVICE_IP sudo kexec -l $KERNEL --initrd=$INITRD --command-line=\"$CMDLINE\""
-    exit -4
+    exit -1
 fi
 
 echo "Running kexec -e in background"
@@ -60,11 +60,11 @@ cnt=0
 until ssh ubuntu@$DEVICE_IP ls &> /dev/null; do sleep 1; cnt=$(expr $cnt + 1); if [ $cnt -gt 120 ]; then break; fi; done
 if [ $cnt -gt 120 ]; then
     echo "Timed out waiting for $DEVICE_IP to come back up ($cnt)"
-    exit -5
+    exit -1
 fi
 if [ $cnt == 0 ]; then
     echo "$DEVICE_IP came back too quickly"
-    exit -6
+    exit -1
 fi
 
 echo "Kexec Successfully Performed"
