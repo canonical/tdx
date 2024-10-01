@@ -23,32 +23,41 @@ if [ ! -v DEVICE_IP ]; then
 fi
 
 set -e
+
 echo "Getting information for kexec call"
 UNAME_RELEASE="$(ssh ubuntu@$DEVICE_IP uname -r)"
 KERNEL="/boot/vmlinuz-$UNAME_RELEASE"
 INITRD="/boot/initrd.img-$UNAME_RELEASE"
-ssh ubuntu@$DEVICE_IP ls $KERNEL > /dev/null
-ssh ubuntu@$DEVICE_IP ls $INITRD > /dev/null
-CMDLINE="$(ssh ubuntu@$DEVICE_IP cat /proc/cmdline)"
+ssh $SSH_OPTIONS ubuntu@$DEVICE_IP ls $KERNEL > /dev/null
+ssh $SSH_OPTIONS ubuntu@$DEVICE_IP ls $INITRD > /dev/null
+CMDLINE="$(ssh $SSH_OPTIONS ubuntu@$DEVICE_IP cat /proc/cmdline)"
 
-echo "Calling kexec: ssh ubuntu@$DEVICE_IP sudo kexec -l $KERNEL --initrd=$INITRD --command-line=\"$CMDLINE\""
-ssh ubuntu@$DEVICE_IP sudo kexec -l $KERNEL --initrd=$INITRD --command-line=\"$CMDLINE\"
+echo "Calling kexec: ssh $SSH_OPTIONS ubuntu@$DEVICE_IP sudo kexec -l $KERNEL --initrd=$INITRD --command-line=\"$CMDLINE\""
+ssh $SSH_OPTIONS ubuntu@$DEVICE_IP sudo kexec -l $KERNEL --initrd=$INITRD --command-line=\"$CMDLINE\"
 
 echo "Running kexec -e in background"
-ssh ubuntu@$DEVICE_IP sudo kexec -e &
-sleep 10
+ssh $SSH_OPTIONS ubuntu@$DEVICE_IP sudo kexec -e &
+
+echo "Waiting for system to go down"
+cnt=0
+until ! ssh -o ConnectTimeout=2 $SSH_OPTIONS ubuntu@$DEVICE_IP ls &> /dev/null; do 
+    sleep 1; 
+    cnt=$(expr $cnt + 1); 
+    if [ $cnt -gt 30 ]; then
+        echo "$DEVICE_IP did not reboot"
+        exit 1
+    fi
+done
 
 echo "Waiting for system to come back up"
-
 cnt=0
-until ssh ubuntu@$DEVICE_IP ls &> /dev/null; do sleep 1; cnt=$(expr $cnt + 1); if [ $cnt -gt 120 ]; then break; fi; done
-if [ $cnt -gt 120 ]; then
-    echo "Timed out waiting for $DEVICE_IP to come back up ($cnt)"
-    exit 1
-fi
-if [ $cnt == 0 ]; then
-    echo "$DEVICE_IP came back too quickly"
-    exit 1
-fi
+until ssh -o ConnectTimeout=2 $SSH_OPTIONS ubuntu@$DEVICE_IP ls &> /dev/null; do 
+    sleep 1; 
+    cnt=$(expr $cnt + 1); 
+    if [ $cnt -gt 120 ]; then
+        echo "Timed out waiting for $DEVICE_IP to come back up ($cnt)"
+        exit 1
+    fi
+done
 
 echo "Kexec Successfully Performed"
