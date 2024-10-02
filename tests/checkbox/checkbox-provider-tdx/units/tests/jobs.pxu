@@ -226,3 +226,15 @@ requires:
 command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
   setup-env-and-run test_vsock_vm.py
+
+id: tdx-guest/td-memory
+category_id: tdx-guest
+flags: simple
+_summary: Test TD memory confidentiality
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  setup-env-and-run test_guest_memory.py
