@@ -143,6 +143,18 @@ command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
   setup-env-and-run test_guest_ita.py
 
+id: tdx-guest/td-libtdx-attest
+category_id: tdx-guest
+flags: simple
+_summary: Test guest libtdx_attest
+depends:
+after:
+requires:
+  executable.name == 'qemu-system-x86_64'
+command:
+  export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  setup-env-and-run test_guest_tdxattest.py
+
 id: tdx-guest/td-guest-reboot
 category_id: tdx-guest
 flags: simple
