@@ -172,7 +172,16 @@ print_all() {
                     --hmp info qtree 2>&1 |
                     awk '/guest-cid/ {print $3}'
                      )
-            extra_info="(ssh:$host_port, cid:${guest_cid})"
+            host_ip=$(
+               virsh domifaddr ${td_domain} 2>&1 |
+                    awk '/vnet/ {print $4}'
+                     )
+            if [[ "${host_ip}" != */* ]]; then
+                host_ip="unknown"
+            else
+                host_ip="${host_ip%/*}"
+            fi
+            extra_info="(ip:${host_ip}, hostfwd:$host_port, cid:${guest_cid})"
         fi
         echo "$line $extra_info"
     done < <(virsh "list --all")
