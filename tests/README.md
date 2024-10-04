@@ -72,43 +72,43 @@ Go to the `tests` folder.
 
 ```
 $ snapcraft
-$ sudo snap install ./checkbox-tdx-classic_2.0_amd64.snap --dangerous --classic
+$ sudo snap install ./checkbox-tdx_1.0.0_amd64.snap --dangerous --classic
 ```
 
 - Run sanity tests to check the host setup:
 
 ```
-$ checkbox-tdx-classic.test-runner-automated-host
+$ checkbox-tdx.test-runner-automated-host
 ```
 
 - Run guest tests:
 
 ```
-$ checkbox-tdx-classic.test-runner-automated-guest
+$ checkbox-tdx.test-runner-automated-guest
 ```
 
 - Run boot tests:
 
 ```
-$ checkbox-tdx-classic.test-runner-automated-boot
+$ checkbox-tdx.test-runner-automated-boot
 ```
 
 - Run perf tests:
 
 ```
-$ checkbox-tdx-classic.test-runner-automated-perf
+$ checkbox-tdx.test-runner-automated-perf
 ```
 
 - Run quote tests:
 
 ```
-$ checkbox-tdx-classic.test-runner-automated-quote
+$ checkbox-tdx.test-runner-automated-quote
 ```
 
 - Run stress tests:
 
 ```
-$ checkbox-tdx-classic.test-runner-automated-stress
+$ checkbox-tdx.test-runner-automated-stress
 ```
 
 - Run all tests:
@@ -116,7 +116,7 @@ $ checkbox-tdx-classic.test-runner-automated-stress
 Please note that the performance tests can take a long time to run.
 
 ```
-$ checkbox-tdx-classic.test-runner-automated
+$ checkbox-tdx.test-runner-automated
 ```
 
 

@@ -1,15 +1,15 @@
-name: checkbox-tdx-classic
+name: checkbox-tdx
 summary: Checkbox tests for TDX
 description: |
   Collection of tests for Intel TDX (Trusted Domain eXtension)
-version: '2.0'
+version: '1.0.0'
 confinement: classic
 grade: stable
 
 base: core22
 
 # Here are the available applications of the TDX checkbox provider snap
-# To run : snap run checkbox-tdx-classic.<app>
+# To run : snap run checkbox-tdx.<app>
 #
 # checkbox-cli:
 #   - checkbox client, can be used to talk to the checkbox daemon

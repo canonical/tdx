@@ -18,13 +18,13 @@ STRESS_S3_WAIT_DELAY=60
 
 To change those values use the configure launcher.
 E.g.
-    $ checkbox-kivu-classic.configure OPEN_N_SSID=my-wifi
+    $ checkbox-tdx.configure OPEN_N_SSID=my-wifi
 
 If you __really__ need to change those values using `snap set` command,
 you need to change CAPS to lowercase and underscores to dashes (-).
 
 E.g.
-    $ snap set checkbox-kivu-classic open-n-ssid=my-wifi
+    $ snap set checkbox-tdx open-n-ssid=my-wifi
 """
 
 import os

@@ -17,8 +17,21 @@ on:
 
 jobs:
 
+  check-secret:
+    runs-on: ubuntu-22.04
+    outputs:
+      snap-key: ${{ steps.snap-key.outputs.defined }}
+    steps:
+      - id: snap-key
+        name: Set defined=true if SNAPCRAFT7_CREDS is defined
+        if: "${{ env.SNAPSTORE_KEY != '' }}"
+        run: echo "defined=true" >> $GITHUB_OUTPUT
+        env:
+          SNAPSTORE_KEY: ${{ secrets.SNAPCRAFT7_CREDS }}
+
   build:
     runs-on: ubuntu-22.04
+    needs: [check-secret]
     steps:
       - uses: actions/checkout@v4
         name: Checkout
@@ -34,3 +47,12 @@ jobs:
         run: |
           sudo snap install checkbox22
           sudo snap install --dangerous --classic ${{ steps.build.outputs.snap }}
+
+      - if: needs.check-secret.outputs.snap-key == 'true' && (github.ref_name == 'noble-24.04')
+        name: Publish snap to edge channel
+        uses: snapcore/action-publish@v1.2.0
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+        with:
+          snap: ${{ steps.build.outputs.snap }}
+          release: edge
