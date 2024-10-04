@@ -2,7 +2,7 @@ name: checkbox-tdx-classic
 summary: Checkbox tests for TDX
 description: |
   Collection of tests for Intel TDX (Trusted Domain eXtension)
-version: '2.0'
+version: '1.0.0'
 confinement: classic
 grade: stable
 
