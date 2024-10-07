@@ -165,13 +165,21 @@ class QemuMachineType:
     Qemu_Machine_Params = {
         QemuEfiMachine.OVMF_Q35:['-machine', 'q35,kernel_irqchip=split'],
         QemuEfiMachine.OVMF_Q35_TDX:[
-            '-object', 'tdx-guest,id=tdx',
             '-machine', 'q35,kernel_irqchip=split,confidential-guest-support=tdx']
     }
     def __init__(self, machine = QemuEfiMachine.OVMF_Q35_TDX):
         self.machine = machine
+        self.quote_sock = False
+    def enable_quote_socket(self):
+        self.quote_sock = True
     def args(self):
-        return self.Qemu_Machine_Params[self.machine]
+        qemu_args = self.Qemu_Machine_Params[self.machine]
+        if self.machine == QemuEfiMachine.OVMF_Q35_TDX:
+            tdx_object = {'qom-type':'tdx-guest', 'id':'tdx'}
+            if self.quote_sock:
+                tdx_object.update({'quote-generation-socket':{'type': 'vsock', 'cid':'2','port':'4050'}})
+            qemu_args = ['-object', str(tdx_object)] + qemu_args
+        return qemu_args
 
 class QemuBootType:
     def __init__(self,
@@ -417,7 +425,25 @@ class QemuSSH():
                               shell=True,
                               stdout=subprocess.DEVNULL)
 
+    def exec_command(self, cmd):
+        """
+        Exec a command without checking the return code
+        Returns a triple:
+        - ret (return code)
+        - stdout
+        - stderr
+        """
+        _, stdout, stderr = self.ssh_conn.exec_command(cmd)
+        ret_status = stdout.channel.recv_exit_status()
+        return ret_status, stdout, stderr
+
     def check_exec(self, cmd, err_msg=None):
+        """
+        Exec a command and check the return code
+        Returns a 2-tuple:
+        - stdout
+        - stderr
+        """
         _, stdout, stderr = self.ssh_conn.exec_command(cmd)
         if err_msg==None:
             err_msg=f'Execution of {cmd} failed'

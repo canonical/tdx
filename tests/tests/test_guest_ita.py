@@ -52,12 +52,11 @@ def change_qgsd_state(state):
 
 
 def run_trust_authority():
-    object = '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}'
-    Qemu.QemuMachineType.Qemu_Machine_Params[Qemu.QemuEfiMachine.OVMF_Q35_TDX][1] = object
-
     quote_str = ""
     with Qemu.QemuMachine() as qm:
-        qm.qcmd.add_vsock(3)
+        machine = qm.qcmd.plugins['machine']
+        machine.enable_quote_socket()
+
         qm.run()
 
         ssh = Qemu.QemuSSH(qm)
