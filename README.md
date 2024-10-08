@@ -602,7 +602,7 @@ Here are example instructions for building QEMU (for normal user with sudo right
 3. Download package's source:
 
 	```bash
-        sudo apt install -y ubuntu-dev-tools
+ 	sudo apt install -y ubuntu-dev-tools
 	pull-ppa-source --ppa ppa:kobuk-team/tdx-release qemu
 	```
 
