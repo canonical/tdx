@@ -652,7 +652,7 @@ Here are example instructions for building QEMU (for normal user with sudo right
 
 4. Install the kernel.
 
-Example of kernel installation:
+	Example of kernel installation:
 
 	```bash
 	sudo dpkg -i ../linux-image-unsigned-6.8.0-1011-intel_6.8.0-1011.18_amd64.deb ../linux-modules-6.8.0-1011-intel_6.8.0-1011.18_amd64.deb
