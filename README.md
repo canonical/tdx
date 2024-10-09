@@ -602,8 +602,8 @@ Here are example instructions for building QEMU (for normal user with sudo right
 3. Download package's source:
 
 	```bash
-	sudo add-apt-repository -s ppa:kobuk-team/tdx-release
-	apt source qemu
+ 	sudo apt install -y ubuntu-dev-tools
+	pull-ppa-source --ppa ppa:kobuk-team/tdx-release qemu
 	```
 
 	This command will create several files and a folder, the folder is the qemu source code.
@@ -613,7 +613,7 @@ Here are example instructions for building QEMU (for normal user with sudo right
 	```bash
 	cd <qemu-source-code>
 	sudo apt build-dep ./
-	debuild -us -uc -b
+	dpkg-buildpackage -us -uc -b
 	```
 
 	The resulting debian packages are available in the parent folder.
