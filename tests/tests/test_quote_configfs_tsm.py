@@ -41,8 +41,8 @@ def test_qgs_socket(qm):
     """
     Test QGS socket (No Intel Case ID)
     """
-    object = '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}'
-    Qemu.QemuMachineType.Qemu_Machine_Params[Qemu.QemuEfiMachine.OVMF_Q35_TDX][1] = object
+    machine = qm.qcmd.plugins['machine']
+    machine.enable_quote_socket()
 
     qm.run()
 
