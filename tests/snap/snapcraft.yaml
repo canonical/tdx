@@ -94,6 +94,7 @@ parts:
       - python3-paramiko
       - python3-pytest
       - sshpass
+      - cpuid
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "/snap/checkbox22/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
