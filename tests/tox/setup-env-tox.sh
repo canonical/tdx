@@ -36,7 +36,7 @@ cleanup() {
 }
 
 install_deps() {
-  sudo apt install -y sshpass
+  sudo apt install -y sshpass cpuid
   sudo apt remove iperf3 -y
   sudo add-apt-repository ppa:kobuk-team/testing -y
   sudo apt update || true
