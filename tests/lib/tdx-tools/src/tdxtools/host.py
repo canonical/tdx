@@ -25,7 +25,7 @@ def support_tdx():
     """
     Check whether support TDX in CPU info
     """
-    return 'tdx' in cpuinfo.get_cpu_info()['flags']
+    return 'tdx_host_platform' in cpuinfo.get_cpu_info()['flags']
 
 
 def support_sgx():

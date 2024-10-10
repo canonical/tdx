@@ -19,6 +19,14 @@
 
 import re
 import subprocess
+import tdxtools
+
+def test_host_tdx_cpu():
+    """
+    Check that the CPU has TDX support enabled
+    (the flag tdx_host_platform is present)
+    """
+    assert tdxtools.host.support_tdx()
 
 def test_host_tdx_software():
 
