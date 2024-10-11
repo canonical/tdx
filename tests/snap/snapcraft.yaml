@@ -96,9 +96,8 @@ parts:
       - sshpass
       - cpuid
     override-build: |
-      # use checkbox tooling to validate and install our provider
-      # SNAPCRAFT_STAGE : 
-      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      # the validation tool needs to access the to all checkbox providers
+      # we have to set the PROVIDERPATH to point to them
       for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       checkbox-provider-tools validate
       checkbox-provider-tools build
@@ -142,3 +141,9 @@ parts:
     plugin: dump
     source: checkbox/config/
 
+# ignore rpath and interpreter link warnings
+lint:
+  ignore:
+    - classic
+    - library:
+      - usr/bin/cpuid
