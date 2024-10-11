@@ -1,4 +1,4 @@
-# Intel® Trust Domain Extensions (TDX) on Ubuntu 24.04
+# Intel® Trust Domain Extensions (TDX) on Ubuntu 24.10
 
 ### Table of Contents:
 * [1. Introduction](#introduction)
@@ -24,7 +24,7 @@ As a result, Intel TDX enhances a platform user’s control of data security and
 Cloud Service Providers’ (CSP) ability to provide managed cloud services without exposing tenant data to adversaries.
 For more information, see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
 
-This tech preview of Intel TDX on Ubuntu 24.04 provides base host OS, guest OS, and remote attestation functionalities.
+This tech preview of Intel TDX on Ubuntu 24.10 provides base host OS, guest OS, and remote attestation functionalities.
 Follow these instructions to setup the Intel TDX host, create a TD, boot the TD, and attest the integrity of the TD's execution environment.
 
 The host OS and TD setup can be cutomized by editing the global configuration file: `setup-tdx-config`.
@@ -45,12 +45,12 @@ This release works with these Intel® Xeon® Processors:
 
 <a id="setup-host-os"></a>
 ## 4. Setup Host OS
-In this section, you will install a generic Ubuntu 24.04 server image, install necessary packages to turn
+In this section, you will install a generic Ubuntu 24.10 server image, install necessary packages to turn
 the host OS into an Intel TDX-enabled host OS, optionally install remote attestation components, and enable Intel TDX settings in the BIOS.
 
-### 4.1 Install Ubuntu 24.04 Server Image
+### 4.1 Install Ubuntu 24.10 Server Image
 
-Download and install [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/) on the host machine.
+Download and install [Ubuntu 24.10 server](https://releases.ubuntu.com/24.10/) on the host machine.
 
 ### 4.2 Enable Intel TDX in Host OS
 
@@ -59,7 +59,7 @@ Download and install [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/) o
    For example: 
 
    ```bash
-   git clone -b noble-24.04 https://github.com/canonical/tdx.git
+   git clone -b oracular-24.10 https://github.com/canonical/tdx.git
    ```
 
 2. Customize the setup of the host and TD by editing the configuration file `setup-tdx-config`.  
@@ -123,17 +123,17 @@ The message `virt/tdx: module initialized` proves that Intel TDX has initialized
 <a id="create-td-image"></a>
 ## 5. Create TD Image
 
-In this section, you will create an Ubuntu 24.04-based TD image from scratch or convert an existing VM image into a TD image. 
+In this section, you will create an Ubuntu 24.10-based TD image from scratch or convert an existing VM image into a TD image. 
 This can be performed on any Ubuntu 22.04 or newer system - an Intel TDX-specific environment is not required.
 
-* The base image is an Ubuntu 24.04 cloud image.
+* The base image is an Ubuntu 24.10 cloud image.
 * By default, the Ubuntu generic kernel is used for the TD guest. The `-intel` kernel, which may have non-upstreamed and/or under-development features,
   can be selected by setting the variable `TDX_SETUP_INTEL_KERNEL=1` in the `setup-tdx-config` configuration file.
 
 ### 5.1 Create a New TD Image
 
 A TD image can be generated with the following commands.
-The resulting image will be based on an Ubuntu 24.04 cloud image ([`ubuntu-24.04-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img)), the default root password is `123456`, and other default settings are used.
+The resulting image will be based on an Ubuntu 24.10 cloud image ([`ubuntu-24.10-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/oracular/current/oracular-server-cloudimg-amd64.img)), the default root password is `123456`, and other default settings are used.
 Please note the most important options described after the commands and have a look at the `create-td-image.sh` script for more available options.
 
 ```bash
@@ -146,15 +146,15 @@ Important options for TD image creation:
 * To adjust the base image, set the following two environment variables before running the script:
 
     ```bash
-    export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/noble/current/"
-    export CLOUD_IMG="noble-server-cloudimg-amd64.img"
+    export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/oracular/current/"
+    export CLOUD_IMG="oracular-server-cloudimg-amd64.img"
     ```
 
 * The used kernel type (`generic` or `intel`) will be reflected in the name of the resulting image so it is easy to distinguish.
 
 ### 5.2 Convert a Regular VM Image into a TD Image
 
-If you have an existing Ubuntu 24.04 VM image, you can enable the Intel TDX feature using the following steps:
+If you have an existing Ubuntu 24.10 VM image, you can enable the Intel TDX feature using the following steps:
 
 1. Boot up your guest, i.e., your regular VM.
 
@@ -184,7 +184,7 @@ The script provided for the QEMU method supports running only a single instance.
 
 Boot TD with the provided script.
 By default, the script will use an image with a generic kernel located at
-`./image/tdx-guest-ubuntu-24.04-generic.qcow2`. A different qcow2
+`./image/tdx-guest-ubuntu-24.10-generic.qcow2`. A different qcow2
 image (e.g., one with an intel kernel) can be used by setting the `TD_IMG`
 command-line variable.
 
@@ -228,7 +228,7 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
    Details about `tdvirsh`:
    * To manage the lifecycle of TDs, we developed a wrapper around the `virsh` tool.
    This new `tdvirsh` tool extends `virsh` with new capabilities to create/remove TDs.
-   * By default, `tdvirsh` will use an image located at `./image/tdx-guest-ubuntu-24.04-generic.qcow2` with the `generic` Ubuntu kernel.
+   * By default, `tdvirsh` will use an image located at `./image/tdx-guest-ubuntu-24.10-generic.qcow2` with the `generic` Ubuntu kernel.
    A different qcow2 image (e.g., one with an `intel` kernel) can be used by using the command-line option `-i IMAGE_PATH`.
    * By default, `tdvirsh` will use a XML libvirt template located at `./trust_domain.xml.template`.
    A different XML libvirt template can be used by using the command-line option `-t XML_PATH`.
@@ -438,7 +438,7 @@ sudo ./check-production.sh
 		```console
 		mpa_registration_tool.service - Intel MPA Registration
 			Loaded: loaded (/usr/lib/systemd/system/mpa_registration_tool.service; enabled; preset: enabled)
-			Active: inactive (dead) since Tue 2024-04-09 22:54:50 UTC; 11h ago
+			Active: inactive (dead) since Tue 2024.10-09 22:54:50 UTC; 11h ago
 		Duration: 46ms
 		Main PID: 3409 (code=exited, status=0/SUCCESS)
 				CPU: 21ms
@@ -555,8 +555,8 @@ you proceed to [step 4](#verify-itts-client-version).
 		An example of a successful attestation token generation:
 
 		```console
-		2024/04/30 22:55:17 [DEBUG] GET https://api.trustauthority.intel.com/appraisal/v1/nonce
-		2024/04/30 22:55:18 [DEBUG] POST https://api.trustauthority.intel.com/appraisal/v1/attest
+		2024.10/30 22:55:17 [DEBUG] GET https://api.trustauthority.intel.com/appraisal/v1/nonce
+		2024.10/30 22:55:18 [DEBUG] POST https://api.trustauthority.intel.com/appraisal/v1/attest
 		Trace Id: U5sA2GNVoAMEPkQ=
 		eyJhbGciOiJQUzM4NCIsImprdSI6Imh0dHBzOi8vYW1iZXItdGVzdDEtdXNlcjEucHJvamVjdC1hbWJlci1zbWFzLmN
 		.....
@@ -577,7 +577,7 @@ The core idea of building a package from source code is to be able to edit the s
 
 Here are example instructions for building QEMU (for normal user with sudo rights):
 
-1. Install Ubuntu 24.04 (or use an existing Ubuntu 24.04 system).
+1. Install Ubuntu 24.10 (or use an existing Ubuntu 24.10 system).
 
 2. Install build dependencies:
 
@@ -633,14 +633,14 @@ Here are example instructions for building QEMU (for normal user with sudo right
 	sudo apt install schroot devscripts ubuntu-dev-tools
 	# Some additional package might be installed in next step
 	# A session restart might be required at next step to take permission changes into account
-	kteam-tools/cranky/cranky chroot create-base "noble"
-	kteam-tools/cranky/cranky chroot create-session noble:linux
+	kteam-tools/cranky/cranky chroot create-base "oracular"
+	kteam-tools/cranky/cranky chroot create-session oracular:linux
 	```
 
 2. Clone the kernel source.
 
 	```bash
-	kteam-tools/cranky/cranky checkout noble:linux-intel
+	kteam-tools/cranky/cranky checkout oracular:linux-intel
 	```
 
 3. Build the kernel.

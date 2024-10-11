@@ -14,7 +14,7 @@ write_files:
   path: /etc/netplan/netplan.yaml
 - content: |
     ===========================================================================
-    Welcome to Ubuntu noble (24.04)
+    Welcome to Ubuntu oracular (24.10)
     Created by Kobuk team
     ===========================================================================
   path: /etc/motd

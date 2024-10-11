@@ -28,7 +28,7 @@
 add_kobuk_ppa() {
   ppa_id=$1
   distro_id=LP-PPA-kobuk-team-${ppa_id}
-  distro_codename=noble
+  distro_codename=oracular
 
   add-apt-repository -y ppa:kobuk-team/${ppa_id}
 
