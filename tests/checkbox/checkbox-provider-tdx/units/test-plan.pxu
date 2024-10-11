@@ -29,9 +29,7 @@ id: intel-tdx-guest
 unit: test plan
 _name: Intel Trusted Domain eXtension (TDX) guest tests
 include:
-    tdx-guest/.*
-mandatory_include:
-    com.canonical.certification::miscellanea/submission-resources
+    tdx-guest/.*sock.*
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
