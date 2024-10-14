@@ -31,12 +31,12 @@ import os
 import sys
 
 sys.path.append(os.path.expandvars("$SNAP/usr/lib/python3/dist-packages"))
-sitepkgpath = "$SNAP/lib/python3.10/site-packages"
+sitepkgpath = "$SNAP/lib/python3.12/site-packages"
 sys.path.append(os.path.expandvars(sitepkgpath))
 
 sys.path.append(os.path.expandvars(
-    "/snap/checkbox22/current/usr/lib/python3/dist-packages"))
-runtimepath = "/snap/checkbox22/current/lib/python3.10/site-packages"
+    "/snap/checkbox24/current/usr/lib/python3/dist-packages"))
+runtimepath = "/snap/checkbox24/current/lib/python3.12/site-packages"
 sys.path.append(os.path.expandvars(runtimepath))
 
 try:
@@ -44,9 +44,9 @@ try:
 except ImportError:
     msg = """
 checkbox-support not found!
-You need to install the checkbox22 snap:
+You need to install the checkbox24 snap:
 
-snap install checkbox22
+snap install checkbox24
     """
     print(os.path.expandvars(msg), file=sys.stderr)
     sys.exit(1)

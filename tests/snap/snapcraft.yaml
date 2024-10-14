@@ -6,7 +6,7 @@ version: '1.0.0'
 confinement: classic
 grade: stable
 
-base: core22
+base: core24
 
 # Here are the available applications of the TDX checkbox provider snap
 # To run : snap run checkbox-tdx.<app>
@@ -17,23 +17,16 @@ base: core22
 #   - inject environment variable into checkbox snap environnement
 #     the variable initial list can be found in config/config_vars
 #     use configure -l to get the list of the current variables
-#     For example, a useful use case is to inject environment variable
-#     to enable debugging output (LIBVA_MESSAGING_LEVEL)
 # remote-slave:
 #   - checkbox slave daemon that will the responsible for running the test sesssion
 #     in the remote fashion (through checkbox-cli)
-# test-runner / test-runner-automated:
+# test-runner / test-runner-automated-xxx:
 #   - execute all provider tests inside the snap environment
 #     the test execution is standalone and does not depend on the remote-slave daemon
 # shell:
 #   - give shell access to the provider snap
-# test-runner-automated-hwdec:
-#   - execute hardware decoding tests
-#     the test execution is standalone and does not depend on the remote-slave daemon
 # install-full-deps:
 #   - install all depedencies needed for provider jobs
-# media-stress-test
-#   - execute hardware decoding tests which max out the video engines
 apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]
@@ -88,7 +81,7 @@ parts:
     source-type: local
     build-snaps:
       - checkbox-provider-tools
-      - checkbox22
+      - checkbox24
     stage-packages:
       - python3-parameterized
       - python3-paramiko
@@ -96,8 +89,9 @@ parts:
       - sshpass
       - cpuid
     override-build: |
-      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
-      for path in $(find "/snap/checkbox22/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      # the validation tool needs to access the to all checkbox providers
+      # we have to set the PROVIDERPATH to point to them
+      for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       checkbox-provider-tools validate
       checkbox-provider-tools build
       checkbox-provider-tools install --layout=relocatable --prefix=/providers/checkbox-provider-tdx --root="$SNAPCRAFT_PART_INSTALL"
@@ -112,7 +106,7 @@ parts:
     source: lib/tdx-tools/
     source-type: local
     stage-packages:
-      - python3.10-minimal
+      - python3.12-minimal
 
   provider-bin:
     plugin: dump
@@ -140,3 +134,9 @@ parts:
     plugin: dump
     source: checkbox/config/
 
+# ignore rpath and interpreter link warnings
+lint:
+  ignore:
+    - classic
+    - library:
+      - usr/bin/cpuid
