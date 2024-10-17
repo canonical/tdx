@@ -533,7 +533,7 @@ you proceed to [step 4](#verify-itts-client-version).
 	```
 
 3. Attest with the [Intel Tiber Trust Service](https://www.intel.com/content/www/us/en/security/trust-authority.html).
-   1. Subscribe to the Intel Tiber Trust Service [free trail](https://www.intel.com/content/www/us/en/security/trust-authority.html).
+   1. Subscribe to the Intel Tiber Trust Service [free trial](https://plan.seek.intel.com/2023_ITATrialForm).
    2. Obtain an API key following this [tutorial](https://docs.trustauthority.intel.com/main/articles/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client).
 
    3. Create a `config.json` file like the example below:
