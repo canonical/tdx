@@ -533,9 +533,10 @@ you proceed to [step 4](#verify-itts-client-version).
 	```
 
 3. Attest with the [Intel Tiber Trust Service](https://www.intel.com/content/www/us/en/security/trust-authority.html).
-   1. Obtain an API key following this [tutorial](https://docs.trustauthority.intel.com/main/articles/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client).
+   1. Subscribe to the Intel Tiber Trust Service [free trail](https://www.intel.com/content/www/us/en/security/trust-authority.html).
+   2. Obtain an API key following this [tutorial](https://docs.trustauthority.intel.com/main/articles/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client).
 
-   2. Create a `config.json` file like the example below:
+   3. Create a `config.json` file like the example below:
 
 		```console
 		{
@@ -545,8 +546,8 @@ you proceed to [step 4](#verify-itts-client-version).
 		}
 		```
 
-   3. Use the Intel Tiber Trust Service CLI to generation an attestation token.
-		Under the hood, the CLI will generate a TD Quote using the CPU, send the TD Quote to the external Intel Tiber Trust Service for TD Quote verification, and receive an attestation token on success.
+   4. Use the Intel Tiber Trust Service CLI to generation an attestation token.
+      Under the hood, the CLI will generate a TD Quote using the CPU, send the TD Quote to the external Intel Tiber Trust Service for TD Quote verification, and receive an attestation token on success.  
 
 		```bash
 		trustauthority-cli token -c config.json
