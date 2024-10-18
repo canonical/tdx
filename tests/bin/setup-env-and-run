@@ -23,7 +23,7 @@ PROVIDER_FOLDER=${SNAP}/providers/checkbox-provider-tdx
 # for provider python simple utilities
 export PYTHONPATH=${PYTHONPATH}:${PROVIDER_FOLDER}/lib
 # for tdxtools package
-export PYTHONPATH=${PYTHONPATH}:${SNAP}/lib/python3.10/site-packages/
+export PYTHONPATH=${PYTHONPATH}:${SNAP}/lib/python3.12/site-packages/
 
 PYTEST_CACHE=${PLAINBOX_SESSION_SHARE}/pytest/.pytest_cache
 mkdir -p ${PYTEST_CACHE}

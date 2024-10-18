@@ -3,12 +3,6 @@
 case "$SNAP_ARCH" in
     "amd64") ARCH='x86_64-linux-gnu'
     ;;
-    "i386") ARCH='i386-linux-gnu'
-    ;;
-    "arm64") ARCH='aarch64-linux-gnu'
-    ;;
-    "armhf") ARCH='arm-linux-gnueabihf'
-    ;;
     *)
         echo "Unsupported architecture: $SNAP_ARCH"
     ;;
@@ -18,12 +12,12 @@ esac
 # Launcher common exports for any checkbox app #
 ################################################
 
-RUNTIME=/snap/checkbox22/current
+RUNTIME=/snap/checkbox24/current
 if [ ! -d "$RUNTIME" ]; then
-    echo "You need to install the checkbox22 snap."
+    echo "You need to install the checkbox24 snap."
     echo ""
     echo "You can do this with this command:"
-    echo "snap install checkbox22"
+    echo "snap install checkbox24"
     exit 1
 fi
 
