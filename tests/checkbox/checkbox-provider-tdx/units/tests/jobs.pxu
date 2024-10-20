@@ -235,8 +235,18 @@ depends:
 after:
 requires:
   executable.name == 'qemu-system-x86_64'
+  executable.name == 'iperf3'
 command:
   export LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/:$LD_LIBRARY_PATH
+  # The order of binary look-up:
+  #  - test working folder
+  #  - checkbox
+  #  - provider
+  #  - snaps binaries (/snap/bin)
+  #  - host system
+  # so for iperf3, the binary from the checkbox snap will be used.
+  # however we want to use the one from tdx provider (that has vsock support)
+  export PATH=${SNAP}/usr/bin/:${PATH}
   setup-env-and-run test_vsock_vm.py
 
 id: tdx-guest/td-memory
