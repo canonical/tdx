@@ -74,6 +74,10 @@ passthrough:
     configure:
       command-chain: [bin/wrapper_local]
 
+package-repositories:
+ - type: apt
+   ppa: kobuk-team/testing
+
 parts:
   checkbox-provider-tdx:
     plugin: dump
@@ -88,6 +92,7 @@ parts:
       - python3-pytest
       - sshpass
       - cpuid
+      - iperf-vsock
     override-build: |
       # the validation tool needs to access the to all checkbox providers
       # we have to set the PROVIDERPATH to point to them
