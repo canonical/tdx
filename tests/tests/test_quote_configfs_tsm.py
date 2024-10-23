@@ -42,7 +42,7 @@ def test_qgs_socket(qm):
     Test QGS socket (No Intel Case ID)
     """
     machine = qm.qcmd.plugins['machine']
-    machine.enable_quote_socket()
+    machine.enable_qgs_addr()
 
     qm.run()
 
