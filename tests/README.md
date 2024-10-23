@@ -18,7 +18,7 @@ $ sudo apt install python3
 - The guest image must enable ssh server with password-based authentication for `root` user.
   The root user password must be `123456`
 
-### Run tests with pytest
+### Run tests with tox/pytest
 
 Go to the `tests` folder.
 
@@ -64,6 +64,27 @@ Please note that the performance tests can take a long time (order of magnitude 
 
 ```
 $ sudo -E tox -e test_all
+```
+
+To list tests without running:
+
+```
+sudo -E tox -e collect_tests -- EXPRESSION
+```
+
+`EXPRESSION` is the expression provided to the argument `-k` of `pytest`.
+For more details on its format, you can refer to `pytest` help page.
+
+For example:
+
+```
+sudo -E tox -e collect_tests -- 'test_guest or test_stress'
+```
+
+To run tests matching an expression:
+
+```
+sudo -E tox -e test_specify -- EXPRESSION
 ```
 
 ### Run tests with checkbox:
