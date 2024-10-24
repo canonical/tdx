@@ -169,15 +169,21 @@ class QemuMachineType:
     }
     def __init__(self, machine = QemuEfiMachine.OVMF_Q35_TDX):
         self.machine = machine
-        self.quote_sock = False
-    def enable_quote_socket(self):
-        self.quote_sock = True
+        self.qgs_addr = None
+    def enable_qgs_addr(self, addr : dict = {'type': 'vsock', 'cid':'2','port':'4050'}):
+        """
+        Enable the QGS (Quote Generation Service) address
+        The address is a dictionary that corresponds to the object
+        (https://qemu-project.gitlab.io/qemu/interop/qemu-qmp-ref.html#qapidoc-77)
+        By default, the address is a vsock address with cid=2 (host cid) and port=4050
+        """
+        self.qgs_addr = addr
     def args(self):
         qemu_args = self.Qemu_Machine_Params[self.machine]
         if self.machine == QemuEfiMachine.OVMF_Q35_TDX:
             tdx_object = {'qom-type':'tdx-guest', 'id':'tdx'}
-            if self.quote_sock:
-                tdx_object.update({'quote-generation-socket':{'type': 'vsock', 'cid':'2','port':'4050'}})
+            if self.qgs_addr:
+                tdx_object.update({'quote-generation-socket': self.qgs_addr})
             qemu_args = ['-object', str(tdx_object)] + qemu_args
         return qemu_args
 

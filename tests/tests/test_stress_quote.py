@@ -24,7 +24,7 @@ def test_stress_tdxattest_tsm():
     """
     with Qemu.QemuMachine() as qm:
         machine = qm.qcmd.plugins['machine']
-        machine.enable_quote_socket()
+        machine.enable_qgs_addr()
 
         qm.run()
         ssh = Qemu.QemuSSH(qm)

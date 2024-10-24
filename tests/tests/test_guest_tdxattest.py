@@ -37,7 +37,7 @@ def test_guest_tdxattest_tsm():
     """
     with Qemu.QemuMachine() as qm:
         machine = qm.qcmd.plugins['machine']
-        machine.enable_quote_socket()
+        machine.enable_qgs_addr()
 
         qm.run()
         ssh = Qemu.QemuSSH(qm)
@@ -80,6 +80,29 @@ def test_guest_tdxattest_vsock():
 
         assert 'Successfully get the TD Quote' in stdout.read().decode()
 
+def test_guest_tdxattest_vsock_wrong_qgs_addr(qm):
+    """
+    Success even when QGS address is not properly configured
+    Test setup:
+    - the qgs addr is not properly configured by using CID=3 instead of 2
+      (the configfs tsm method should fail however)
+    - vsock is enabled for the guest
+    Expected behavior:
+    The quote generation request should succeed because
+    vsock is enabled and tdxattest should fallback to use vsock
+    """
+    qm.qcmd.add_vsock(10)
+
+    machine = qm.qcmd.plugins['machine']
+    machine.enable_qgs_addr(addr = {'type': 'vsock', 'cid':'3','port':'4050'})
+
+    qm.run()
+    ssh = Qemu.QemuSSH(qm)
+
+    stdout, _ = ssh.check_exec('/usr/share/doc/libtdx-attest-dev/examples/test_tdx_attest')
+
+    assert 'Successfully get the TD Quote' in stdout.read().decode()
+
 def test_guest_tdxattest_vsock_failure():
     """
     TDX attest library
@@ -110,6 +133,26 @@ def test_guest_tdxattest_failure():
         ret, stdout, stderr = ssh.exec_command('/usr/share/doc/libtdx-attest-dev/examples/test_tdx_attest')
 
         assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
+
+def test_guest_tdxattest_failure_1(qm):
+    """
+    Failure when vsock disabled and QGS addr is not properly configured
+    Test setup:
+    - the qgs addr is not properly configured by using CID=3 instead of 2
+      (the configfs tsm method should fail however)
+    - vsock is not enabled for the guest
+    Expected behavior:
+    The quote generation request should fail
+    """
+    machine = qm.qcmd.plugins['machine']
+    machine.enable_qgs_addr(addr = {'type': 'vsock', 'cid':'3','port':'4050'})
+
+    qm.run()
+    ssh = Qemu.QemuSSH(qm)
+
+    ret, stdout, stderr = ssh.exec_command('/usr/share/doc/libtdx-attest-dev/examples/test_tdx_attest')
+
+    assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
 
 def disable_tsm(ssh):
     """
