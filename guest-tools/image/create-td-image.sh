@@ -259,7 +259,8 @@ EOT
     popd
 
     apply_cloud_init_conf kvm
-    if [ $? -eq 0 ]; then
+    RET=$?
+    if [ ${RET} -eq 0 ]; then
         ok "Apply cloud-init configuration with virt-install"
         sleep 1
     else
@@ -268,7 +269,10 @@ EOT
         if [ ! -f /dev/kvm ]; then
             apt install --yes qemu-system-x86
             apply_cloud_init_conf qemu
+            RET=$?
         fi
+    fi
+    if [ ${RET} -ne 0 ]; then
         warn "Please increase wait time(--wait=12) above and try again..."
         error "Failed to configure cloud init. Please check logfile \"${LOGFILE}\" for more information."
     fi
