@@ -79,6 +79,11 @@ grub_cmdline_nohibernate() {
   fi
 }
 
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
 # preparation
 apt update
 apt install --yes software-properties-common gawk &> /dev/null
