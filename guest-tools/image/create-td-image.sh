@@ -304,6 +304,15 @@ cleanup() {
     info "Cleanup!"
 }
 
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
+# remove log file to avoid `permission denied` error if the file already exists and owned by a different user
+# recently, on Ubuntu and Debian, the syctl variable fs.protected_regular is set to 2
+# that will prevent root from writing to file owned by a different user
+rm -f ${LOGFILE}
 echo "=== tdx guest image generation === " > ${LOGFILE}
 
 # sanity cleanup
@@ -325,16 +334,6 @@ check_tool genisoimage
 info "Installation of required tools"
 
 process_args "$@"
-
-#
-# Check user permission
-#
-if (( ${EUID} != 0 )); then
-    warn "Current user is not root, please use root permission via \"sudo\" or make sure current user has correct "\
-         "permission by configuring /etc/libvirt/qemu.conf"
-    warn "Please refer https://libvirt.org/drvqemu.html#posix-users-groups"
-    sleep 5
-fi
 
 create_guest_image
 
