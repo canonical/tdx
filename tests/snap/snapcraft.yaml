@@ -76,7 +76,7 @@ passthrough:
 
 package-repositories:
  - type: apt
-   ppa: kobuk-team/testing
+   ppa: kobuk-team/tdx-testing
 
 parts:
   checkbox-provider-tdx:
