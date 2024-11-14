@@ -352,6 +352,9 @@ class QemuMonitor():
     def wakeup(self):
         self.send_command("system_wakeup")
 
+    def powerdown(self):
+        self.send_command("system_powerdown")
+
     def __del__(self):
         if self.socket is not None:
             self.socket.close()
@@ -614,13 +617,28 @@ class QemuMachine:
         """
         if self.proc is None:
             return
-        # self.proc.returncode== None -> not yet terminated
-        if self.proc.returncode is None:
-            try:
-                self.proc.terminate()
-                self.communicate()
-            except Exception as e:
-                print(f'Exception {e}')
+        if self.proc.returncode is not None:
+            return
+
+        # self.proc.returncode == None -> not yet terminated
+
+        # try to shutdown the VM properly, this is important to avoid
+        # rootfs corruption if we want to run the guest again
+        mon = QemuMonitor(self)
+        mon.powerdown()
+        try:
+            self.communicate()
+            return
+        except Exception as e:
+            pass
+
+        print('Qemu process did not shutdown properly, terminate it ...')
+        # terminate qemu process (SIGTERM)
+        try:
+            self.proc.terminate()
+            self.communicate()
+        except Exception as e:
+            print(f'Exception {e}')
 
     def reboot(self):
         """
