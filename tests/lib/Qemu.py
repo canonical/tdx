@@ -27,6 +27,7 @@ import subprocess
 import tempfile
 import time
 import sys
+import stat
 
 import util
 
@@ -72,6 +73,17 @@ class QemuGraphic():
         if self.nographic == True:
             return ['-nographic']
         return []
+
+class QemuSerial():
+    def __init__(self, serial_file : str = None):
+        self.serial_file = serial_file
+    def args(self):
+        if self.serial_file:
+            return [
+                '-chardev', f'file,id=c1,path={self.serial_file},signal=off',
+                '-device', 'isa-serial,chardev=c1'
+            ]
+        return ['-serial', 'stdio']
 
 class QemuUserConfig:
     def __init__(self):
@@ -229,6 +241,7 @@ class QemuCommand:
                         'config': QemuUserConfig(),
                         'memory': QemuMemory(memory),
                         'ovmf' : QemuOvmf(machine),
+                        'serial' : QemuSerial(f'{self.workdir}/serial.log'),
                         'machine' : QemuMachineType(machine)}
         self.command = ['-pidfile', f'{self.workdir}/qemu.pid']
 
@@ -237,13 +250,6 @@ class QemuCommand:
         for p in self.plugins.values():
             _args.extend(p.args())
         return _args + self.command
-
-    def add_serial_to_file(self):
-        # serial to file
-        self.command = self.command + [
-            '-chardev', f'file,id=c1,path={self.workdir}/serial.log,signal=off',
-            '-device', 'isa-serial,chardev=c1'
-        ]
 
     def add_qemu_run_log(self):
         # serial to file
@@ -345,6 +351,9 @@ class QemuMonitor():
 
     def wakeup(self):
         self.send_command("system_wakeup")
+
+    def powerdown(self):
+        self.send_command("system_powerdown")
 
     def __del__(self):
         if self.socket is not None:
@@ -467,6 +476,15 @@ class QemuMachineService:
     QEMU_MACHINE_MONITOR = enum.auto()
     QEMU_MACHINE_QMP = enum.auto()
 
+# run script to run the guest
+# this is used for debugging purpose and allow users
+# to run the guest manually
+qemu_run_script = """
+#!/bin/bash
+echo "To connect to the VM : ssh -p {fwd_port} root@localhost"
+{cmd_str}
+"""
+ 
 class QemuMachine:
     debug_enabled = False
     # hold all qemu instances
@@ -498,7 +516,6 @@ class QemuMachine:
             self.fwd_port = util.tcp_port_available()
             self.qcmd.add_port_forward(self.fwd_port)
         self.qcmd.add_qemu_run_log()
-        self.qcmd.add_serial_to_file()
 
         self.proc = None
         self.out = None
@@ -572,6 +589,8 @@ class QemuMachine:
         """
         cmd = self.qcmd.get_command()
         print(' '.join(cmd))
+        script=f'{self.workdir_name}/run.sh'
+        self.write_cmd_to_file(script)
         self.proc = subprocess.Popen(cmd,
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)
@@ -580,11 +599,7 @@ class QemuMachine:
         """
         Run qemu and wait for its start (by waiting for monitor file's availability)
         """
-        cmd = self.qcmd.get_command()
-        print(' '.join(cmd))
-        self.proc = subprocess.Popen(cmd,
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.PIPE)
+        self.run()
         QemuMonitor(self)
 
     def communicate(self):
@@ -602,13 +617,28 @@ class QemuMachine:
         """
         if self.proc is None:
             return
-        # self.proc.returncode== None -> not yet terminated
-        if self.proc.returncode is None:
-            try:
-                self.proc.terminate()
-                self.communicate()
-            except Exception as e:
-                print(f'Exception {e}')
+        if self.proc.returncode is not None:
+            return
+
+        # self.proc.returncode == None -> not yet terminated
+
+        # try to shutdown the VM properly, this is important to avoid
+        # rootfs corruption if we want to run the guest again
+        mon = QemuMonitor(self)
+        mon.powerdown()
+        try:
+            self.communicate()
+            return
+        except Exception as e:
+            pass
+
+        print('Qemu process did not shutdown properly, terminate it ...')
+        # terminate qemu process (SIGTERM)
+        try:
+            self.proc.terminate()
+            self.communicate()
+        except Exception as e:
+            print(f'Exception {e}')
 
     def reboot(self):
         """
@@ -622,6 +652,33 @@ class QemuMachine:
         self.communicate()
         # run the VM again
         self.run()
+
+    def write_cmd_to_file(self, fname : str):
+        """
+        Write the qemu command to a executable bash script
+        """
+        # force -serial to stdio to be able to have the console on stdio
+        cur_serial = self.qcmd.plugins['serial']
+        self.qcmd.plugins['serial'] = QemuSerial()
+
+        cmd = self.qcmd.get_command()
+        with open(fname, 'w+') as run_script:
+            cmd_str=''
+            for el in cmd:
+                # escape qemu object with quotes
+                # for example : -object "{'qom-type': 'tdx-guest', 'id': 'tdx'}"
+                if el.startswith('{') and el.endswith('}'):
+                    cmd_str += f'\"{el}\" '
+                else:
+                    cmd_str += f'{el} '
+                script_contents = qemu_run_script.format(fwd_port=self.fwd_port,
+                                                         cmd_str=cmd_str)
+            run_script.write(script_contents)
+        f = pathlib.Path(fname)
+        f.chmod(f.stat().st_mode | stat.S_IEXEC)
+
+        # restore serial config
+        self.qcmd.plugins['serial'] = cur_serial
 
     def __del__(self):
         """
