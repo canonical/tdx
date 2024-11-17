@@ -481,7 +481,6 @@ class QemuMachineService:
 # to run the guest manually
 qemu_run_script = """
 #!/bin/bash
-echo "To connect to the VM : ssh -p {fwd_port} root@localhost"
 {cmd_str}
 """
  
@@ -606,7 +605,7 @@ class QemuMachine:
         """
         Wait for qemu to exit
         """
-        self.out, self.err = self.proc.communicate()
+        self.out, self.err = self.proc.communicate(timeout=60)
         if self.proc.returncode != 0:
             print(self.err.decode())
         return self.out, self.err
@@ -632,7 +631,7 @@ class QemuMachine:
         except Exception as e:
             pass
 
-        print('Qemu process did not shutdown properly, terminate it ...')
+        print(f'Qemu process did not shutdown properly, terminate it ... ({self.workdir_name})')
         # terminate qemu process (SIGTERM)
         try:
             self.proc.terminate()
@@ -671,8 +670,7 @@ class QemuMachine:
                     cmd_str += f'\"{el}\" '
                 else:
                     cmd_str += f'{el} '
-                script_contents = qemu_run_script.format(fwd_port=self.fwd_port,
-                                                         cmd_str=cmd_str)
+                script_contents = qemu_run_script.format(cmd_str=cmd_str)
             run_script.write(script_contents)
         f = pathlib.Path(fname)
         f.chmod(f.stat().st_mode | stat.S_IEXEC)
