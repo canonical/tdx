@@ -299,6 +299,12 @@ class QemuMonitor():
     READ_TIMEOUT = 2
     CONNECT_RETRIES = 60
 
+    def __new__(cls, qemu):
+        # only 1 monitor per qemu machine
+        if qemu.monitor is None:
+            qemu.monitor = super().__new__(cls)
+        return qemu.monitor
+
     def __init__(self, qemu):
         self.socket = None
         assert qemu.qcmd.monitor_file != None, "Monitor socket file is undefined"
@@ -315,8 +321,10 @@ class QemuMonitor():
                 print(f'Try to connect to qemu : {qemu.qcmd.monitor_file} : {e}')
                 time.sleep(1)
         self.socket.settimeout(self.READ_TIMEOUT)
+        # wait for promt
+        self.wait_prompt()
 
-    def recv(self):
+    def recv_data(self):
         msg = ''
         try:
             while True:
@@ -327,6 +335,22 @@ class QemuMonitor():
                 msg += recv_data.decode('utf-8')
         except:
             pass
+        return msg
+
+    def wait_prompt(self):
+        msg = self.recv_data()
+        assert self.DELIMITER_STRING in msg, f'Fail on wait for monitor prompt : {msg}'
+
+    def recv(self):
+        """
+        Return an array of messages from qemu process
+        separated by the prompt string (qemu)
+        Example:
+        (qemu) running
+        (qemu) rebooting
+        will result in the returned value : [' running', ' rebooting']
+        """
+        msg = self.recv_data()
         return msg.split(self.DELIMITER_STRING)
 
     def send_command(self, cmd):
@@ -510,6 +534,10 @@ class QemuMachine:
             )
         self.qcmd.add_image(self.image_path)
         self.qcmd.add_monitor()
+        # monitor client associated to this machine
+        # since there could be only one client, we keep track
+        # of this client instance in the qemu machine object
+        self.monitor = None
         self.qcmd.add_qmp()
         if QemuMachineService.QEMU_MACHINE_PORT_FWD not in service_blacklist:
             self.fwd_port = util.tcp_port_available()
