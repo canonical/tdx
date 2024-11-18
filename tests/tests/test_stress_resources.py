@@ -34,7 +34,8 @@ def test_stress_huge_resource_vm(qm):
     qm.qcmd.plugins['memory'].memory = '%dG' % (huge_mem_gb)
     qm.run()
 
-    ssh = Qemu.QemuSSH(qm)
+    # huge guest memory -> increase the timeout to give more time to guest to boot
+    ssh = Qemu.QemuSSH(qm, timeout=100)
 
     qm.stop()
 
@@ -65,7 +66,7 @@ def test_stress_max_vcpus(qm):
     qm.qcmd.plugins['cpu'].nb_cores = num_cpus
     qm.run()
 
-    ssh = Qemu.QemuSSH(qm)
+    ssh = Qemu.QemuSSH(qm, timeout=100)
 
     qm.stop()
 
