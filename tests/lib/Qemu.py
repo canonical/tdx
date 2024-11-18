@@ -318,10 +318,10 @@ class QemuMonitor():
                 break
             except Exception as e:
                 # give some time to make sure socket file is available
-                print(f'Try to connect to qemu : {qemu.qcmd.monitor_file} : {e}')
                 time.sleep(1)
         self.socket.settimeout(self.READ_TIMEOUT)
         # wait for promt
+        print(f'Connected : {qemu.qcmd.monitor_file}, wait for prompt.')
         self.wait_prompt()
 
     def recv_data(self):
@@ -649,11 +649,13 @@ class QemuMachine:
 
         # self.proc.returncode == None -> not yet terminated
 
-        # try to shutdown the VM properly, this is important to avoid
-        # rootfs corruption if we want to run the guest again
-        mon = QemuMonitor(self)
-        mon.powerdown()
         try:
+            # try to shutdown the VM properly, this is important to avoid
+            # rootfs corruption if we want to run the guest again
+            # catch exception and ignore it since we are stopping .... no need to fail the test
+            mon = QemuMonitor(self)
+            mon.powerdown()
+
             self.communicate()
             return
         except Exception as e:
