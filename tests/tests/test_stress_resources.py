@@ -21,7 +21,7 @@ import multiprocessing
 import Qemu
 import util
 
-def test_huge_resource_vm(qm):
+def test_stress_huge_resource_vm(qm):
     """
     Test huge resources  (Intel Case ID 007)
     """
@@ -34,11 +34,12 @@ def test_huge_resource_vm(qm):
     qm.qcmd.plugins['memory'].memory = '%dG' % (huge_mem_gb)
     qm.run()
 
-    ssh = Qemu.QemuSSH(qm)
+    # huge guest memory -> increase the timeout to give more time to guest to boot
+    ssh = Qemu.QemuSSH(qm, timeout=100)
 
     qm.stop()
 
-def test_memory_limit_resource_vm(qm):
+def test_stress_memory_limit_resource_vm(qm):
     """
     Test memory limit resource  (No Intel Case)
     """
@@ -54,7 +55,7 @@ def test_memory_limit_resource_vm(qm):
     qm.stop()
 
 
-def test_max_vcpus(qm):
+def test_stress_max_vcpus(qm):
     """
     Test max vcpus (No Intel Case ID)
     """
@@ -65,12 +66,12 @@ def test_max_vcpus(qm):
     qm.qcmd.plugins['cpu'].nb_cores = num_cpus
     qm.run()
 
-    ssh = Qemu.QemuSSH(qm)
+    ssh = Qemu.QemuSSH(qm, timeout=100)
 
     qm.stop()
 
 
-def test_max_guests():
+def test_stress_max_guests():
     """
     Test max guests (No Intel Case ID)
     """

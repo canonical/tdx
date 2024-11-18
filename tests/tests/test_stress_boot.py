@@ -22,7 +22,7 @@ import Qemu
 
 import util
 
-def test_boot():
+def test_stress_boot():
     """
     Boot in loop
     """

@@ -299,6 +299,12 @@ class QemuMonitor():
     READ_TIMEOUT = 2
     CONNECT_RETRIES = 60
 
+    def __new__(cls, qemu):
+        # only 1 monitor per qemu machine
+        if qemu.monitor is None:
+            qemu.monitor = super().__new__(cls)
+        return qemu.monitor
+
     def __init__(self, qemu):
         self.socket = None
         assert qemu.qcmd.monitor_file != None, "Monitor socket file is undefined"
@@ -312,11 +318,13 @@ class QemuMonitor():
                 break
             except Exception as e:
                 # give some time to make sure socket file is available
-                print(f'Try to connect to qemu : {qemu.qcmd.monitor_file} : {e}')
                 time.sleep(1)
         self.socket.settimeout(self.READ_TIMEOUT)
+        # wait for prompt
+        print(f'Connected : {qemu.qcmd.monitor_file}, wait for prompt.')
+        self.wait_prompt()
 
-    def recv(self):
+    def recv_data(self):
         msg = ''
         try:
             while True:
@@ -327,6 +335,22 @@ class QemuMonitor():
                 msg += recv_data.decode('utf-8')
         except:
             pass
+        return msg
+
+    def wait_prompt(self):
+        msg = self.recv_data()
+        assert self.DELIMITER_STRING in msg, f'Fail on wait for monitor prompt : {msg}'
+
+    def recv(self):
+        """
+        Return an array of messages from qemu process
+        separated by the prompt string (qemu)
+        Example:
+        (qemu) running
+        (qemu) rebooting
+        will result in the returned value : [' running', ' rebooting']
+        """
+        msg = self.recv_data()
         return msg.split(self.DELIMITER_STRING)
 
     def send_command(self, cmd):
@@ -481,7 +505,6 @@ class QemuMachineService:
 # to run the guest manually
 qemu_run_script = """
 #!/bin/bash
-echo "To connect to the VM : ssh -p {fwd_port} root@localhost"
 {cmd_str}
 """
  
@@ -511,6 +534,10 @@ class QemuMachine:
             )
         self.qcmd.add_image(self.image_path)
         self.qcmd.add_monitor()
+        # monitor client associated to this machine
+        # since there could be only one client, we keep track
+        # of this client instance in the qemu machine object
+        self.monitor = None
         self.qcmd.add_qmp()
         if QemuMachineService.QEMU_MACHINE_PORT_FWD not in service_blacklist:
             self.fwd_port = util.tcp_port_available()
@@ -606,7 +633,7 @@ class QemuMachine:
         """
         Wait for qemu to exit
         """
-        self.out, self.err = self.proc.communicate()
+        self.out, self.err = self.proc.communicate(timeout=60)
         if self.proc.returncode != 0:
             print(self.err.decode())
         return self.out, self.err
@@ -622,17 +649,19 @@ class QemuMachine:
 
         # self.proc.returncode == None -> not yet terminated
 
-        # try to shutdown the VM properly, this is important to avoid
-        # rootfs corruption if we want to run the guest again
-        mon = QemuMonitor(self)
-        mon.powerdown()
         try:
+            # try to shutdown the VM properly, this is important to avoid
+            # rootfs corruption if we want to run the guest again
+            # catch exception and ignore it since we are stopping .... no need to fail the test
+            mon = QemuMonitor(self)
+            mon.powerdown()
+
             self.communicate()
             return
         except Exception as e:
             pass
 
-        print('Qemu process did not shutdown properly, terminate it ...')
+        print(f'Qemu process did not shutdown properly, terminate it ... ({self.workdir_name})')
         # terminate qemu process (SIGTERM)
         try:
             self.proc.terminate()
@@ -671,8 +700,7 @@ class QemuMachine:
                     cmd_str += f'\"{el}\" '
                 else:
                     cmd_str += f'{el} '
-                script_contents = qemu_run_script.format(fwd_port=self.fwd_port,
-                                                         cmd_str=cmd_str)
+                script_contents = qemu_run_script.format(cmd_str=cmd_str)
             run_script.write(script_contents)
         f = pathlib.Path(fname)
         f.chmod(f.stat().st_mode | stat.S_IEXEC)
