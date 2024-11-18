@@ -320,7 +320,7 @@ class QemuMonitor():
                 # give some time to make sure socket file is available
                 time.sleep(1)
         self.socket.settimeout(self.READ_TIMEOUT)
-        # wait for promt
+        # wait for prompt
         print(f'Connected : {qemu.qcmd.monitor_file}, wait for prompt.')
         self.wait_prompt()
 
