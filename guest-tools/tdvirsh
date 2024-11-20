@@ -25,10 +25,10 @@
 DOMAIN_PREFIX="tdvirsh"
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 SCRIPT_NAME=$(basename "$0")
-BASE_IMG_DEFAULT=${SCRIPT_DIR}/image/tdx-guest-ubuntu-24.04-generic.qcow2
+UBUNTU_VERSION=$(lsb_release -rs)
+BASE_IMG_DEFAULT=${SCRIPT_DIR}/image/tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2
 XML_TEMPLATE_DEFAULT=${SCRIPT_DIR}/trust_domain.xml.template
 WORKDIR_PATH=/var/tmp/tdvirsh/
-
 
 ##
 # Global variables
@@ -48,7 +48,7 @@ Available options:
 
 new [--td-image|-i PATH] [--xml-template|-t PATH]
                             Run a Trust Domain (TD)
-                                Default TD image path: ./image/tdx-guest-ubuntu-24.04-generic.qcow2
+                                Default TD image path: ./image/tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2
                                 Default XML template path: ./trust_domain.xml.template
 delete <domain|all>         Stop and delete Trust Domain (TD)
                                <domain> should be a valid domain name

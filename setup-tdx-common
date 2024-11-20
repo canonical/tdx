@@ -28,7 +28,6 @@
 add_kobuk_ppa() {
   ppa_id=$1
   distro_id=LP-PPA-kobuk-team-${ppa_id}
-  distro_codename=noble
 
   add-apt-repository -y ppa:kobuk-team/${ppa_id}
 
@@ -40,7 +39,7 @@ EOF
 
   cat <<EOF | tee /etc/apt/apt.conf.d/99unattended-upgrades-kobuk-${ppa_id}
 Unattended-Upgrade::Allowed-Origins {
-  "${distro_id}:${distro_codename}";
+  "${distro_id}:${UBUNTU_CODENAME}";
 };
 Unattended-Upgrade::Allow-downgrade "true";
 EOF

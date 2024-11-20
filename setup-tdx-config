@@ -18,6 +18,9 @@
 # GENERAL                                                      #
 ################################################################
 
+UBUNTU_CODENAME=$(lsb_release -cs)
+UBUNTU_VERSION=$(lsb_release -rs)
+
 ################################################################
 # The TDX PPAs to use
 # By default, there is only the release PPA : tdx-release
@@ -58,12 +61,12 @@ TDX_SETUP_INTEL_KERNEL=0
 
 ################################################################
 # Image configuration
-# The base image is an Ubuntu 24.04 cloud image
+# The base image is an Ubuntu cloud image
 # You can use a different image setting these two environment
 # variables before running the setup script
 ################################################################
-OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/noble/release/"
-CLOUD_IMG="ubuntu-24.04-server-cloudimg-amd64.img"
+OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/${UBUNTU_CODENAME}/release/"
+CLOUD_IMG="ubuntu-${UBUNTU_VERSION}-server-cloudimg-amd64.img"
 
 ################################################################
 # Configure the guest credentials
