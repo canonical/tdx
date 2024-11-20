@@ -8,7 +8,7 @@
   <vcpu placement="static">16</vcpu>
   <os>
     <type arch='x86_64' machine='q35'>hvm</type>
-    <loader>/usr/share/ovmf/OVMF.tdx.fd</loader>
+    <loader type='rom' readonly='yes'>/usr/share/ovmf/OVMF.tdx.fd</loader>
     <boot dev='hd'/>
   </os>
   <features>
