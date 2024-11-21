@@ -39,6 +39,7 @@
 
 # CLOUD_IMG: the ubuntu image name
 # OFFICIAL_UBUNTU_IMAGE: the url where we can download the CLOUD_IMAGE file
+# UBUNTU_VERSION: the ubuntu version (24.04, 24.10, ...)
 # GUEST_USER: the username in the image
 # GUEST_PASSWORD: the user password in the image
 # GUEST_HOSTNAME: the guest hostname
@@ -52,7 +53,6 @@ fi
 
 LOGFILE=/tmp/tdx-guest-setup.txt
 FORCE_RECREATE=false
-UBUNTU_VERSION=$(lsb_release -rs)
 TMP_GUEST_IMG_PATH="/tmp/tdx-guest-tmp.qcow2"
 SIZE=50
 GUEST_USER=${GUEST_USER:-"tdx"}
@@ -91,7 +91,7 @@ Usage: $(basename "$0") [OPTION]...
   -p                        Guest password, default is "123456"
   -s                        Specify the size of guest image
   -v                        Ubuntu version (24.04, 24.10, ...)
-  -o <output file>          Specify the output file, default is tdx-guest-ubuntu-${UBUNTU_VERSION}.qcow2.
+  -o <output file>          Specify the output file, default is tdx-guest-ubuntu-<version>.qcow2.
                             Please make sure the suffix is qcow2. Due to permission consideration,
                             the output file will be put into /tmp/<output file>.
 EOM
@@ -118,6 +118,10 @@ process_args() {
             ;;
         esac
     done
+
+    if [[ -z "${UBUNTU_VERSION}" ]]; then
+        error "Please specify the ubuntu release by setting UBUNTU_VERSION or passing it via -v"
+    fi
 
     # generate variables
     CLOUD_IMG=${CLOUD_IMG:-"ubuntu-${UBUNTU_VERSION}-server-cloudimg-amd64.img"}
