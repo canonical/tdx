@@ -43,13 +43,15 @@ fi
 
 LOGFILE=/tmp/tdx-guest-setup.txt
 FORCE_RECREATE=false
-OFFICIAL_UBUNTU_IMAGE=${OFFICIAL_UBUNTU_IMAGE:-"https://cloud-images.ubuntu.com/releases/noble/release/"}
-CLOUD_IMG=${CLOUD_IMG:-"ubuntu-24.04-server-cloudimg-amd64.img"}
+CODE_NAME=$(lsb_release -cs)
+UBUNTU_VERSION=$(lsb_release -rs)
+OFFICIAL_UBUNTU_IMAGE=${OFFICIAL_UBUNTU_IMAGE:-"https://cloud-images.ubuntu.com/releases/${CODE_NAME}/release/"}
+CLOUD_IMG=${CLOUD_IMG:-"ubuntu-${UBUNTU_VERSION}-server-cloudimg-amd64.img"}
 CLOUD_IMG_PATH=$(realpath "${SCRIPT_DIR}/${CLOUD_IMG}")
 if [[ "${TDX_SETUP_INTEL_KERNEL}" == "1" ]]; then
-    GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-24.04-intel.qcow2")
+    GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-${UBUNTU_VERSION}-intel.qcow2")
 else
-    GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-24.04-generic.qcow2")
+    GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2")
 fi
 TMP_GUEST_IMG_PATH="/tmp/tdx-guest-tmp.qcow2"
 SIZE=50
@@ -88,7 +90,7 @@ Usage: $(basename "$0") [OPTION]...
   -u                        Guest user name, default is "tdx"
   -p                        Guest password, default is "123456"
   -s                        Specify the size of guest image
-  -o <output file>          Specify the output file, default is tdx-guest-ubuntu-24.04.qcow2.
+  -o <output file>          Specify the output file, default is tdx-guest-ubuntu-${UBUNTU_VERSION}.qcow2.
                             Please make sure the suffix is qcow2. Due to permission consideration,
                             the output file will be put into /tmp/<output file>.
 EOM
@@ -224,7 +226,7 @@ apply_cloud_init_conf() {
   virt-install --debug --memory 4096 --vcpus 4 --name tdx-config-cloud-init \
      --disk ${TMP_GUEST_IMG_PATH} \
      --disk /tmp/ciiso.iso,device=cdrom \
-     --os-variant ubuntu24.04 \
+     --os-variant ubuntu${UBUNTU_VERSION} \
      --virt-type ${virt_type} \
      --graphics none \
      --import \
