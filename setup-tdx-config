@@ -18,9 +18,6 @@
 # GENERAL                                                      #
 ################################################################
 
-UBUNTU_CODENAME=$(lsb_release -cs)
-UBUNTU_VERSION=$(lsb_release -rs)
-
 ################################################################
 # The TDX PPAs to use
 # By default, there is only the release PPA : tdx-release
