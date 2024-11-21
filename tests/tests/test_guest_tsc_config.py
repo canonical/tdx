@@ -108,7 +108,9 @@ def test_guest_tsc_deadline_disable(qm):
     qm.qcmd.plugins['cpu'].cpu_flags += f',-tsc-deadline'
     qm.run()
 
-    m = Qemu.QemuSSH(qm)
+    # NB : on 24.10, the VM takes a long time to boot > 75s (on 24.04, only 15sec)
+    # for now, extend the ssh connexion timeout but should be fixed in the future
+    m = Qemu.QemuSSH(qm, timeout=100)
 
     stdout, _ = m.check_exec('lscpu')
     output = stdout.read().decode('utf-8')
