@@ -34,6 +34,15 @@
 #
 # TODO : ask cloud init to run the TDX setup script
 
+# User can tune the current script by providing arguments to the script
+# or setting following environment variables:
+
+# CLOUD_IMG: the ubuntu image name
+# OFFICIAL_UBUNTU_IMAGE: the url where we can download the CLOUD_IMAGE file
+# GUEST_USER: the username in the image
+# GUEST_PASSWORD: the user password in the image
+# GUEST_HOSTNAME: the guest hostname
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # source config file
@@ -43,16 +52,7 @@ fi
 
 LOGFILE=/tmp/tdx-guest-setup.txt
 FORCE_RECREATE=false
-CODE_NAME=$(lsb_release -cs)
 UBUNTU_VERSION=$(lsb_release -rs)
-OFFICIAL_UBUNTU_IMAGE=${OFFICIAL_UBUNTU_IMAGE:-"https://cloud-images.ubuntu.com/releases/${CODE_NAME}/release/"}
-CLOUD_IMG=${CLOUD_IMG:-"ubuntu-${UBUNTU_VERSION}-server-cloudimg-amd64.img"}
-CLOUD_IMG_PATH=$(realpath "${SCRIPT_DIR}/${CLOUD_IMG}")
-if [[ "${TDX_SETUP_INTEL_KERNEL}" == "1" ]]; then
-    GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-${UBUNTU_VERSION}-intel.qcow2")
-else
-    GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2")
-fi
 TMP_GUEST_IMG_PATH="/tmp/tdx-guest-tmp.qcow2"
 SIZE=50
 GUEST_USER=${GUEST_USER:-"tdx"}
@@ -90,6 +90,7 @@ Usage: $(basename "$0") [OPTION]...
   -u                        Guest user name, default is "tdx"
   -p                        Guest password, default is "123456"
   -s                        Specify the size of guest image
+  -v                        Ubuntu version (24.04, 24.10, ...)
   -o <output file>          Specify the output file, default is tdx-guest-ubuntu-${UBUNTU_VERSION}.qcow2.
                             Please make sure the suffix is qcow2. Due to permission consideration,
                             the output file will be put into /tmp/<output file>.
@@ -97,7 +98,7 @@ EOM
 }
 
 process_args() {
-    while getopts "o:s:n:u:p:r:fch" option; do
+    while getopts "v:o:s:n:u:p:r:fch" option; do
         case "$option" in
         o) GUEST_IMG_PATH=$(realpath "$OPTARG") ;;
         s) SIZE=${OPTARG} ;;
@@ -105,6 +106,7 @@ process_args() {
         u) GUEST_USER=${OPTARG} ;;
         p) GUEST_PASSWORD=${OPTARG} ;;
         f) FORCE_RECREATE=true ;;
+        v) UBUNTU_VERSION=${OPTARG} ;;
         h)
             usage
             exit 0
@@ -116,6 +118,15 @@ process_args() {
             ;;
         esac
     done
+
+    # generate variables
+    CLOUD_IMG=${CLOUD_IMG:-"ubuntu-${UBUNTU_VERSION}-server-cloudimg-amd64.img"}
+    CLOUD_IMG_PATH=$(realpath "${SCRIPT_DIR}/${CLOUD_IMG}")
+    if [[ "${TDX_SETUP_INTEL_KERNEL}" == "1" ]]; then
+	GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-${UBUNTU_VERSION}-intel.qcow2")
+    else
+	GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2")
+    fi
 
     if [[ "${CLOUD_IMG_PATH}" == "${GUEST_IMG_PATH}" ]]; then
         error "Please specify a different name for guest image via -o"
@@ -132,6 +143,7 @@ download_image() {
         rm ${SCRIPT_DIR}/"SHA256SUMS"
     fi
 
+    OFFICIAL_UBUNTU_IMAGE=${OFFICIAL_UBUNTU_IMAGE:-"https://cloud-images.ubuntu.com/releases/${UBUNTU_VERSION}/release/"}
     wget "${OFFICIAL_UBUNTU_IMAGE}/SHA256SUMS" -O ${SCRIPT_DIR}/"SHA256SUMS"
 
     while :; do
