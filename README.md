@@ -674,4 +674,4 @@ Please follow [tests/README](tests/README.md) to run Intel TDX tests.
 | - | - | - |
 | 1 | Performance is poor | Ensure you're using the latest TDX module.  See [link](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/04/hardware_setup/#deploy-specific-intel-tdx-module-version) on ways to update your TDX module. |
 | 2 | TDX is not enabled on the host | 1. Ensure your installation of the TDX host components using `setup-tdx-host.sh` did not have any errors. <br> 2. Ensure BIOS settings are correct. See [step 4.3](#step-4.3) |
-| 3 | Installation seems to hang | 1. Verify you can get out to the Internet. <br> 2. If you're being a proxy, make sure you have proper proxy settings. <br> 3. If you're being a proxy, use `sudo -E` to preserve user environment. |
+| 3 | Installation seems to hang | 1. Verify you can get out to the Internet. <br> 2. If you're behind a proxy, make sure you have proper proxy settings. <br> 3. If you're behind a proxy, use `sudo -E` to preserve user environment. |
