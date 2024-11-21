@@ -57,15 +57,6 @@ TDX_SETUP_ATTESTATION=0
 TDX_SETUP_INTEL_KERNEL=0
 
 ################################################################
-# Image configuration
-# The base image is an Ubuntu cloud image
-# You can use a different image setting these two environment
-# variables before running the setup script
-################################################################
-OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/${UBUNTU_CODENAME}/release/"
-CLOUD_IMG="ubuntu-${UBUNTU_VERSION}-server-cloudimg-amd64.img"
-
-################################################################
 # Configure the guest credentials
 ################################################################
 GUEST_USER="tdx"
