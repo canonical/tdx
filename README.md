@@ -39,9 +39,13 @@ tool and attach the report.
 <a id="supported-hardware"></a>
 ## 3. Supported Hardware
 This release works with these Intel® Xeon® Processors:
-* 4th Gen Intel® Xeon® Scalable Processors (select SKUs with Intel® TDX)
-* 5th Gen Intel® Xeon® Scalable Processors
-* Intel® Xeon® 6 Processors with P-Cores
+| Processor | Code Name | TDX Module Version |
+| - | - | - |
+| 4th Gen Intel® Xeon® Scalable Processors (select SKUs with Intel® TDX) | Sapphire Rapids | 1.5.x |
+| 5th Gen Intel® Xeon® Scalable Processors | Emerald Rapids | 1.5.x |
+| Intel® Xeon® 6 Processors with P-Cores | Granite Rapids | 2.0.x |
+
+To help identify which processor you have, please visit [ark.intel.com](https://www.intel.com/content/www/us/en/ark.html) and search for the part number. Then, look for "Code Name" and "Intel® Trust Domain Extensions (Intel® TDX)".
 
 <a id="setup-host-os"></a>
 ## 4. Setup Host OS
