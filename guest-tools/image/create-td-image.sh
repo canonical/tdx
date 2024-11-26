@@ -37,8 +37,6 @@
 # User can tune the current script by providing arguments to the script
 # or setting following environment variables:
 
-# CLOUD_IMG: the ubuntu image name
-# OFFICIAL_UBUNTU_IMAGE: the url where we can download the CLOUD_IMAGE file
 # UBUNTU_VERSION: the ubuntu version (24.04, 24.10, ...)
 # GUEST_USER: the username in the image
 # GUEST_PASSWORD: the user password in the image
@@ -124,7 +122,7 @@ process_args() {
     fi
 
     # generate variables
-    CLOUD_IMG=${CLOUD_IMG:-"ubuntu-${UBUNTU_VERSION}-server-cloudimg-amd64.img"}
+    CLOUD_IMG="ubuntu-${UBUNTU_VERSION}-server-cloudimg-amd64.img"
     CLOUD_IMG_PATH=$(realpath "${SCRIPT_DIR}/${CLOUD_IMG}")
     if [[ "${TDX_SETUP_INTEL_KERNEL}" == "1" ]]; then
 	GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-${UBUNTU_VERSION}-intel.qcow2")
@@ -147,7 +145,7 @@ download_image() {
         rm ${SCRIPT_DIR}/"SHA256SUMS"
     fi
 
-    OFFICIAL_UBUNTU_IMAGE=${OFFICIAL_UBUNTU_IMAGE:-"https://cloud-images.ubuntu.com/releases/${UBUNTU_VERSION}/release/"}
+    OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/releases/${UBUNTU_VERSION}/release/"
     wget "${OFFICIAL_UBUNTU_IMAGE}/SHA256SUMS" -O ${SCRIPT_DIR}/"SHA256SUMS"
 
     while :; do

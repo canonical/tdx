@@ -136,24 +136,21 @@ This can be performed on any Ubuntu 22.04 or newer system - an Intel TDX-specifi
 
 ### 5.1 Create a New TD Image
 
-A TD image can be generated with the following commands.
-The resulting image will be based on an Ubuntu 24.04 cloud image ([`ubuntu-24.04-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img)), the default root password is `123456`, and other default settings are used.
-Please note the most important options described after the commands and have a look at the `create-td-image.sh` script for more available options.
+A TD image can be generated with the following commands:
 
 ```bash
 cd tdx/guest-tools/image/
-sudo ./create-td-image.sh
+sudo ./create-td-image.sh -v 24.04
 ```
+
+For now passing only `-v 24.04` is supported but other OS versions will be supported in the future.
+
+The resulting image will be based on an Ubuntu 24.04 cloud image ([`ubuntu-24.04-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img)),
+the default root password is `123456`, and other default settings are used.
+Please note the most important options described after the commands and have a look at the `create-td-image.sh` script for more available options.
 
 Important options for TD image creation:
 * If you're behind a proxy, use `sudo -E` to preserve user environment.
-* To adjust the base image, set the following two environment variables before running the script:
-
-    ```bash
-    export OFFICIAL_UBUNTU_IMAGE="https://cloud-images.ubuntu.com/noble/current/"
-    export CLOUD_IMG="noble-server-cloudimg-amd64.img"
-    ```
-
 * The used kernel type (`generic` or `intel`) will be reflected in the name of the resulting image so it is easy to distinguish.
 
 ### 5.2 Convert a Regular VM Image into a TD Image
