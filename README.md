@@ -13,6 +13,7 @@
 * [10. Build Packages From Source](#build-packages-from-source)
 * [11. Build Kernel From Source](#build-kernel-from-source)
 * [12. Run Tests](#sanity-functional-tests)
+* [13. Troubleshooting Tips](#troubleshooting-tips)
 
 <!-- headings -->
 <a id="introduction"></a>
@@ -31,7 +32,9 @@ The host OS and TD setup can be cutomized by editing the global configuration fi
 
 <a id="report-an-issue"></a>
 ## 2. Report an Issue
-Please submit issues [here](https://github.com/canonical/tdx/issues) and we'll get back to you ASAP.
+First, check the [Troubleshooting Tips](#troubleshooting-tips) section. 
+
+If your issue can't be resolved, then submit an issue [here](https://github.com/canonical/tdx/issues) and we'll get back to you ASAP.
 
 To help us with the debugging process, run the `system-report.sh`
 tool and attach the report.  
@@ -82,7 +85,7 @@ Download and install [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/) o
 
 4. Reboot.
 
-### 4.3 Enable Intel TDX in the Host's BIOS
+### 4.3 Enable Intel TDX in the Host's BIOS<a id="step-4-3"></a>
 
 1. Go into the host's BIOS.
 
@@ -664,3 +667,12 @@ Here are example instructions for building QEMU (for normal user with sudo right
 ## 12. Run Tests
 
 Please follow [tests/README](tests/README.md) to run Intel TDX tests.
+
+<a id="troubleshooting-tips"></a>
+## 13. Troubleshooting Tips
+
+| Issue # | Description | Suggestions |
+| - | - | - |
+| 1 | Performance is poor | Ensure you're using the latest TDX module. You can check the current version with `dmesg` (the version line looks like: `virt/tdx: TDX module: attributes 0x0, vendor_id 0x8086, major_version 1, minor_version 5, build_date 20240129, build_num 698`). See [link](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/04/hardware_setup/#deploy-specific-intel-tdx-module-version) on ways to update your TDX module. <br> NOTE: If you chose to "Update Intel TDX Module via Binary Deployment", make sure you're using the correct TDX module version for your hardware. See the [Supported Hardware](#supported-hardware) table. |
+| 2 | TDX is not enabled on the host | 1. Ensure your installation of the TDX host components using `setup-tdx-host.sh` did not have any errors. <br> 2. Ensure BIOS settings are correct. See [step 4.3](#step-4.3) |
+| 3 | Installation seems to hang | 1. Verify you can get out to the Internet. <br> 2. If you're behind a proxy, make sure you have proper proxy settings. <br> 3. If you're behind a proxy, use `sudo -E` to preserve user environment. |
