@@ -138,7 +138,7 @@ Please note the most important options described after the commands and have a l
 
 ```bash
 cd tdx/guest-tools/image/
-sudo ./create-td-image.sh
+sudo ./create-td-image.sh -v 24.04
 ```
 
 Important options for TD image creation:
