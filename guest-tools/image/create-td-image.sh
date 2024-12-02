@@ -305,6 +305,7 @@ setup_guest_image() {
        --copy-in ${SCRIPT_DIR}/../../setup-tdx-common:/tmp/tdx \
        --copy-in ${SCRIPT_DIR}/../../setup-tdx-config:/tmp/tdx \
        --copy-in ${SCRIPT_DIR}/../../attestation/:/tmp/tdx \
+       --copy-in ${SCRIPT_DIR}/../../tests/lib/tdx-tools/:/tmp/tdx \
        --run-command "/tmp/tdx/setup.sh"
     if [ $? -eq 0 ]; then
         ok "Run setup scripts inside the guest image"
