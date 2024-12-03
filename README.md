@@ -426,61 +426,65 @@ sudo ./check-production.sh
 
 10. Register the platform.
 
-	NOTE 1: There are multiple alternatives to perform platform registration with different trade-offs and they are explained in detail in [Intel's Intel TDX Enabling Guide](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/02/infrastructure_setup/#platform-registration).
+    NOTE 1: There are multiple alternatives to perform platform registration with different trade-offs and they are 
+    explained in detail in 
+    [Intel's Intel TDX Enabling Guide](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/02/infrastructure_setup/#platform-registration).
 
-        NOTE 2: If you're behind a proxy, add your proxy URL in `/etc/mpa_registration.conf` like the following example:
-	   
-        ```console
-        proxy type  = manual
-        proxy url   = http://<proxy-url>:<port>
-        ```
+    NOTE 2: If you're behind a proxy, add your proxy URL in `/etc/mpa_registration.conf` like the following example:
 
-	In the following, we focus on the the direct registration variant that uses the Multi-package Registration Agent (MPA).
-	This agent is executed on system start up, registers the platform (if necessary), and gets deactivated.
-	Please check the following two logs to confirm successful registration:
+    ```console
+    proxy type  = manual
+    proxy url   = http://<proxy-url>:<port>
+    ```
 
-	1. Check the log of the MPA service:
+    In the following, we focus on the the direct registration variant that uses the Multi-package Registration Agent (MPA).
+    This agent is executed on system start up, registers the platform (if necessary), and gets deactivated.
+    Please check the following two logs to confirm successful registration:
 
-		```bash
-		sudo systemctl status mpa_registration_tool
-		```
+    1. Check the log of the MPA service:
 
-		Example output:
+       ```bash
+       sudo systemctl status mpa_registration_tool
+       ```
 
-		```console
-		mpa_registration_tool.service - Intel MPA Registration
-			Loaded: loaded (/usr/lib/systemd/system/mpa_registration_tool.service; enabled; preset: enabled)
-			Active: inactive (dead) since Tue 2024-04-09 22:54:50 UTC; 11h ago
-		Duration: 46ms
-		Main PID: 3409 (code=exited, status=0/SUCCESS)
+       Example output:
+
+       ```console
+       mpa_registration_tool.service - Intel MPA Registration
+           Loaded: loaded (/usr/lib/systemd/system/mpa_registration_tool.service; enabled; preset: enabled)
+           Active: inactive (dead) since Tue 2024-04-09 22:54:50 UTC; 11h ago
+       Duration: 46ms
+       Main PID: 3409 (code=exited, status=0/SUCCESS)
 				CPU: 21ms
 
-		Apr 09 22:54:50 right-glider-515046 systemd[1]: Started mpa_registration_tool.service - Intel MPA Registratio>
-		Apr 09 22:54:50 right-glider-515046 systemd[1]: mpa_registration_tool.service: Deactivated successfully.
-		```
+       Apr 09 22:54:50 right-glider-515046 systemd[1]: Started mpa_registration_tool.service - Intel MPA Registratio>
+       Apr 09 22:54:50 right-glider-515046 systemd[1]: mpa_registration_tool.service: Deactivated successfully.
+       ```
 
-	2. Check the log file of the MPA:
-		```bash
-		cat /var/log/mpa_registration.log
-		```
+    2. Check the log file of the MPA:
+       
+       ```bash 
+       cat /var/log/mpa_registration.log 
+       ``` 
 
-		An example output of successful registration:
+       An example output of successful registration:
 
-		```console
-		[04-06-2024 03:05:53] INFO: SGX Registration Agent version: 1.20.100.2
-		[04-06-2024 03:05:53] INFO: Starts Registration Agent Flow.
-		[04-06-2024 03:05:54] INFO: Registration Flow - PLATFORM_ESTABLISHMENT or TCB_RECOVERY passed successfully.
-		[04-06-2024 03:05:54] INFO: Finished Registration Agent Flow.
-		```
+       ```console
+       [04-06-2024 03:05:53] INFO: SGX Registration Agent version: 1.20.100.2
+       [04-06-2024 03:05:53] INFO: Starts Registration Agent Flow.
+       [04-06-2024 03:05:54] INFO: Registration Flow - PLATFORM_ESTABLISHMENT or TCB_RECOVERY passed successfully.
+       [04-06-2024 03:05:54] INFO: Finished Registration Agent Flow.
+       ```
 
-	If an error is reported, re-do the registration from scratch with these steps:
-	1. Remove the MPA log file:  `sudo rm /var/log/mpa_registration.log`.
-	2. Reboot.
-	3. Go into the BIOS.
-	4. Navigate to `Socket Configuration > Processor Configuration > Software Guard Extension (SGX)`.
-	5. Set these:
-	  - `SGX Factory Reset` to `Enable`
-	  - `SGX Auto MP Registration` to `Enable`
+       If an error is reported, re-do the registration from scratch with these steps:
+
+       1. Remove the MPA log file:  `sudo rm /var/log/mpa_registration.log`.
+       2. Reboot.
+       3. Go into the BIOS.
+       4. Navigate to `Socket Configuration > Processor Configuration > Software Guard Extension (SGX)`.
+       5. Set these:
+          - `SGX Factory Reset` to `Enable`
+          - `SGX Auto MP Registration` to `Enable`
 
 ### 8.3 Setup [Intel Tiber Trust Services CLI](https://github.com/intel/trustauthority-client-for-go) Inside TD
 
