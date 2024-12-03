@@ -426,7 +426,15 @@ sudo ./check-production.sh
 
 10. Register the platform.
 
-	NOTE: There are multiple alternatives to perform platform registration with different trade-offs and they are explained in detail in [Intel's Intel TDX Enabling Guide](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/02/infrastructure_setup/#platform-registration).
+	NOTE 1: There are multiple alternatives to perform platform registration with different trade-offs and they are explained in detail in [Intel's Intel TDX Enabling Guide](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/02/infrastructure_setup/#platform-registration).
+
+        NOTE 2: If you're behind a proxy, add your proxy URL in `/etc/mpa_registration.conf` like the following example:
+	   
+        ```console
+        proxy type  = manual
+        proxy url   = http://<proxy-url>:<port>
+        ```
+
 	In the following, we focus on the the direct registration variant that uses the Multi-package Registration Agent (MPA).
 	This agent is executed on system start up, registers the platform (if necessary), and gets deactivated.
 	Please check the following two logs to confirm successful registration:
