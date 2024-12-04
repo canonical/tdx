@@ -1,4 +1,4 @@
-# Intel® Trust Domain Extensions (TDX) on Ubuntu 24.04
+# Intel® Trust Domain Extensions (TDX) on Ubuntu
 
 ### Table of Contents:
 * [1. Introduction](#introduction)
@@ -25,7 +25,11 @@ As a result, Intel TDX enhances a platform user’s control of data security and
 Cloud Service Providers’ (CSP) ability to provide managed cloud services without exposing tenant data to adversaries.
 For more information, see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
 
-This tech preview of Intel TDX on Ubuntu 24.04 provides base host OS, guest OS, and remote attestation functionalities.
+This tech preview of Intel TDX on Ubuntu provides base host OS, guest OS, and remote attestation functionalities.
+Two Ubuntu releases are currently supported for base host OS and guest OS:
+* Ubuntu Noble 24.04 LTS
+* Ubuntu Oracular 24.10
+
 Follow these instructions to setup the Intel TDX host, create a TD, boot the TD, and attest the integrity of the TD's execution environment.
 
 The host OS and TD setup can be cutomized by editing the global configuration file: `setup-tdx-config`.
@@ -55,9 +59,11 @@ To help identify which processor you have, please visit [ark.intel.com](https://
 In this section, you will install a generic Ubuntu 24.04 server image, install necessary packages to turn
 the host OS into an Intel TDX-enabled host OS, optionally install remote attestation components, and enable Intel TDX settings in the BIOS.
 
-### 4.1 Install Ubuntu 24.04 Server Image
+### 4.1 Install Ubuntu Server Image
 
-Download and install [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/) on the host machine.
+Download and install appropriate Ubuntu Server on the host machine:
+* [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/)
+* [Ubuntu 24.10 server](https://releases.ubuntu.com/24.10/)
 
 ### 4.2 Enable Intel TDX in Host OS
 
@@ -130,25 +136,25 @@ The message `virt/tdx: module initialized` proves that Intel TDX has initialized
 <a id="create-td-image"></a>
 ## 5. Create TD Image
 
-In this section, you will create an Ubuntu 24.04-based TD image from scratch or convert an existing VM image into a TD image. 
+In this section, you will create an Ubuntu-based TD image from scratch or convert an existing VM image into a TD image. 
 This can be performed on any Ubuntu 22.04 or newer system - an Intel TDX-specific environment is not required.
 
-* The base image is an Ubuntu 24.04 cloud image.
+* The base image is an Ubuntu cloud image.
 * By default, the Ubuntu generic kernel is used for the TD guest. The `-intel` kernel, which may have non-upstreamed and/or under-development features,
   can be selected by setting the variable `TDX_SETUP_INTEL_KERNEL=1` in the `setup-tdx-config` configuration file.
 
 ### 5.1 Create a New TD Image
 
-A TD image can be generated with the following commands:
+A TD image based on Ubuntu 24.10 can be generated with the following commands:
 
 ```bash
 cd tdx/guest-tools/image/
-sudo ./create-td-image.sh -v 24.04
+sudo ./create-td-image.sh -v 24.10
 ```
 
-For now passing only `-v 24.04` is supported but other OS versions will be supported in the future.
+You can pass `24.04` to the `-v` to generate a TD image based on Ubuntu 24.04. 
 
-The resulting image will be based on an Ubuntu 24.04 cloud image ([`ubuntu-24.04-server-cloudimg-amd64.img`](https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img)),
+The resulting image will be based on an ([`Ubuntu cloud image`](https://cloud-images.ubuntu.com/)),
 the default root password is `123456`, and other default settings are used.
 Please note the most important options described after the commands and have a look at the `create-td-image.sh` script for more available options.
 
@@ -158,7 +164,7 @@ Important options for TD image creation:
 
 ### 5.2 Convert a Regular VM Image into a TD Image
 
-If you have an existing Ubuntu 24.04 VM image, you can enable the Intel TDX feature using the following steps:
+If you have an existing Ubuntu (`24.04` or `24.10`) VM image, you can enable the Intel TDX feature using the following steps:
 
 1. Boot up your guest, i.e., your regular VM.
 
@@ -188,7 +194,7 @@ The script provided for the QEMU method supports running only a single instance.
 
 Boot TD with the provided script.
 By default, the script will use an image with a generic kernel located at
-`./image/tdx-guest-ubuntu-24.04-generic.qcow2`. A different qcow2
+`./image/tdx-guest-ubuntu-<24.04|24.10>-generic.qcow2`. A different qcow2
 image (e.g., one with an intel kernel) can be used by setting the `TD_IMG`
 command-line variable.
 
@@ -232,7 +238,7 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
    Details about `tdvirsh`:
    * To manage the lifecycle of TDs, we developed a wrapper around the `virsh` tool.
    This new `tdvirsh` tool extends `virsh` with new capabilities to create/remove TDs.
-   * By default, `tdvirsh` will use an image located at `./image/tdx-guest-ubuntu-24.04-generic.qcow2` with the `generic` Ubuntu kernel.
+   * By default, `tdvirsh` will use an image located at `./image/tdx-guest-ubuntu-<24.04|24.10>-generic.qcow2` with the `generic` Ubuntu kernel.
    A different qcow2 image (e.g., one with an `intel` kernel) can be used by using the command-line option `-i IMAGE_PATH`.
    * By default, `tdvirsh` will use a XML libvirt template located at `./trust_domain.xml.template`.
    A different XML libvirt template can be used by using the command-line option `-t XML_PATH`.
@@ -594,7 +600,7 @@ The core idea of building a package from source code is to be able to edit the s
 
 Here are example instructions for building QEMU (for normal user with sudo rights):
 
-1. Install Ubuntu 24.04 (or use an existing Ubuntu 24.04 system).
+1. Install Ubuntu 24.04 or 24.10 (or use an existing Ubuntu system).
 
 2. Install build dependencies:
 
