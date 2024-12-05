@@ -30,6 +30,16 @@ For `direct boot`, we would like to investigate 2 ways of passing `kernel` and `
 
 We need to generate different files used by direct boot scripts:
 
+1. TD Guest Image
+
+The boot scripts need a guest image as the final rootfs to boot into.
+
+To generate this guest image, please refer to the section [Create TD Image](../../README.md#create-td-image).
+
+NOTE: The credentials necessary for login into the TD guest can also be found in this section.
+
+2. Kernel, initrd and UKI
+ 
 NOTE : the following instructions are for `24.04` guest but please replace it by `24.10` if
 you want to work with `oracular` TD guest.
 
