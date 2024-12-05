@@ -31,28 +31,21 @@ KERNEL_FILE=$(realpath ${SCRIPT_DIR}/../image/vmlinuz-${UBUNTU_VERSION})
 INITRD_FILE=$(realpath ${SCRIPT_DIR}/../image/initrd.img-${UBUNTU_VERSION})
 TD_IMG=$(realpath ${SCRIPT_DIR}/../image/tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2)
 
-usage() {
-    cat <<EOM
-Run TD with direct boot method
+if [[ ! -f "${KERNEL_FILE}" ]]; then
+    echo "Missing kernel file: ${KERNEL_FILE}
+          You can use guest-tools/image/create-td-uki.sh to generate it"
+    exit 1
+fi
 
-This script requires 3 files to be available:
+if [[ ! -f "${INITRD_FILE}" ]]; then
+    echo "Missing initrd file: ${INITRD_FILE}
+          You can use guest-tools/image/create-td-uki.sh to generate it"
+    exit 1
+fi
 
-- ${KERNEL_FILE}
-  Kernel file
-  You can use guest-tools/image/create-td-uki.sh to generate it
-
-- ${INITRD_FILE}
-  Initrd file  
-  You can use guest-tools/image/create-td-uki.sh to generate it
-
-- ${TD_IMG}
-  TD guest image (qcow2)
-  You can use guest-tools/image/create-td-image.sh to generate it
-EOM
-}
-
-if [[ ! -f "${KERNEL_FILE}" ]] || [[ ! -f "${INITRD_FILE}" ]] || [[ ! -f "${TD_IMG}" ]]; then
-    usage
+if [[ ! -f "${TD_IMG}" ]]; then
+    echo "Missing guest image file: ${TD_IMG}
+          You can use guest-tools/image/create-td-image.sh to generate it"
     exit 1
 fi
 
