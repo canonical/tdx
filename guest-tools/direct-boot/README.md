@@ -20,7 +20,11 @@ and `Initrd` directly to `qemu`. Per consequence, the boot chain involves these 
 The boot chain structure is important for remote attestation since it impacts the size of
 the event log journal. Indeed, each component in the boot chain generates a set of entries of the event
 log journal. The more components we have in the boot chain, the more event logs we will have and the harder
-is the verification of the correctness of the measurement values.	
+is the verification of the correctness of the measurement values.
+
+For `direct boot`, we would like to investigate 2 ways of passing `kernel` and `initrd` to `qemu`:
+- Separately using `-kernel` and `-initrd` arguments
+- Bundled together as part of an [Unified Kernel Image](https://uapi-group.org/specifications/specs/unified_kernel_image/)
 
 ### Prerequisites
 
