@@ -112,7 +112,7 @@ rtmr_3 : 00000000000000000000000000000000000000000000000000000000000000000000000
 
 ### Direct boot with UKI
 
-An other way to do direct boot is to use the [Unified Kernel Image](https://uapi-group.org/specifications/specs/unified_kernel_image/).
+Another way to do direct boot is to use the [Unified Kernel Image](https://uapi-group.org/specifications/specs/unified_kernel_image/).
 UKI leads to better UEFI Secure Boot support, better supporting TPM measurements and confidential computing, and a more robust boot process.
 
 ```
