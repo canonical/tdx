@@ -79,7 +79,7 @@ qemu-system-x86_64 -accel kvm \
 		   -bios ${TDVF_FIRMWARE} \
 		   -nographic \
 		   -nodefaults \
-                   -hda fat:rw:${ROOTFS_DIR} \
+		   -hda fat:rw:${ROOTFS_DIR} \
 		   -hdb ${TD_IMG} \
 		   -serial stdio \
 		   -pidfile /tmp/tdx-demo-td-pid.pid
