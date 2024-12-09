@@ -36,4 +36,8 @@ rm -f /etc/ssh/sshd_config.d/60-cloudimg-settings.conf
 # Enable TDX
 /tmp/tdx/setup-tdx-guest.sh
 
+# Install tools
+cd /tmp/tdx/tdx-tools/
+python3 -m pip install --break-system-packages ./
+
 rm -rf /tmp/tdx || true
