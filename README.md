@@ -30,9 +30,9 @@ Two Ubuntu releases are currently supported for base host OS and guest OS:
 * Ubuntu Noble 24.04 LTS
 * Ubuntu Oracular 24.10
 
-Follow these instructions to setup the Intel TDX host, create a TD, boot the TD, and attest the integrity of the TD's execution environment.
+Follow these instructions to set up the Intel TDX host, create a TD, boot the TD, and attest the integrity of the TD's execution environment.
 
-The host OS and TD setup can be cutomized by editing the global configuration file: `setup-tdx-config`.
+The host OS and TD setup can be customized by editing the global configuration file: `setup-tdx-config`.
 
 <a id="report-an-issue"></a>
 ## 2. Report an Issue
@@ -77,7 +77,7 @@ Download and install appropriate Ubuntu Server on the host machine:
 
 2. Customize the setup of the host and TD by editing the configuration file `setup-tdx-config`.  
     By default, remote attestation components are not installed on the host and inside the TD.  
-    You can chose to automatically install remote attestation packages provided by Canonical by setting `TDX_SETUP_ATTESTATION=1`.  
+    You can choose to automatically install remote attestation packages provided by Canonical by setting `TDX_SETUP_ATTESTATION=1`.  
    In this case, you can skip [step 8.2.1](#step-8-2-1) and [step 8.3.3](#step-8-3-3).  
 
 3. Run the `setup-tdx-host.sh` script.<a id="step-4-2-3"></a>
@@ -156,7 +156,7 @@ You can pass `24.04` to the `-v` to generate a TD image based on Ubuntu 24.04.
 
 The resulting image will be based on an ([`Ubuntu cloud image`](https://cloud-images.ubuntu.com/)),
 the default root password is `123456`, and other default settings are used.
-Please note the most important options described after the commands and have a look at the `create-td-image.sh` script for more available options.
+Please note the most important options described after the commands and take a look at the `create-td-image.sh` script for more available options.
 
 Important options for TD image creation:
 * If you're behind a proxy, use `sudo -E` to preserve user environment.
@@ -385,7 +385,7 @@ sudo ./check-production.sh
 	```bash
 	sudo systemctl status pccs
 	```
-6. To setup the PCCS in the next step, you need a subscription key for the [Intel PCS](https://api.portal.trustedservices.intel.com/provisioning-certification).
+6. To set up the PCCS in the next step, you need a subscription key for the [Intel PCS](https://api.portal.trustedservices.intel.com/provisioning-certification).
    1. If you did not request such a subscription key before, [subscribe](https://api.portal.trustedservices.intel.com/products#product=liv-intel-software-guard-extensions-provisioning-certification-service) 
       to Intel PCS, which requires to log in (or create an account). Two subscription keys are generated (for key rotation) and both can be used for the following step.
    2. If you did request such a subscription key before, [retrieve](https://api.portal.trustedservices.intel.com/manage-subscriptions) one of your keys, 
@@ -443,7 +443,7 @@ sudo ./check-production.sh
     proxy url   = http://<proxy-url>:<port>
     ```
 
-    In the following, we focus on the the direct registration variant that uses the Multi-package Registration Agent (MPA).
+    In the following, we focus on the direct registration variant that uses the Multi-package Registration Agent (MPA).
     This agent is executed on system start up, registers the platform (if necessary), and gets deactivated.
     Please check the following two logs to confirm successful registration:
 
