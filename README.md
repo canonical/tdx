@@ -593,7 +593,8 @@ you proceed to [step 4](#verify-itts-client-version).
 
 One of the key components remote attestation is based on is the runtime measurement values (stored in RTMRs
 registers for each TD by the TDX module). These RTMR values are computed from the digests of the entries of
-the TD boot event log.
+the TD boot event log. During the system's boot, each event's digest (SHA384) is extended (appended) to the
+current value of the associated RTMR. The resulting value's digest becomes the new value of the RTMR.
 
 If you want to inspect the event log and RTMR values, you can use the program `tdeventlog` available in the guest.
 And furthermore, to see how the boot chain can impact the contents and the size of the boot event log, please take a look at
