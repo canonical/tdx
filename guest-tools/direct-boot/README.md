@@ -51,7 +51,7 @@ $ ./create-td-uki.sh tdx-guest-ubuntu-24.04-generic.qcow2
 This script will generate 3 files:
 - `vmlinuz-24.04` : the kernel of the guest image
 - `initrd.img-24.04` : the initrd of the guest image
-- `uki.efi-24.04` : the Unified Kernel Image that bundles together the kernel and the initrd
+- `uki.efi-24.04` : the Unified Kernel Image that bundles together the kernel, the kernel's commandline and the initrd
 
 ### Direct boot
 
