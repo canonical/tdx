@@ -129,6 +129,9 @@ else
   echo "Skip installing attestation components..."
 fi
 
+# configure non-root user for libvirt
+enable_normal_user_libvirt
+
 echo "========================================================================"
 echo "The host OS setup has been done successfully. Now, please enable Intel TDX in the BIOS."
 echo "========================================================================"

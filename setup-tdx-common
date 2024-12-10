@@ -98,3 +98,27 @@ grub_set_kernel() {
     fi
     grub_switch_kernel "${KERNEL_RELEASE}"
 }
+
+# Enable non-root user to run TDs
+# Try to detect the normal user when the script is run with sudo
+# If the script is run as root, just skip this step
+#
+# This script modifies the configuration file /etc/libvirt/qemu.conf:
+# user = <user>
+# group = <group>
+# dynamic_ownership = 0
+enable_normal_user_libvirt() {
+    if [[ -z "${SUDO_USER}" ]]; then
+       return
+    fi
+    LIBVIRT_USER=${SUDO_USER}
+    LIBVIRT_GROUP=$(id -g ${SUDO_USER})
+
+    echo "Enable non-root user ${LIBVIRT_USER} to run TDs"
+    sed -E -i "s/\#user[ ]*=[ ]*\".+\"/user = \"${LIBVIRT_USER}\"/g" /etc/libvirt/qemu.conf
+    sed -E -i "s/\#group[ ]*=[ ]*\".+\"/group = \"${LIBVIRT_GROUP}\"/g" /etc/libvirt/qemu.conf
+    sed -E -i "s/\#dynamic_ownership[ ]*=[ ]*.+/dynamic_ownership = 0/g" /etc/libvirt/qemu.conf
+
+    # restart libvirtd
+    systemctl restart libvirtd || true
+}
