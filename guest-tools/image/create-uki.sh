@@ -36,7 +36,12 @@ fi
 echo "Creating the UKI with kernel ${KERNEL_VER}"
 
 # the kernel commandline to put in the UKI
-KERNEL_CMDLINE="console=tty1 console=ttyS0 root=/dev/sda1"
+# the boot is specified using label, on Ubuntu cloud
+# image, the rootfs partition is labelled as cloudimg-rootfs
+# lrwxrwxrwx    1        11 UEFI -> ../../sda15
+# lrwxrwxrwx    1        11 BOOT -> ../../sda13
+# lrwxrwxrwx    1        10 cloudimg-rootfs -> ../../sda1
+KERNEL_CMDLINE="console=tty1 console=ttyS0 root=LABEL=cloudimg-rootfs"
 
 # use systemd-ukify to generate UKI
 sudo apt install -y systemd-ukify systemd-boot-efi
