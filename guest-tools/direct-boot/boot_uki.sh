@@ -46,7 +46,6 @@ EOM
 
 cleanup() {
     echo "cleanup ..."
-    rm -rf ${ROOTFS_DIR}
 }
 
 trap "cleanup" EXIT
@@ -54,7 +53,6 @@ cleanup &> /dev/null
 
 PROCESS_NAME=td
 TDVF_FIRMWARE=/usr/share/ovmf/OVMF.fd
-ROOTFS_DIR=${SCRIPT_DIR}/uki_rootfs
 
 # sanity check
 if [[ ! -f "${UKI_FILE}" ]] || [[ ! -f "${TD_IMG}" ]]; then
@@ -63,12 +61,6 @@ if [[ ! -f "${UKI_FILE}" ]] || [[ ! -f "${TD_IMG}" ]]; then
 fi
 
 set -e
-
-# Since the uki kernel is designed to be started by UEFI directly,
-# it has to reside in the EFI partition, because without additional
-# drivers UEFI can only read VFAT.
-mkdir -p ${ROOTFS_DIR}/efi/boot
-cp -f ${UKI_FILE} ${ROOTFS_DIR}/efi/boot/bootx64.efi
 
 qemu-system-x86_64 -accel kvm \
 		   -m 2G -smp 16 \
@@ -79,7 +71,7 @@ qemu-system-x86_64 -accel kvm \
 		   -bios ${TDVF_FIRMWARE} \
 		   -nographic \
 		   -nodefaults \
-		   -hda fat:rw:${ROOTFS_DIR} \
+		   -kernel ${UKI_FILE} \
 		   -hdb ${TD_IMG} \
 		   -serial stdio \
 		   -pidfile /tmp/tdx-demo-td-pid.pid

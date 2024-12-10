@@ -36,7 +36,7 @@ fi
 echo "Creating the UKI with kernel ${KERNEL_VER}"
 
 # the kernel commandline to put in the UKI
-KERNEL_CMDLINE="console=tty1 console=ttyS0 root=/dev/sdb1"
+KERNEL_CMDLINE="console=tty1 console=ttyS0 root=/dev/sda1"
 
 # use systemd-ukify to generate UKI
 sudo apt install -y systemd-ukify systemd-boot-efi
