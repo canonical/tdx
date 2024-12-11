@@ -39,8 +39,9 @@ xml_template_path=$(realpath ${XML_TEMPLATE_DEFAULT})
 created_domain=""
 
 usage() {
+    PROG_NAME=$(basename "$0")
     cat <<EOM
-Usage: ./$(basename "${BASH_SOURCE[0]}") [-h] [new] [delete D] [list]
+Usage: ${PROG_NAME} [-h] [new] [delete D] [list]
 
 Manage Trust Domains (TDs) using libvirt.
 
@@ -50,6 +51,8 @@ new [--td-image|-i PATH] [--xml-template|-t PATH]
                             Run a Trust Domain (TD)
                                 Default TD image path: ./image/tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2
                                 Default XML template path: ./trust_domain.xml.template
+                            Other arguments are unprocessed and passed to virsh start (see: virsh start --help)
+                            Example : ${PROG_NAME} new --console
 delete <domain|all>         Stop and delete Trust Domain (TD)
                                <domain> should be a valid domain name
                                <all> delete all VMs
@@ -116,7 +119,7 @@ boot_vm() {
     created_domain=${DOMAIN_PREFIX}-${domain_prefix_extra}-$(virsh domuuid ${DOMAIN_PREFIX})
     mv ${WORKDIR_PATH}/{${DOMAIN_PREFIX}.xml,${created_domain}.xml} &>/dev/null || true
     virsh domrename ${DOMAIN_PREFIX} ${created_domain} >/dev/null
-    virsh start ${created_domain} >/dev/null
+    virsh start ${created_domain} ${start_args}
 }
 
 destroy() {
@@ -220,8 +223,9 @@ parse_params() {
                         break
                         ;;
                     *)
-                        echo "${SCRIPT_NAME}: unrecognized option '${1-}'. See '${SCRIPT_NAME} -h'."
-                        exit 1
+                        # other arguments will be passed to the subcommand start of virsh
+                        start_args="${start_args} ${1-}"
+                        shift
                         ;;
                 esac
             done
