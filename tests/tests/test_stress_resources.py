@@ -100,3 +100,14 @@ def test_stress_max_guests():
         print("Stopping machine %d" % (i))
         qm[i].stop()
 
+def test_stress_ibm():
+    huge_mem_gb = 160
+    for i in range(0,100):
+        with Qemu.QemuMachine() as qm:
+            qm.qcmd.plugins['memory'].memory = '%dG' % (huge_mem_gb)
+            qm.qcmd.plugins['cpu'].cpu_flags = ',-kvm-steal-time'
+            qm.run()
+
+            ssh = Qemu.QemuSSH(qm)
+
+            qm.stop()
