@@ -2,5 +2,5 @@
 
 set timeout -1
 
-spawn ./run.sh
-expect -exact "localhost login:"
+spawn [lindex $argv 0]/run.sh
+expect -exact " login:"
