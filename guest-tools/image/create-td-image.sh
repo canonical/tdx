@@ -124,10 +124,14 @@ process_args() {
     # generate variables
     CLOUD_IMG="ubuntu-${UBUNTU_VERSION}-server-cloudimg-amd64.img"
     CLOUD_IMG_PATH=$(realpath "${SCRIPT_DIR}/${CLOUD_IMG}")
-    if [[ "${TDX_SETUP_INTEL_KERNEL}" == "1" ]]; then
-	GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-${UBUNTU_VERSION}-intel.qcow2")
-    else
-	GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2")
+
+    # output guest image, set it if user does not specify it
+    if [[ -z "${GUEST_IMG_PATH}" ]]; then
+        if [[ "${TDX_SETUP_INTEL_KERNEL}" == "1" ]]; then
+	    GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-${UBUNTU_VERSION}-intel.qcow2")
+        else
+	    GUEST_IMG_PATH=$(realpath "tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2")
+        fi
     fi
 
     if [[ "${CLOUD_IMG_PATH}" == "${GUEST_IMG_PATH}" ]]; then
