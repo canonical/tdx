@@ -12,8 +12,8 @@ def is_platform_registered():
     try:
         subprocess.check_call([f'{script_path}/../../attestation/check-registration.sh'])
     except:
-        return 0
-    return 1
+        return False
+    return True
 
 def pytest_runtest_setup(item):
     """
