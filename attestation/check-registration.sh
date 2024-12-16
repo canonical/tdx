@@ -33,7 +33,10 @@ check_mpa_status() {
     # Last reported registration error code: 0
     if mpa_manage -get_last_registration_error_code | grep "error code: 0" 2>&1 > /dev/null
     then
-	REGISTRATION_SUCCESS=0
+        REGISTRATION_SUCCESS=0
+        echo "mpa_manage: registration status OK."
+    else
+        echo "mpa_manage: registration status NOK: platform not registered"
     fi
 }
 
@@ -42,7 +45,9 @@ if systemctl is-enabled mpa_registration_tool.service  2>&1 > /dev/null
 then
     if command -v mpa_manage 2>&1 > /dev/null
     then
-	check_mpa_status
+        check_mpa_status
+    else
+        echo "mpa_manage is available, assuming platform not registered."
     fi
 fi
 
