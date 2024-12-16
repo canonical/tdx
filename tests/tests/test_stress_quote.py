@@ -15,8 +15,11 @@
 # this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+import pytest
+
 import Qemu
 
+@pytest.mark.quote_generation
 def test_stress_tdxattest_tsm():
     """
     Stress test on quote generation

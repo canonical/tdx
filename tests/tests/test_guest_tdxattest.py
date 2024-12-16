@@ -17,6 +17,7 @@
 
 import random
 import string
+import pytest
 
 import Qemu
 
@@ -28,6 +29,7 @@ import Qemu
 # - configfs tsm : the application use configsf tsm to ask the guest kernel
 #                  to contact the QGSD service for the quote generation
 
+@pytest.mark.quote_generation
 def test_guest_tdxattest_tsm():
     """
     TDX attest library
@@ -47,6 +49,7 @@ def test_guest_tdxattest_tsm():
 
         assert 'Successfully get the TD Quote' in stdout.read().decode()
 
+@pytest.mark.quote_generation
 def test_guest_tdxattest_tsm_failure():
     """
     TDX attest library
@@ -62,6 +65,7 @@ def test_guest_tdxattest_tsm_failure():
         ret, stdout, stderr = ssh.exec_command('/usr/share/doc/libtdx-attest-dev/examples/test_tdx_attest')
         assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
 
+@pytest.mark.quote_generation
 def test_guest_tdxattest_vsock():
     """
     TDX attest library
@@ -80,6 +84,7 @@ def test_guest_tdxattest_vsock():
 
         assert 'Successfully get the TD Quote' in stdout.read().decode()
 
+@pytest.mark.quote_generation
 def test_guest_tdxattest_vsock_wrong_qgs_addr(qm):
     """
     Success even when QGS address is not properly configured
@@ -103,6 +108,7 @@ def test_guest_tdxattest_vsock_wrong_qgs_addr(qm):
 
     assert 'Successfully get the TD Quote' in stdout.read().decode()
 
+@pytest.mark.quote_generation
 def test_guest_tdxattest_vsock_failure():
     """
     TDX attest library
@@ -118,6 +124,7 @@ def test_guest_tdxattest_vsock_failure():
         ret, stdout, stderr = ssh.exec_command('/usr/share/doc/libtdx-attest-dev/examples/test_tdx_attest')
         assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
 
+@pytest.mark.quote_generation
 def test_guest_tdxattest_failure():
     """
     TDX attest library
@@ -134,6 +141,7 @@ def test_guest_tdxattest_failure():
 
         assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
 
+@pytest.mark.quote_generation
 def test_guest_tdxattest_failure_1(qm):
     """
     Failure when vsock disabled and QGS addr is not properly configured

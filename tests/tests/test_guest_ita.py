@@ -19,12 +19,14 @@ import os
 import time
 import json
 import subprocess
+import pytest
 
 import Qemu
 import util
 
 ubuntu_codename = None
 
+@pytest.mark.quote_generation
 def test_guest_measurement_trust_authority_success():
     """
     Trust Authority CLI quote generation success
@@ -33,6 +35,7 @@ def test_guest_measurement_trust_authority_success():
     quote_str = run_trust_authority()
     check_ita_output(quote_str, for_success = True)
 
+@pytest.mark.quote_generation
 def test_guest_measurement_trust_authority_failure():
     """
     Trust Authority CLI quote generation failure

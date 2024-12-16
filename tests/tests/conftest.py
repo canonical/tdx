@@ -1,8 +1,28 @@
 import os
 import pytest
+import subprocess
 
 import Qemu
 import util
+
+script_path=os.path.dirname(os.path.realpath(__file__))
+
+# Is platform registered for quote generation
+def is_platform_registered():
+    try:
+        subprocess.check_call([f'{script_path}/../../attestation/check-registration.sh'])
+    except:
+        return False
+    return True
+
+def pytest_runtest_setup(item):
+    """
+    Test setup function
+    """
+    # skip the test if needed
+    for mark in item.iter_markers(name='quote_generation'):
+        if not is_platform_registered():
+            pytest.skip('Platform not registered, skip quote generation test')
 
 @pytest.fixture(autouse=True)
 def run_before_and_after_tests(tmpdir):
