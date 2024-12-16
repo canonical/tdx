@@ -47,7 +47,7 @@ then
     then
         check_mpa_status
     else
-        echo "mpa_manage is available, assuming platform not registered."
+        echo "mpa_manage is not available, assuming platform not registered."
     fi
 fi
 
