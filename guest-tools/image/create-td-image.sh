@@ -79,6 +79,18 @@ check_tool() {
     [[ "$(command -v $1)" ]] || { error "$1 is not installed" 1>&2 ; }
 }
 
+# On Ubuntu noble 24.04
+# if passt is install and virt-customize runs as root, virt-customize
+# will fail, this is a work-around for this issue
+workaround_passt() {
+    if [[ "$(lsb_release -rs)" != "24.04" ]]; then
+	return
+    fi
+    if command -v passt 2>&1 > /dev/null ; then
+       apt autoremove passt -y
+    fi
+}
+
 usage() {
     cat <<EOM
 Usage: $(basename "$0") [OPTION]...
@@ -222,6 +234,7 @@ create_guest_image() {
 resize_guest_image() {
     qemu-img resize ${TMP_GUEST_IMG_PATH} +${SIZE}G
     virt-customize -a ${TMP_GUEST_IMG_PATH} \
+        --no-network \
         --run-command 'growpart /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_hd0 1' \
         --run-command 'resize2fs /dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_hd0-part1' \
         --run-command 'systemctl mask pollinate.service'
@@ -351,6 +364,7 @@ check_tool qemu-img
 check_tool virt-customize
 check_tool virt-install
 check_tool genisoimage
+workaround_passt
 
 info "Installation of required tools"
 
