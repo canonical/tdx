@@ -87,7 +87,9 @@ check_tool() {
 # for both 24.04 and 24.10
 workaround_passt() {
     if command -v passt 2>&1 > /dev/null ; then
-       apt autoremove passt -y
+       echo "You have the package passt installed, this will prevent"
+       echo "  the script to work properly. This package has to be removed:"
+       apt autoremove passt
     fi
 }
 
