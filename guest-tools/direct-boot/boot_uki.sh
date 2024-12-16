@@ -44,13 +44,6 @@ This script requires 2 files to be available:
 EOM
 }
 
-cleanup() {
-    echo "cleanup ..."
-}
-
-trap "cleanup" EXIT
-cleanup &> /dev/null
-
 PROCESS_NAME=td
 TDVF_FIRMWARE=/usr/share/ovmf/OVMF.fd
 
