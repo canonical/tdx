@@ -82,10 +82,10 @@ check_tool() {
 # On Ubuntu noble 24.04
 # if passt is install and virt-customize runs as root, virt-customize
 # will fail, this is a work-around for this issue
+# Furthermore, we see some instability to reach ubuntu archive when
+# passt is used on 24.10, so for now, we decide to remove it
+# for both 24.04 and 24.10
 workaround_passt() {
-    if [[ "$(lsb_release -rs)" != "24.04" ]]; then
-	return
-    fi
     if command -v passt 2>&1 > /dev/null ; then
        apt autoremove passt -y
     fi
