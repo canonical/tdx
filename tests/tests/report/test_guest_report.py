@@ -34,6 +34,6 @@ def test_guest_report(qm):
 
     deploy_and_setup(m)
 
-    m.check_exec(f'python3 {guest_workdir}/tests/guest/test_tdreport.py')
+    m.check_exec(f'python3 {guest_workdir}/lib/guest/test_tdreport.py')
 
     qm.stop()
