@@ -1,0 +1,81 @@
+#!/bin/bash
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+usage() {
+    cat <<EOM
+This script executes tests for TDX
+
+It is a wrapper around pytest, pytest being the framework used to run the tests.
+It makes use of tox to manage the test execution environment.
+It also provides additional arguments on top of pytest arguments.
+
+So in addition to its specific arguments listed below, the script will
+pass through all the arguments to pytest (please check pytest -h to see
+available argument).
+
+NB: all pytest arguments must come together AFTER the arguments of tdtest.
+
+Usage: $(basename "$0") [-i|-h] pytest_args
+  -i|--td-image <image>     Ubuntu guest image
+  -h|--help                 Show this help
+
+Examples:
+  To run tests in boot folder:
+    $ sudo $(basename "$0") tests/boot
+  To list tests in boot folder:
+    $ sudo $(basename "$0") --co tests/boot
+
+---
+EOM
+}
+
+parse_params() {
+    # program cannot be run without argument
+    #[[ -z "$@" ]] && usage && exit 0
+
+    while :; do
+        case "${1-}" in
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        -i | --td-image)
+            TDXTEST_GUEST_IMG=$(realpath "${2-}")
+            shift
+            ;;
+        "")
+            break
+            ;;
+        *)
+            # other arguments will be passed to pytest
+            pytest_args="$@"
+            break
+            ;;
+        esac
+        shift
+    done
+}
+
+parse_params "$@"
+
+if [ "$EUID" -ne 0 ]
+  then echo "Please run as root"
+  exit
+fi
+
+if [[ -z "${UBUNTU_VER}" ]]; then
+    UBUNTU_VER=$(lsb_release -rs)
+fi
+
+if [[ ! -f "${TDXTEST_GUEST_IMG}" ]]; then
+    TDXTEST_GUEST_IMG=$PWD/../guest-tools/image/tdx-guest-ubuntu-${UBUNTU_VER}-generic.qcow2    
+fi
+
+apt install -y python3 tox
+
+export TDXTEST_GUEST_IMG
+
+echo "Run tests with TD image: ${TDXTEST_GUEST_IMG}"
+echo "  pytest args: ${pytest_args}"
+tox -- --ignore=lib/ "${pytest_args}"
