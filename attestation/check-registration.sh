@@ -28,10 +28,10 @@ set -e
 REGISTRATION_SUCCESS=1
 
 check_mpa_status() {
-    # Run command: mpa_manage -get_last_registration_error_code
-    # If the platform has been registered successfully, the command will output:
-    # Last reported registration error code: 0
-    if mpa_manage -get_last_registration_error_code | grep "error code: 0" 2>&1 > /dev/null
+    # Use mpa_manage -get_registration_status to detect the status of registration
+    # Do not use mpa_manage -get_last_registration_error_code because it outputs
+    # code 0 even when the registration is in progress
+    if mpa_manage -get_registration_status | grep "completed successfully" 2>&1 > /dev/null
     then
         REGISTRATION_SUCCESS=0
         echo "mpa_manage: registration status OK."
