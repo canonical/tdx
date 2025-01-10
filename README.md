@@ -663,7 +663,7 @@ Here are example instructions for building QEMU (for normal user with sudo right
 
 	```bash
 	git clone https://kernel.ubuntu.com/gitea/kernel/kteam-tools.git
-	sudo apt install schroot devscripts ubuntu-dev-tools python3-ruamel.yaml
+	sudo apt install schroot devscripts ubuntu-dev-tools python3-ruamel.yaml sbuild
 	# Some additional package might be installed in next step
 	# A session restart might be required at next step to take permission changes into account
 	kteam-tools/cranky/cranky chroot create-base "noble"
