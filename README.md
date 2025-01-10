@@ -591,7 +591,7 @@ you proceed to [step 4](#verify-itts-client-version).
 
 #### 9.1. Event log and measurements
 
-One of the key components the remote attestation is the runtime measurement. The runtime measurement values
+One of the key components of remote attestation is the runtime measurement. The runtime measurement values
 are stored in the RTMRs registers for each TD by the TDX module. During the system boot, each component
 of the boot process (binary or conf) is measured into a digest. This digest value is extended to the RTMR's
 current value. The digest of the result value becomes the new value of the RTMR.
