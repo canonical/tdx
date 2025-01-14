@@ -116,7 +116,7 @@ boot_vm() {
         domain_prefix_extra="td_guest"
     fi
 
-    created_domain=${DOMAIN_PREFIX}-${domain_prefix_extra}-$(virsh domuuid ${DOMAIN_PREFIX})
+    created_domain="td"
     mv ${WORKDIR_PATH}/{${DOMAIN_PREFIX}.xml,${created_domain}.xml} &>/dev/null || true
     virsh domrename ${DOMAIN_PREFIX} ${created_domain} >/dev/null
     virsh start ${created_domain} ${start_args}
@@ -151,7 +151,7 @@ destroy() {
 }
 
 clean_all() {
-    for domain_to_clean in $(virsh list --all --name | grep ${DOMAIN_PREFIX}); do
+    for domain_to_clean in $(virsh list --all --name); do
         destroy ${domain_to_clean}
     done
     rm -rf ${WORKDIR_PATH}
@@ -243,10 +243,6 @@ parse_params() {
             if [ "${domain_to_clean}" == "all" ]; then
                 clean_all
             else
-                if [[ ! "${domain_to_clean}" =~ ^${DOMAIN_PREFIX}-[^\ ]+$ ]]; then
-                    usage
-                    exit 0
-                fi
                 destroy ${domain_to_clean}
             fi
             exit 0
