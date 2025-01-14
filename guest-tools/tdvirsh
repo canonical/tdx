@@ -107,7 +107,7 @@ create_domain_xml() {
 }
 
 boot_vm() {
-    virsh define ${WORKDIR_PATH}/${DOMAIN_PREFIX}.xml >/dev/null
+    virsh define ${WORKDIR_PATH}/${DOMAIN_PREFIX}.xml
 
     # determine extra domain prefix
     xml_template_path_fn=${xml_template_path##*/}
@@ -116,9 +116,8 @@ boot_vm() {
         domain_prefix_extra="td_guest"
     fi
 
-    created_domain="td"
-    mv ${WORKDIR_PATH}/{${DOMAIN_PREFIX}.xml,${created_domain}.xml} &>/dev/null || true
-    virsh domrename ${DOMAIN_PREFIX} ${created_domain} >/dev/null
+    created_domain="tdvirsh"
+    mv ${WORKDIR_PATH}/{${DOMAIN_PREFIX}.xml,${created_domain}.xml} || true
     virsh start ${created_domain} ${start_args}
 }
 

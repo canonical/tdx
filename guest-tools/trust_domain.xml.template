@@ -73,6 +73,6 @@
     <qemu:arg value='-device'/>
     <qemu:arg value='virtio-net-pci,netdev=nic0,bus=pcie.0,addr=0x5'/>
     <qemu:arg value='-netdev'/>
-    <qemu:arg value='user,id=nic0,hostfwd=tcp::0-:22'/>
+    <qemu:arg value='user,id=nic0,hostfwd=tcp::10022-:22'/>
   </qemu:commandline>
 </domain>
