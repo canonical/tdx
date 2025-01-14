@@ -111,3 +111,15 @@ def test_stress_ibm():
             ssh = Qemu.QemuSSH(qm)
 
             qm.stop()
+
+def test_stress_ubuntu():
+    huge_mem_gb = 160
+    with Qemu.QemuMachine() as qm:
+        qm.qcmd.plugins['memory'].memory = '%dG' % (huge_mem_gb)
+        qm.qcmd.plugins['cpu'].cpu_flags = ',-kvm-steal-time'
+        qm.run()
+
+        for i in range(0,100):
+            ssh = Qemu.QemuSSH(qm)
+            qm.reboot()
+            time.sleep(20)
