@@ -72,7 +72,7 @@ Download and install appropriate Ubuntu Server on the host machine:
    For example: 
 
    ```bash
-   git clone -b noble-24.04 https://github.com/canonical/tdx.git
+   git clone https://github.com/canonical/tdx.git
    ```
 
 2. Customize the setup of the host and TD by editing the configuration file `setup-tdx-config`.  
