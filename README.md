@@ -664,9 +664,10 @@ Here are example instructions for building QEMU (for normal user with sudo right
 
 	```bash
 	git clone https://kernel.ubuntu.com/gitea/kernel/kteam-tools.git
-	sudo apt install schroot devscripts ubuntu-dev-tools
-	# Some additional package might be installed in next step
-	# A session restart might be required at next step to take permission changes into account
+	sudo apt install schroot devscripts ubuntu-dev-tools python3-ruamel.yaml sbuild
+	# Create the chroot 24.04 (`noble`) OS for kernel build
+	# A session restart might be required at next step to take permission changes into account, in this case
+        # you might need to run the following command twice.
 	kteam-tools/cranky/cranky chroot create-base "noble"
 	kteam-tools/cranky/cranky chroot create-session noble:linux
 	```
