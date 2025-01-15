@@ -4,88 +4,30 @@ This folder contains Intel TDX tests.
 
 ### Pre-requisites
 
-- The tests must be executed a host that has been setup properly for Intel TDX.
+- The tests must be executed on a host that has been set up properly for Intel TDX.
 
-- Tox must be installed along with python3:
-```
-$ sudo apt install tox
-$ sudo apt install python3
-```
+### Run tests
 
-- You must specify a path to the guest image with `TDXTEST_GUEST_IMG` environment variable.
-  This is for both pytest and checkbox tests.
+The script `tdtest` is the test runner, it is a wrapper around `pytest`.
+Please run `tdtest -h` for more details about its usage.
 
-- The guest image must enable ssh server with password-based authentication for `root` user.
-  The root user password must be `123456`
+The tests are organized in different categories and this organization is
+reflected in the structure of the `tests`.
 
-### Run tests with tox/pytest
-
-Go to the `tests` folder.
-
-- Run sanity tests to check the host setup:
+You can choose to run a category of tests by specifying the appropriate sudirectory under `tests`. For example, to run the boot tests:
 
 ```
-$ sudo -E tox -e test_host
+$ sudo ./tdtest tests/boot
 ```
 
-- Run guest tests:
+You can run all tests except the performance:
 
 ```
-$ sudo -E tox -e test_guest
+$ sudo ./tdtest -k 'not test_perf'
 ```
 
-- Run boot tests:
-
-```
-$ sudo -E tox -e test_boot
-```
-
-- Run perf tests:
-
-```
-$ sudo -E tox -e test_perf
-```
-
-- Run quote tests:
-
-```
-$ sudo -E tox -e test_quote
-```
-
-- Run stress tests:
-
-```
-$ sudo -E tox -e test_stress
-```
-
-- Run all tests:
-
-Please note that the performance tests can take a long time (order of magnitude of a few hours per `pytest.test_perf_benchmark`) to run.
-
-```
-$ sudo -E tox -e test_all
-```
-
-To list tests without running:
-
-```
-sudo -E tox -e collect_tests -- EXPRESSION
-```
-
-`EXPRESSION` is the expression provided to the argument `-k` of `pytest`.
-For more details on its format, you can refer to `pytest` help page.
-
-For example:
-
-```
-sudo -E tox -e collect_tests -- 'test_guest or test_stress'
-```
-
-To run tests matching an expression:
-
-```
-sudo -E tox -e test_specify -- EXPRESSION
-```
+Since `tdtest` is a wrapper of pytest, it exposes all the features of `pytest`
+that you can use to run, manage and inspect the tests.
 
 ### Run tests with checkbox:
 
