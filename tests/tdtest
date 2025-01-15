@@ -25,15 +25,14 @@ Examples:
     $ sudo $(basename "$0") tests/boot
   To list tests in boot folder:
     $ sudo $(basename "$0") --co tests/boot
+  To run all the tests:
+    $ sudo $(basename "$0")
 
 ---
 EOM
 }
 
 parse_params() {
-    # program cannot be run without argument
-    #[[ -z "$@" ]] && usage && exit 0
-
     while :; do
         case "${1-}" in
         -h | --help)
