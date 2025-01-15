@@ -69,10 +69,10 @@ Download and install appropriate Ubuntu Server on the host machine:
 
 1. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning the repository (at the appropriate tag/branch).
    
-   For example: 
+   For example, to clone the development branch (replace `main` by a release tag if you want a specific release): 
 
    ```bash
-   git clone -b noble-24.04 https://github.com/canonical/tdx.git
+   git clone -b main https://github.com/canonical/tdx.git
    ```
 
 2. Customize the setup of the host and TD by editing the configuration file `setup-tdx-config`.  
