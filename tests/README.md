@@ -14,7 +14,7 @@ Please run `tdtest -h` for more details about its usage.
 The tests are organized in different categories and this organization is
 reflected in the structure of the `tests`.
 
-You can choose to run a category of tests by specifying the folder:
+You can choose to run a category of tests by specifying the appropriate sudirectory under `tests`. For example, to run the boot tests:
 
 ```
 $ sudo ./tdtest tests/boot
