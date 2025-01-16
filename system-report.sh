@@ -68,7 +68,7 @@ set_msr_result_string() {
     result="$result\nNUM_TDX_PRIV_KEYS: $NUM_TDX_PRIV_KEYS"
     SGX_AND_MCHECK_STATUS=$(sudo rdmsr 0xa0)
     result="$result\nSGX_AND_MCHECK_STATUS: $SGX_AND_MCHECK_STATUS (expected value: 0)"
-    PROD=$(rdmsr 0xce -f 27:27)
+    PROD=$(sudo rdmsr 0xce -f 27:27)
     PRODUCTION="Pre-production"
     if [[ "${PROD}" = "0" ]]; then
         PRODUCTION="Production"
