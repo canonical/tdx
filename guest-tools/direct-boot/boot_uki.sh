@@ -26,7 +26,7 @@ if [[ -z "${UBUNTU_VERSION}" ]]; then
 fi
 
 UKI_FILE=$(realpath ${SCRIPT_DIR}/../image/uki.efi-${UBUNTU_VERSION})
-TD_IMG=$(realpath ${SCRIPT_DIR}/../image/tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2)
+TD_IMG=$(realpath ${TD_IMG:-${SCRIPT_DIR}/../image/tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2})
 
 usage() {
     cat <<EOM

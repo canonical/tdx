@@ -29,7 +29,7 @@ TDVF_FIRMWARE=/usr/share/ovmf/OVMF.fd
 
 KERNEL_FILE=$(realpath ${SCRIPT_DIR}/../image/vmlinuz-${UBUNTU_VERSION})
 INITRD_FILE=$(realpath ${SCRIPT_DIR}/../image/initrd.img-${UBUNTU_VERSION})
-TD_IMG=$(realpath ${SCRIPT_DIR}/../image/tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2)
+TD_IMG=$(realpath ${TD_IMG:-${SCRIPT_DIR}/../image/tdx-guest-ubuntu-${UBUNTU_VERSION}-generic.qcow2})
 
 if [[ ! -f "${KERNEL_FILE}" ]]; then
     echo "Missing kernel file: ${KERNEL_FILE}

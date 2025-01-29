@@ -55,9 +55,20 @@ This script will generate 3 files:
 
 ### Direct boot
 
+Boot TD with the provided script.
+By default, the script will use an image with a generic kernel located at
+`../image/tdx-guest-ubuntu-<24.04|24.10>-generic.qcow2`.
 ```
 $ cd guest-tools/direct-boot
 $ ./boot_direct.sh 24.04
+```
+
+A different qcow2 image (e.g., one with an intel kernel) can be used by
+setting the `TD_IMG` command-line variable as shown below:
+
+```
+$ cd guest-tools/direct-boot
+$ TD_IMG=../image/tdx-guest-ubuntu-<24.04|24.10>-intel.qcow2 ./boot_direct.sh 24.04
 ```
 
 Once you are in the guest console, you can see the event log journal by:
@@ -131,9 +142,21 @@ rtmr_3 : 00000000000000000000000000000000000000000000000000000000000000000000000
 Another way to do direct boot is to use the [Unified Kernel Image](https://uapi-group.org/specifications/specs/unified_kernel_image/).
 UKI leads to better UEFI Secure Boot support, better supporting TPM measurements and confidential computing, and a more robust boot process.
 
+By default, the script will use an image with a generic kernel located at
+`../image/tdx-guest-ubuntu-<24.04|24.10>-generic.qcow2`.
+
 ```
 $ cd guest-tools/direct-boot
 $ ./boot_uki.sh 24.04
+```
+
+
+A different qcow2 image (e.g., one with an intel kernel) can be used by
+setting the `TD_IMG` command-line variable as shown below:
+
+```
+cd guest-tools/direct-boot
+TD_IMG=../image/tdx-guest-ubuntu-<24.04|24.10>-intel.qcow2 ./boot_uki.sh 24.04
 ```
 
 Once you are in the guest console, you can see the event log journal by using `tdeventlog` as explained in the previous section.
