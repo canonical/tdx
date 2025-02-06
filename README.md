@@ -663,7 +663,7 @@ Here are example instructions for building QEMU (for normal user with sudo right
 1. Initialize a matching build environment.
 
 	```bash
-	git clone https://kernel.ubuntu.com/gitea/kernel/kteam-tools.git
+	git clone https://kernel.ubuntu.com/forgejo/kernel/kteam-tools.git
 	sudo apt install schroot devscripts ubuntu-dev-tools python3-ruamel.yaml sbuild python3-git
 	# Create the chroot 24.04 (`noble`) OS for kernel build
 	# A session restart might be required at next step to take permission changes into account, in this case
