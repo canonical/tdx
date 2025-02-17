@@ -45,13 +45,14 @@ tool and attach the report.
 
 <a id="supported-hardware"></a>
 ## 3. Supported Hardware
-This release works with these Intel® Xeon® Processors:
-| Processor | Code Name | TDX Module Version |
-| - | - | - |
-| 4th Gen Intel® Xeon® Scalable Processors (select SKUs with Intel® TDX) | Sapphire Rapids | 1.5.x |
-| 5th Gen Intel® Xeon® Scalable Processors | Emerald Rapids | 1.5.x |
-| Intel® Xeon® 6 Processors with E-Cores | Sierra Forest | 1.5.x |
-| Intel® Xeon® 6 Processors with P-Cores | Granite Rapids | 2.0.x |
+This table lists the Ubuntu versions and the hardware they support:
+
+| Ubuntu Version | Processor | Code Name | TDX Module Version |
+| - | - | - | - |
+| 24.10, 24.04 | 4th Gen Intel® Xeon® Scalable Processors (select SKUs with Intel® TDX) | Sapphire Rapids | 1.5.x |
+| 24.10, 24.04 | 5th Gen Intel® Xeon® Scalable Processors | Emerald Rapids | 1.5.x |
+| 24.10 | Intel® Xeon® 6 Processors with E-Cores | Sierra Forest | 1.5.x |
+| 24.10, 24.04 | Intel® Xeon® 6 Processors with P-Cores | Granite Rapids | 2.0.x |
 
 To help identify which processor you have, please visit [ark.intel.com](https://www.intel.com/content/www/us/en/ark.html) and search for the part number. Then, look for "Code Name" and "Intel® Trust Domain Extensions (Intel® TDX)".
 
