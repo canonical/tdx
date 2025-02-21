@@ -194,11 +194,14 @@ The script provided for the QEMU method supports running only a single instance.
 
 ### 6.1 Boot TD with QEMU
 
-Boot TD with the provided script.
-By default, the script will use an image with a generic kernel located at
-`./image/tdx-guest-ubuntu-<24.04|24.10>-generic.qcow2`. A different qcow2
-image (e.g., one with an intel kernel) can be used by setting the `TD_IMG`
-command-line variable.
+Boot TD with the `run-td.sh` script. 
+
+If no parameter is provided, the script will use the generic 
+kernel image, located in `./image/`, with the same Ubuntu version as the host.
+For example, if you're running Ubuntu 24.04 host, the default image will be
+`tdx-guest-ubuntu-24.04-generic.qcow2`.  
+A different qcow2 image (e.g. one with an `intel` kernel) can be used by setting 
+the `TD_IMG=/path/to/image` command-line variable.
 
 NOTE: It is recommended that you run the script as a non-root user.
 
@@ -210,7 +213,11 @@ cd tdx/guest-tools
 An example output:
 
 ```bash
-TD, PID: 111924, SSH : ssh -p 10022 root@localhost
+TD started by QEMU with PID: 13392.
+To log in with the non-root user (default: tdx / password: 123456), as specified in setup-tdx-config, use: 
+   $ ssh -p 10022 <username>@localhost
+To log in as root (default password: 123456), use: 
+   $ ssh -p 10022 root@localhost
 ```
 
 ### 6.2 Boot TD with virsh (libvirt)
@@ -240,8 +247,7 @@ TD, PID: 111924, SSH : ssh -p 10022 root@localhost
    Details about `tdvirsh`:
    * To manage the lifecycle of TDs, we developed a wrapper around the `virsh` tool.
    This new `tdvirsh` tool extends `virsh` with new capabilities to create/remove TDs.
-   * By default, `tdvirsh` will use an image located at `./image/tdx-guest-ubuntu-<24.04|24.10>-generic.qcow2` with the `generic` Ubuntu kernel.
-   A different qcow2 image (e.g., one with an `intel` kernel) can be used by using the command-line option `-i IMAGE_PATH`.
+   * If no parameter is provided, `tdvirsh` will use the generic kernel image, located in `./image/`, with the same Ubuntu version as the host. A different qcow2 image (e.g., one with an `intel` kernel) can be used by using the command-line option `--td-image /path/to/image`.
    * By default, `tdvirsh` will use a XML libvirt template located at `./trust_domain.xml.template`.
    A different XML libvirt template can be used by using the command-line option `-t XML_PATH`.
    * All VMs can be listed with the following command:
