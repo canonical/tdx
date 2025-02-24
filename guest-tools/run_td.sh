@@ -73,6 +73,8 @@ fi
 
 PID_TD=$(cat /tmp/tdx-demo-td-pid.pid)
 
-echo "TD started by QEMU with PID: ${PID_TD}.
-To log in with the non-root user (default: tdx / password: 123456), as specified in setup-tdx-config, use: $ ssh -p ${SSH_PORT} <username>@localhost
-To log in as root (default password: 123456), use: $ ssh -p ${SSH_PORT} root@localhost"
+echo "TD started by QEMU with PID: ${PID_TD}."
+echo "To log in with the non-root user (default: tdx / password: 123456), as specified in setup-tdx-config, use:"
+echo "   $ ssh -p ${SSH_PORT} <username>@localhost"
+echo "To log in as root (default password: 123456), use:"
+echo "   $ ssh -p ${SSH_PORT} root@localhost"
