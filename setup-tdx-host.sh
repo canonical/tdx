@@ -60,7 +60,10 @@ grub_cmdline_kvm() {
   if ! grep -q -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub; then
     sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 kvm_intel.tdx=1\"/g" /etc/default/grub
     update-grub
-    grub-install
+    # --no-nvram : to prevent grub-install from update the EFI boot order
+    # we would like to keep the current boot order in place in case the machine
+    # is being managed by MAAS that expects the device to PXE boot
+    grub-install --no-nvram
   fi
 }
 
@@ -75,7 +78,10 @@ grub_cmdline_nohibernate() {
   if ! grep -q -E "GRUB_CMDLINE_LINUX.*=.*\".*nohibernate.*\"" /etc/default/grub; then
     sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 nohibernate\"/g" /etc/default/grub
     update-grub
-    grub-install
+    # --no-nvram : to prevent grub-install from update the EFI boot order
+    # we would like to keep the current boot order in place in case the machine
+    # is being managed by MAAS that expects the device to PXE boot
+    grub-install --no-nvram
   fi
 }
 

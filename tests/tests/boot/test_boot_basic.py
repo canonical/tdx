@@ -47,7 +47,7 @@ def test_guest_early_printk(qm):
     add_earlyprintk_cmd = r'''
       sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 earlyprintk=ttyS0,115200\"/g" /etc/default/grub
       update-grub
-      grub-install
+      grub-install --no-nvram
     '''
     m.check_exec(add_earlyprintk_cmd)
 
