@@ -1,16 +1,16 @@
-name: Do a snap build of checkbox provider
+name: Do a snap build of TDX checkbox provider
 
 run-name: ${{ github.actor }} is creating testing snap
 
 on:
   push:
     branches: 
-      - noble-24.04
+      - main
     paths:
       - 'tests/**'
   pull_request:
     branches:
-      - noble-24.04
+      - main
     paths:
       - 'tests/**'
   workflow_dispatch: # Allow manual trigger
@@ -42,6 +42,10 @@ jobs:
         with:
           path: tests
           snapcraft-channel: latest/stable
+      - uses: actions/upload-artifact@v4
+        with:
+          name: checkbox-tdx-provider
+          path: ${{ steps.build.outputs.snap }}
 
       - name: Verify snap
         run: |
