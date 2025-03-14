@@ -104,7 +104,7 @@ parts:
       snapcraftctl prime
       # python3-pytest does not install the /usr/bin/pytest but only /usr/bin/pytest-3
       # we have to make the symlink ourself
-      ln -sf pytest-3 usr/bin/pytest
+      ln -sf py.test-3 usr/bin/pytest
 
   tdx-tools:
     plugin: python
