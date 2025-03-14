@@ -5,9 +5,9 @@ include:
     tdx-host/.*
     tdx-guest/.*
     tdx-boot/.*
-    tdx-perf/.*
     tdx-quote/.*
     tdx-stress/.*
+    tdx-eventlog/.*
 mandatory_include:
     com.canonical.certification::miscellanea/submission-resources
 bootstrap_include:
@@ -63,6 +63,17 @@ unit: test plan
 _name: Intel Trusted Domain eXtension (TDX) attestation tests
 include:
     tdx-quote/.*
+mandatory_include:
+    com.canonical.certification::miscellanea/submission-resources
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+
+id: intel-tdx-eventlog
+unit: test plan
+_name: Intel Trusted Domain eXtension (TDX) eventlog tests
+include:
+    tdx-eventlog/.*
 mandatory_include:
     com.canonical.certification::miscellanea/submission-resources
 bootstrap_include:
