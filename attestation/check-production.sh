@@ -27,6 +27,7 @@ set -e
 
 modprobe msr
 PROD=$(rdmsr 0xce -f 27:27)
+SGX_DEBUG_MODE=$(rdmsr 0x503)
 
 CPU_MODEL=$(cat /proc/cpuinfo | awk 'match($0,/model.+: ([0-9]+)/,m){ print m[1]; exit}')
 
@@ -50,4 +51,10 @@ if [ "${PROD}" = "0" ]; then
     echo "Production"
 else
     echo "Pre-production"
+fi
+
+if [ "${SGX_DEBUG_MODE}" = "0" ]; then
+    echo "SGX production mode"
+else
+    printf "SGX debug unlock mode, SGX_DEBUG_MODE=0x%s\n" ${SGX_DEBUG_MODE}
 fi
