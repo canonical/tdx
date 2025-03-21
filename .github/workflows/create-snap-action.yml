@@ -52,7 +52,7 @@ jobs:
           sudo snap install checkbox24
           sudo snap install --dangerous --classic ${{ steps.build.outputs.snap }}
 
-      - if: needs.check-secret.outputs.snap-key == 'true' && (github.ref_name == 'noble-24.04')
+      - if: needs.check-secret.outputs.snap-key == 'true' && (github.ref_name == 'main')
         name: Publish snap to edge channel
         uses: snapcore/action-publish@v1.2.0
         env:
