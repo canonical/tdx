@@ -629,33 +629,45 @@ class QemuMachine:
         self.run()
         QemuMonitor(self)
 
-    def communicate(self):
+    def communicate(self, timeout=60):
         """
         Wait for qemu to exit
         """
-        self.out, self.err = self.proc.communicate(timeout=60)
+        self.out, self.err = self.proc.communicate(timeout=timeout)
         if self.proc.returncode != 0:
             print(self.err.decode())
         return self.out, self.err
+
+    def shutdown(self):
+        """
+        Send shutdown command to the VM
+        Do not wait for the VM to exit
+        Return false if the VM is already terminated
+        """
+        if self.proc is None:
+            return False
+        if self.proc.returncode is not None:
+            return False
+
+        try:
+            mon = QemuMonitor(self)
+            mon.powerdown()
+        except Exception as e:
+            pass
+
+        return True
 
     def stop(self):
         """
         Stop qemu process
         """
-        if self.proc is None:
+        if not self.shutdown():
             return
-        if self.proc.returncode is not None:
-            return
-
-        # self.proc.returncode == None -> not yet terminated
 
         try:
             # try to shutdown the VM properly, this is important to avoid
             # rootfs corruption if we want to run the guest again
             # catch exception and ignore it since we are stopping .... no need to fail the test
-            mon = QemuMonitor(self)
-            mon.powerdown()
-
             self.communicate()
             return
         except Exception as e:
