@@ -17,6 +17,7 @@ import os
 import subprocess
 import time
 import multiprocessing
+import pytest
 
 import Qemu
 import util
@@ -70,15 +71,47 @@ def test_stress_max_vcpus(qm):
 
     qm.stop()
 
+def check_qemu_fail_to_start(qm, error_msg=None):
+    try:
+        _, err = qm.communicate(timeout=5)
+    except:
+        # if timeout, that means the QEMU is running fine
+        # try to connect with ssh to make sure the TD is running fine
+        try:
+            ssh = Qemu.QemuSSH(qm)
+        except:
+            # the qemu is running but we cannot connect to SSH
+            # we consider that the check is OK
+            qm.stop()
+            return
+        pytest.fail('The TD is running !')
+    if error_msg:
+        assert error_msg in err.decode()
 
 def test_stress_max_guests():
     """
     Test max guests (No Intel Case ID)
+
+    There is a limit on the number of TDs that can be run in parralel.
+    This limit can be due to several factors, but the most prevalent factor
+    is the number of keys the CPU can allocate to TDs.
+    In fact, TDX takes advantage of an existing CPU feature called MK-TME
+    (Multi-key Total Memory Encryption) to encrypt the VM memory. It enables
+    the CPU to encrypt each TD’s memory with a unique Advanced Encryption Standard (AES) key.
+    MK-TME offers a number of keys and this key space is partionned into 2 sets:
+    Shared (VMM) and Private (TDX). The number of key in the Private space defines the
+    maximum number of TDs we can run in parralel.
+
+    This test verifies that we can run TDs up to this limit and any new TD creation
+    is refused by qemu in a nice way.
     """
 
     # get max number of TD VMs we can create (max - current)
     max_td_vms = util.get_max_td_vms() - util.get_current_td_vms()
     assert max_td_vms > 0, "No available space for TD VMs"
+
+    print(f'The limit number of TDs is : {max_td_vms}')
+
     qm = [None] * max_td_vms
 
     # initialize machines
@@ -95,8 +128,21 @@ def test_stress_max_guests():
         print("Waiting for machine %d" % (i))
         ssh = Qemu.QemuSSH(qm[i])
 
+    # try to run a new TD
+    # expect qemu quit immediately with a specific error message
+    with Qemu.QemuMachine() as one_more:
+        one_more.run()
+        check_qemu_fail_to_start(one_more, error_msg="KVM_TDX_INIT_VM failed: No space left on device")
+
     # stop all machines
     for i in range(max_td_vms):
         print("Stopping machine %d" % (i))
-        qm[i].stop()
+        qm[i].shutdown()
 
+    # wait for all machines to exit
+    for i in range(max_td_vms):
+        print("Stopping machine %d" % (i))
+        try:
+            qm[i].communicate()
+        except:
+            pass

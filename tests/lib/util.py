@@ -45,6 +45,16 @@ def tcp_port_available():
     return port
 
 def get_max_td_vms():
+    """
+    MKTME encryption engine is used both for legacy MKTME operation and TDX operation
+    The key space is partitionned in 3 ranges:
+     - first key
+     - shared keys
+     - TDX keys
+    So if we have 128 keys and we decide to split this range into 2 equal sets (in BIOS)
+    TDX key space will only have 63 keys instead of 64.
+    The nb of TDX key space can be read from the IA32_MKTME_KEYID_PARTITIONING MSR (0x87)
+    """
     cmd = ['rdmsr', '0x87']
     rc = subprocess.run(cmd, capture_output=True)
     assert rc.returncode == 0, "Failed getting max td vms"
