@@ -24,7 +24,7 @@
 # but for development purpose, users can change this list to
 # contain an arbitrary number of PPAs
 ################################################################
-TDX_PPA="tdx-release"
+TDX_PPA="tdx"
 
 ################################################################
 # The TDX PPA for attestation
