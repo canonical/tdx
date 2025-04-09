@@ -23,6 +23,9 @@
 # By default, there is only the release PPA : tdx-release
 # but for development purpose, users can change this list to
 # contain an arbitrary number of PPAs
+# The PPA can be specified in short for full name format:
+#   - short : tdx (in this case, the team will be kobuk-team)
+#   - full : ppa:canonical-kernel-team/bootstrap
 ################################################################
 TDX_PPA="tdx"
 
