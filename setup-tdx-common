@@ -33,11 +33,18 @@ fi
 # from Ubuntu archive
 add_kobuk_ppa() {
   ppa_id=$1
-  distro_id=LP-PPA-kobuk-team-${ppa_id}
+  team=kobuk-team
+  # try to detect if the PPA is specified as fullname
+  # example : ppa:canonical-kernel-team/bootstrap
+  if [[ ${ppa_id} =~ ppa:([^/]+)/([^/]+)$ ]]; then
+    team=${BASH_REMATCH[1]}
+    ppa_id=${BASH_REMATCH[2]}
+  fi
+  distro_id=LP-PPA-${team}-${ppa_id}
 
-  add-apt-repository -y ppa:kobuk-team/${ppa_id}
+  add-apt-repository -y ppa:${team}/${ppa_id}
 
-  cat <<EOF | tee /etc/apt/preferences.d/kobuk-team-${ppa_id}-pin-4000
+  cat <<EOF | tee /etc/apt/preferences.d/tdx-${team}-${ppa_id}-pin-4000
 Package: *
 Pin: release o=${distro_id}
 Pin-Priority: 4000
