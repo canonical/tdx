@@ -126,7 +126,7 @@ def test_stress_max_guests():
     # wait for all machines running
     for i in range(max_td_vms):
         print("Waiting for machine %d" % (i))
-        ssh = Qemu.QemuSSH(qm[i])
+        ssh = Qemu.QemuSSH(qm[i], timeout=100)
 
     # try to run a new TD
     # expect qemu quit immediately with a specific error message
