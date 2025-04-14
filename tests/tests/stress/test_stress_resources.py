@@ -132,7 +132,12 @@ def test_stress_max_guests():
     # expect qemu quit immediately with a specific error message
     with Qemu.QemuMachine() as one_more:
         one_more.run()
-        check_qemu_fail_to_start(one_more, error_msg="KVM_TDX_INIT_VM failed: No space left on device")
+        # The qemu error message may vary depending on the TDX QEMU release.
+        # On QEMU older than 9.2.1:
+        #   - KVM_TDX_INIT_VM failed: No space left on device
+        # On more recent QEMU releases:
+        #   - TDX ioctl KVM_TDX_INIT_VM failed, hw_errors: 0x0: No space left on device
+        check_qemu_fail_to_start(one_more, error_msg="No space left on device")
 
     # stop all machines
     for i in range(max_td_vms):
