@@ -27,7 +27,7 @@ import util
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
-def test_guest_noept_fail(qm, release_kvm_use):
+def test_guest_noept_fail(qm, release_kvm_use, tdx_version):
     """
     tdx_NOEPT test case (See https://github.com/intel/tdx/wiki/Tests)
     """
@@ -37,23 +37,37 @@ def test_guest_noept_fail(qm, release_kvm_use):
     assert cs.returncode == 0, 'Failed getting dmesg'
     dmesg_start = str(cs.stdout)
 
-    with KvmIntelModuleReloader('pt_mode=1 ept=0') as module:
+    if tdx_version == 1:
+        kvm_args='pt_mode=1 ept=0'
+    else:
+        kvm_args='ept=0'
+
+    with KvmIntelModuleReloader(kvm_args) as module:
         # Get after modprobe dmesg contents
         cs = subprocess.run(['sudo', 'dmesg'], check=True, capture_output=True)
         assert cs.returncode == 0, 'Failed getting dmesg'
         dmesg_end = str(cs.stdout)
 
-        # Verify "TDX requires mmio caching" in dmesg (but only one more time)
-        dmesg_start_count = dmesg_start.count("TDX requires TDP MMU.  Please enable TDP MMU for TDX")
-        dmesg_end_count = dmesg_end.count("TDX requires TDP MMU.  Please enable TDP MMU for TDX")
-        assert dmesg_end_count == dmesg_start_count+1, "dmesg missing proper message"
+        def check_dmesg(msg):
+            dmesg_start_count = dmesg_start.count(msg)
+            dmesg_end_count = dmesg_end.count(msg)
+            assert dmesg_end_count == dmesg_start_count+1, "dmesg missing proper message"
+
+        if tdx_version == 1:
+            # Verify "kvm_intel: EPT is required for TDX" in dmesg (but only one more time)
+            check_dmesg("TDX requires TDP MMU.  Please enable TDP MMU for TDX")
+        else:
+            check_dmesg("kvm_intel: EPT is required for TDX")
 
         # Run Qemu and verify failure
         qm.run()
 
         # expect qemu quit immediately with specific error message
         _, err = qm.communicate()
-        assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
+        if tdx_version == 1:
+            assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
+        else:
+            assert "-accel kvm: vm-type TDX not supported by KVM" in err.decode()
 
 def test_guest_disable_tdx_fail(qm, release_kvm_use):
     """
