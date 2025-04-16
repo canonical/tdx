@@ -1,5 +1,6 @@
 import os
 import pytest
+import distro
 import subprocess
 
 import Qemu
@@ -71,3 +72,21 @@ def cpu_core():
     cpu = util.cpu_select()
     with util.CpuOnOff(cpu) as cpu:
         yield cpu
+
+@pytest.fixture()
+def tdx_version():
+    """
+    This fixure gives the generation of TDX releases we deliver
+    For now, we devide our releases into 2 major versions:
+    - 1 (TDX1.0) : for releases with kernel < 6.14 and QEMU < 9.2.1
+                   this version has been released Ubuntu 24.04 and 24.10
+    - 2 (TDX2.0) : for kernel >= 6.14 and qemu >= 9.2.1
+                   this version is released for Ubuntu 25.04
+    Default version is TDX2.0 if the fixture cannot determine the version.
+    """
+    version=2
+    # try to detect version 1
+    lri = distro.lsb_release_info()
+    if (lri.get('codename') == 'noble') or (lri.get('codename') == 'oracular'):
+        version = 1
+    yield version
