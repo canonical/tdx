@@ -37,7 +37,7 @@ def test_host_tdx_software():
 
     subprocess.check_call('grep Y /sys/module/kvm_intel/parameters/sgx', shell=True)
 
-def test_host_tdx_module_load():
+def test_host_tdx_module_load(tdx_version):
     """
     Check the tdx module has been loaded successfuly on the host
     Check a log in dmesg with appropriate versioning information
@@ -50,7 +50,10 @@ def test_host_tdx_module_load():
     assert cs.returncode == 0, 'Failed getting dmesg'
     dmesg_str = cs.stdout.decode('utf-8')
 
-    items=re.findall(r'tdx: TDX module: attributes 0x[0-9]+, vendor_id 0x8086, major_version [0-9]+, minor_version [0-9]+, build_date [0-9]+, build_num [0-9]+', dmesg_str)
+    if (tdx_version == 1):
+        items=re.findall(r'tdx: TDX module: attributes 0x[0-9]+, vendor_id 0x8086, major_version [0-9]+, minor_version [0-9]+, build_date [0-9]+, build_num [0-9]+', dmesg_str)
+    else:
+        items=re.findall(r'virt/tdx: TDX module [0-9\.]+, build number [0-9]+, build date [0-9a-z]+', dmesg_str)
     assert len(items) > 0
 
 if __name__ == '__main__':
