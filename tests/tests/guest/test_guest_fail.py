@@ -69,7 +69,7 @@ def test_guest_noept_fail(qm, release_kvm_use, tdx_version):
         else:
             assert "-accel kvm: vm-type TDX not supported by KVM" in err.decode()
 
-def test_guest_disable_tdx_fail(qm, release_kvm_use):
+def test_guest_disable_tdx_fail(qm, release_kvm_use, tdx_version):
     """
     tdx_disabled test case (See https://github.com/intel/tdx/wiki/Tests)
     """
@@ -80,7 +80,10 @@ def test_guest_disable_tdx_fail(qm, release_kvm_use):
 
         # expect qemu quit immediately with specific error message
         _, err = qm.communicate()
-        assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
+        if tdx_version == 1:
+            assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
+        else:
+            assert "-accel kvm: vm-type TDX not supported by KVM" in err.decode()
 
 class KvmIntelModuleReloader:
     """
