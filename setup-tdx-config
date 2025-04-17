@@ -27,7 +27,7 @@
 #   - short : tdx (in this case, the team will be kobuk-team)
 #   - full : ppa:canonical-kernel-team/bootstrap
 ################################################################
-TDX_PPA="tdx-release"
+TDX_PPA="tdx tdx-proposed"
 
 ################################################################
 # The TDX PPA for attestation
