@@ -8,8 +8,8 @@
 * [5. Create TD Image](#create-td-image)
 * [6. Boot TD](#boot-td)
 * [7. Verify TD](#verify-td)
-* [8. Setup Remote Attestation on Host OS and Inside TD](#setup-remote-attestation)
-* [9. Perform Remote Attestation Using Intel Tiber Trust Services CLI](#perform-remote-attestation)
+* [8. WIP - Setup Remote Attestation on Host OS and Inside TD](#setup-remote-attestation)
+* [9. WIP - Perform Remote Attestation Using Intel Tiber Trust Services CLI](#perform-remote-attestation)
 * [10. Build Packages From Source](#build-packages-from-source)
 * [11. Build Kernel From Source](#build-kernel-from-source)
 * [12. Run Tests](#sanity-functional-tests)
@@ -26,9 +26,10 @@ Cloud Service Providers’ (CSP) ability to provide managed cloud services witho
 For more information, see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
 
 This tech preview of Intel TDX on Ubuntu provides base host OS, guest OS, and remote attestation functionalities.
-Two Ubuntu releases are currently supported for base host OS and guest OS:
-* Ubuntu Noble 24.04 LTS
+Tree Ubuntu releases are currently supported for base host OS and guest OS:
+* Ubuntu Plucky 25.04 with bounce buffer support for NVIDIA H100 Tensor Core GPU 
 * Ubuntu Oracular 24.10
+* Ubuntu Noble 24.04 LTS
 
 Follow these instructions to set up the Intel TDX host, create a TD, boot the TD, and attest the integrity of the TD's execution environment.
 
@@ -49,23 +50,24 @@ This table lists the Ubuntu versions and the hardware they support:
 
 | Ubuntu Version | Processor | Code Name | TDX Module Version |
 | - | - | - | - |
-| 24.10, 24.04 | 4th Gen Intel® Xeon® Scalable Processors (select SKUs with Intel® TDX) | Sapphire Rapids | 1.5.x |
-| 24.10, 24.04 | 5th Gen Intel® Xeon® Scalable Processors | Emerald Rapids | 1.5.x |
-| 24.10 | Intel® Xeon® 6 Processors with E-Cores | Sierra Forest | 1.5.x |
-| 24.10, 24.04 | Intel® Xeon® 6 Processors with P-Cores | Granite Rapids | 2.0.x |
+| 24.10, 24.04, 25.04 | 4th Gen Intel® Xeon® Scalable Processors (select SKUs with Intel® TDX) | Sapphire Rapids | 1.5.x |
+| 24.10, 24.04, 25.04 | 5th Gen Intel® Xeon® Scalable Processors | Emerald Rapids | 1.5.x |
+| 24.10, 24.04, 25.04 | Intel® Xeon® 6 Processors with E-Cores | Sierra Forest | 1.5.x |
+| 24.10, 24.04, 25.04 | Intel® Xeon® 6 Processors with P-Cores | Granite Rapids | 2.0.x |
 
 To help identify which processor you have, please visit [ark.intel.com](https://www.intel.com/content/www/us/en/ark.html) and search for the part number. Then, look for "Code Name" and "Intel® Trust Domain Extensions (Intel® TDX)".
 
 <a id="setup-host-os"></a>
 ## 4. Setup Host OS
-In this section, you will install a generic Ubuntu 24.04 server image, install necessary packages to turn
+In this section, you will install a generic Ubuntu server image, install necessary packages to turn
 the host OS into an Intel TDX-enabled host OS, optionally install remote attestation components, and enable Intel TDX settings in the BIOS.
 
 ### 4.1 Install Ubuntu Server Image
 
 Download and install appropriate Ubuntu Server on the host machine:
-* [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/)
+* [Ubuntu 25.04 server](https://releases.ubuntu.com/25.04/)
 * [Ubuntu 24.10 server](https://releases.ubuntu.com/24.10/)
+* [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/)
 
 ### 4.2 Enable Intel TDX in Host OS
 
@@ -138,23 +140,25 @@ The message `virt/tdx: module initialized` proves that Intel TDX has initialized
 <a id="create-td-image"></a>
 ## 5. Create TD Image
 
-In this section, you will create an Ubuntu-based TD image from scratch or convert an existing VM image into a TD image. 
+In this section, you will create an Ubuntu-based TD (aka guest) image from scratch or convert an existing VM image into a TD image. 
 This can be performed on any Ubuntu 22.04 or newer system - an Intel TDX-specific environment is not required.
 
 * The base image is an Ubuntu cloud image.
-* By default, the Ubuntu generic kernel is used for the TD guest. The `-intel` kernel, which may have non-upstreamed and/or under-development features,
+* By default, the Ubuntu generic kernel is used for the TD image. The `-intel` kernel, which may have non-upstreamed and/or under-development features,
   can be selected by setting the variable `TDX_SETUP_INTEL_KERNEL=1` in the `setup-tdx-config` configuration file.
 
 ### 5.1 Create a New TD Image
 
-A TD image based on Ubuntu 24.10 can be generated with the following commands:
+NOTE: The NVIDIA H100 is only supported with Ubuntu 24.04 TD.  
+
+A TD image based on Ubuntu 25.04 can be generated with the following commands:
 
 ```bash
 cd tdx/guest-tools/image/
-sudo ./create-td-image.sh -v 24.10
+sudo ./create-td-image.sh -v 25.04
 ```
 
-You can pass `24.04` to the `-v` to generate a TD image based on Ubuntu 24.04. 
+You can pass `24.04` or `24.10` to the `-v` to generate a TD image based on Ubuntu 24.04 and 24.10. 
 
 The resulting image will be based on an ([`Ubuntu cloud image`](https://cloud-images.ubuntu.com/)),
 the default root password is `123456`, and other default settings are used.
@@ -166,9 +170,9 @@ Important options for TD image creation:
 
 ### 5.2 Convert a Regular VM Image into a TD Image
 
-If you have an existing Ubuntu (`24.04` or `24.10`) VM image, you can enable the Intel TDX feature using the following steps:
+If you have an existing Ubuntu (`24.04`, `24.10` or `25.04`) VM image, you can enable the Intel TDX feature using the following steps:
 
-1. Boot up your guest, i.e., your regular VM.
+1. Boot up your regular guest.
 
 2. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning the repository (at the appropriate tag/branch).
 
@@ -337,7 +341,7 @@ cd tdx/guest-tools
 	```
 
 <a id="setup-remote-attestation"></a>
-## 8. Setup Remote Attestation on Host OS and Inside TD
+## 8. WIP - Setup Remote Attestation on Host OS and Inside TD
 Attestation is a process in which the attester requests the verifier (e.g., Intel Tiber Trust Services) to confirm that a TD is operating in a secure and trusted environment.
 This process involves the attester generating a "TD Quote", which contains measurements of the Trusted Execution Environment (TEE) and other cryptographic evidence.
 The TD Quote is sent to the verifier who then confirms its validity against reference values and policies.
@@ -531,7 +535,7 @@ you proceed to [step 4](#verify-itts-client-version).
 	```
 
 <a id="perform-remote-attestation"></a>
-### 9. Perform Remote Attestation Using Intel Tiber Trust Services CLI
+### 9. WIP - Perform Remote Attestation Using Intel Tiber Trust Services CLI
 
 1. [Boot a TD](#boot-td) and connect to it.
 
@@ -619,7 +623,7 @@ The core idea of building a package from source code is to be able to edit the s
 
 Here are example instructions for building QEMU (for normal user with sudo rights):
 
-1. Install Ubuntu 24.04 or 24.10 (or use an existing Ubuntu system).
+1. Install Ubuntu 24.04, 24.10 or 25.04 (or use an existing Ubuntu system).
 
 2. Install build dependencies:
 
