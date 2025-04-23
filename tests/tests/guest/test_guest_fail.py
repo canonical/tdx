@@ -44,8 +44,8 @@ def test_guest_noept_fail(qm, release_kvm_use):
         dmesg_end = str(cs.stdout)
 
         # Verify "TDX requires mmio caching" in dmesg (but only one more time)
-        dmesg_start_count = dmesg_start.count("TDX requires TDP MMU.  Please enable TDP MMU for TDX")
-        dmesg_end_count = dmesg_end.count("TDX requires TDP MMU.  Please enable TDP MMU for TDX")
+        dmesg_start_count = dmesg_start.count("EPT is required for TDX")
+        dmesg_end_count = dmesg_end.count("EPT is required for TDX")
         assert dmesg_end_count == dmesg_start_count+1, "dmesg missing proper message"
 
         # Run Qemu and verify failure
@@ -53,7 +53,8 @@ def test_guest_noept_fail(qm, release_kvm_use):
 
         # expect qemu quit immediately with specific error message
         _, err = qm.communicate()
-        assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
+        print(err.decode())
+        assert "-accel kvm: vm-type TDX not supported by KVM" in err.decode()
 
 def test_guest_disable_tdx_fail(qm, release_kvm_use):
     """
@@ -66,7 +67,7 @@ def test_guest_disable_tdx_fail(qm, release_kvm_use):
 
         # expect qemu quit immediately with specific error message
         _, err = qm.communicate()
-        assert "-accel kvm: vm-type tdx not supported by KVM" in err.decode()
+        assert "-accel kvm: vm-type TDX not supported by KVM" in err.decode()
 
 class KvmIntelModuleReloader:
     """

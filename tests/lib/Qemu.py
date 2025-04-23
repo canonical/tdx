@@ -28,7 +28,6 @@ import tempfile
 import time
 import sys
 import stat
-
 import util
 
 script_path=os.path.dirname(os.path.realpath(__file__))
@@ -56,7 +55,7 @@ class QemuCpu:
     def __init__(self):
         self.cpu_type = 'host'
         self.cpu_flags = ''
-        self.nb_cores=16
+        self.nb_cores=4
         self.nb_sockets=1
     def args(self):
         smp = ['-smp', f'{self.nb_cores},sockets={self.nb_sockets}']
@@ -108,7 +107,7 @@ class QemuOvmf():
         # cannot use pflash with kvm accel, need kvm support
         # so use bios by default
         self.bios = True
-        self.bios_path = '/usr/share/ovmf/OVMF.fd'
+        self.bios_path = '/usr/share/edk2/ovmf/OVMF.inteltdx.fd'
         self.ovmf_code_path = None
         self.ovmf_vars_template_path = None
         self.flash_size = QemuEfiFlashSize.SIZE_4MB
@@ -177,7 +176,7 @@ class QemuMachineType:
     Qemu_Machine_Params = {
         QemuEfiMachine.OVMF_Q35:['-machine', 'q35,kernel_irqchip=split'],
         QemuEfiMachine.OVMF_Q35_TDX:[
-            '-machine', 'q35,kernel_irqchip=split,confidential-guest-support=tdx']
+            '-machine', 'q35,hpet=off,kernel_irqchip=split,confidential-guest-support=tdx']
     }
     def __init__(self, machine = QemuEfiMachine.OVMF_Q35_TDX):
         self.machine = machine
@@ -195,7 +194,7 @@ class QemuMachineType:
         if self.machine == QemuEfiMachine.OVMF_Q35_TDX:
             tdx_object = {'qom-type':'tdx-guest', 'id':'tdx'}
             if self.qgs_addr:
-                tdx_object.update({'quote-generation-socket': self.qgs_addr})
+                tdx_object.update({"quote-generation-socket": self.qgs_addr})
             qemu_args = ['-object', str(tdx_object)] + qemu_args
         return qemu_args
 
@@ -243,10 +242,11 @@ class QemuCommand:
                         'ovmf' : QemuOvmf(machine),
                         'serial' : QemuSerial(f'{self.workdir}/serial.log'),
                         'machine' : QemuMachineType(machine)}
-        self.command = ['-pidfile', f'{self.workdir}/qemu.pid']
+        self.plugins['machine'].enable_qgs_addr()
+        self.command = ['-pidfile', f'{self.workdir}/qemu.pid', '-vga', 'none']
 
     def get_command(self):
-        _args = ['qemu-system-x86_64']
+        _args = ['/usr/libexec/qemu-kvm']
         for p in self.plugins.values():
             _args.extend(p.args())
         return _args + self.command
@@ -278,9 +278,19 @@ class QemuCommand:
         ]
 
     def add_vsock(self, guest_cid):
-        self.command = self.command + [
-            '-device', 'vhost-vsock-pci,guest-cid=%d' % (guest_cid),
-        ]
+        # Check if guest_cid already exists in the command list
+        cid_exists = False
+        for i in range(len(self.command)):
+            if 'vhost-vsock-pci,guest-cid=' in self.command[i]:
+                self.command[i] = 'vhost-vsock-pci,guest-cid=%d' % (guest_cid)
+                cid_exists = True
+                break
+        # If guest_cid does not exist, add it to the command list
+        if not cid_exists:
+            self.command = self.command + [
+                '-device', 'vhost-vsock-pci,guest-cid=%d' % (guest_cid),
+            ]
+
 
     def add_monitor(self):
         try:
@@ -394,6 +404,7 @@ class QemuSSH():
 
         self.username = 'root'
         self.password = '123456'
+        self.private_key = paramiko.RSAKey.from_private_key_file('/home/sdp/bprashan/centos_keys/id_rsa')
         self.port = qemu_machine.fwd_port
 
         # prevent paramiko to do spurious logs on stdout
@@ -412,7 +423,7 @@ class QemuSSH():
             try:
                 self.ssh_conn.connect('127.0.0.1',
                                       username=self.username,
-                                      password=self.password,
+                                      pkey=self.private_key,
                                       port=self.port)
                 break
             except paramiko.ssh_exception.SSHException as exc:
@@ -567,7 +578,7 @@ class QemuMachine:
         # create an overlay image backed by the original image
         # See https://wiki.qemu.org/Documentation/CreateSnapshot
         self.image_path=f'{self.workdir_name}/image.qcow2'
-        subprocess.check_call(f'qemu-img create -f qcow2 -b {self.guest_initial_img} -F qcow2 {self.image_path}',
+        subprocess.check_call(f'cp -f {self.guest_initial_img} {self.image_path}',
                               stdout=subprocess.DEVNULL,
                               shell=True)
 
@@ -600,10 +611,10 @@ class QemuMachine:
         kv_user='root'
         kv_host='127.0.0.1'
         kv_port=self.fwd_port
-        ssh_opts=f'-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p {kv_port}'
+        ssh_opts=f'-i /home/sdp/bprashan/centos_keys/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p {kv_port}'
         rsync_opts='-atrv --delete --exclude="*~"'
         # use sshpass to pass clear text password for ssh
-        rsync_opts += f' -e "sshpass -p 123456 ssh {ssh_opts}"'
+        rsync_opts += f' -e "ssh {ssh_opts}"'
         if sudo:
             rsync_opts += ' --rsync-path="sudo rsync"'
         subprocess.check_call(f'rsync {rsync_opts}  {fname} {kv_user}@{kv_host}:{dest}',
@@ -618,6 +629,7 @@ class QemuMachine:
         print(' '.join(cmd))
         script=f'{self.workdir_name}/run.sh'
         self.write_cmd_to_file(script)
+        print(f'Run script : {cmd}')
         self.proc = subprocess.Popen(cmd,
                                     stdout=subprocess.PIPE,
                                     stderr=subprocess.PIPE)

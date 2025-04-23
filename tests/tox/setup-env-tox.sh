@@ -36,11 +36,11 @@ cleanup() {
 }
 
 install_deps() {
-  sudo apt install -y sshpass cpuid
-  sudo apt remove iperf3 -y
-  sudo add-apt-repository ppa:kobuk-team/tdx-testing -y
-  sudo apt update || true
-  sudo apt install iperf-vsock -y
+  sudo dnf install -y sshpass cpuid
+  #sudo dnf remove iperf3 -y
+  #sudo dnf config-manager --add-repo https://kobuk-team.github.io/tdx-testing/tdx-testing.repo
+  #sudo dnf update || true
+  #sudo dnf install iperf-vsock -y
 }
 
 if [ -z "${TDXTEST_GUEST_IMG}" ]; then
@@ -57,6 +57,8 @@ else
     exit 1
   fi
 fi
+
+echo "inside setup env tox"
 
 cleanup
 

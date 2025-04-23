@@ -48,6 +48,7 @@ parse_params() {
             ;;
         *)
             # other arguments will be passed to pytest
+            pytest_args="$@"
             break
             ;;
         esac
@@ -62,18 +63,21 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-if [[ -z "${UBUNTU_VER}" ]]; then
-    UBUNTU_VER=$(lsb_release -rs)
-fi
+#if [[ -z "${UBUNTU_VER}" ]]; then
+#    UBUNTU_VER=$(lsb_release -rs)
+#fi
 
 if [[ ! -f "${TDXTEST_GUEST_IMG}" ]]; then
-    TDXTEST_GUEST_IMG=$PWD/../guest-tools/image/tdx-guest-ubuntu-${UBUNTU_VER}-generic.qcow2    
+    echo "file not found ${TDXTEST_GUEST_IMG}"
+    exit
 fi
 
-apt install -y python3 tox
+dnf install -y python3 python3-pip
+pip3 install tox
 
 export TDXTEST_GUEST_IMG
 
 echo "Run tests with TD image: ${TDXTEST_GUEST_IMG}"
 echo "  pytest args: ${pytest_args}"
-tox -- --ignore=lib/ "$@"
+export PATH=$PATH:/home/sdp/.local/bin
+tox -- --ignore=lib/ ${pytest_args}

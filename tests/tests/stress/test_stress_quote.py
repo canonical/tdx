@@ -28,6 +28,7 @@ def test_stress_tdxattest_tsm():
     with Qemu.QemuMachine() as qm:
         machine = qm.qcmd.plugins['machine']
         machine.enable_qgs_addr()
+        qm.qcmd.add_vsock(10)
 
         qm.run()
         ssh = Qemu.QemuSSH(qm)
@@ -37,7 +38,7 @@ def test_stress_tdxattest_tsm():
         stdout, _ = ssh.check_exec(f'''
             count={nb_iterations}
             for i in $(seq $count); do
-              /usr/share/doc/libtdx-attest-dev/examples/test_tdx_attest | grep "Successfully get the TD Quote"
+              cd /opt/intel/tdx-quote-generation-sample/ && make clean && make && ./test_tdx_attest | grep "Successfully get the TD Quote"
             done
             ''')
         assert stdout.read().decode().count('Successfully get the TD Quote') == nb_iterations

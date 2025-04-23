@@ -9,10 +9,11 @@ script_path=os.path.dirname(os.path.realpath(__file__))
 
 # Is platform registered for quote generation
 def is_platform_registered():
-    try:
-        subprocess.check_call([f'{script_path}/../../attestation/check-registration.sh'])
-    except:
-        return False
+    
+    # try:
+    #    subprocess.check_call([f'{script_path}/../../attestation/check-registration.sh'])
+    # except:
+    #    return False
     return True
 
 def pytest_runtest_setup(item):
