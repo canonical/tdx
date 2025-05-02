@@ -44,6 +44,17 @@ TDX_PPA_ATTESTATION=tdx-attestation
 TDX_SETUP_ATTESTATION=1
 
 ################################################################
+# Enable the NVIDIA H100
+#
+# Set to 1 to setup necessary components to enable H100 GPU
+# pass-through to TD VM
+# TDX_SETUP_NVIDIA_H100_OLLAMA can be set to 1 to instal
+# ollama in the TD guest image
+################################################################
+TDX_SETUP_NVIDIA_H100=1
+TDX_SETUP_NVIDIA_H100_OLLAMA=1
+
+################################################################
 # HOST                                                         #
 ################################################################
 

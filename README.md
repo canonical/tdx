@@ -8,13 +8,14 @@
 * [5. Create TD Image](#create-td-image)
 * [6. Boot TD](#boot-td)
 * [7. Verify TD](#verify-td)
-* [8. Setup Remote Attestation on Host OS and Inside TD](#setup-remote-attestation)
-* [9. Perform Remote Attestation Using Intel Tiber Trust Services CLI](#perform-remote-attestation)
-* [10. Inspect Event Log and Measurements](#inspect-event-log-and-measurements)
-* [11. Build Packages From Source](#build-packages-from-source)
-* [12. Build Kernel From Source](#build-kernel-from-source)
-* [13. Run Tests](#sanity-functional-tests)
-* [14. Troubleshooting Tips](#troubleshooting-tips)
+* [8. Boot TD with GPU passthrough](#boot-td-gpu)
+* [9. Setup Remote Attestation on Host OS and Inside TD](#setup-remote-attestation)
+* [10. Perform Remote Attestation Using Intel Tiber Trust Services CLI](#perform-remote-attestation)
+* [11. Inspect Event Log and Measurements](#inspect-event-log-and-measurements)
+* [12. Build Packages From Source](#build-packages-from-source)
+* [13. Build Kernel From Source](#build-kernel-from-source)
+* [14. Run Tests](#sanity-functional-tests)
+* [15. Troubleshooting Tips](#troubleshooting-tips)
 
 <!-- headings -->
 <a id="introduction"></a>
@@ -207,14 +208,14 @@ If no parameter is provided, the script will use the generic
 kernel image, located in `./image/`, with the same Ubuntu version as the host.
 For example, if you're running Ubuntu 24.04 host, the default image will be
 `tdx-guest-ubuntu-24.04-generic.qcow2`.  
-A different qcow2 image (e.g. one with an `intel` kernel) can be used by setting 
-the `TD_IMG=/path/to/image` command-line variable.
+A different qcow2 image (e.g. one with an `intel` kernel) can be used by using
+the argument `--image`.
 
 NOTE: It is recommended that you run the script as a non-root user.
 
 ```bash
 cd tdx/guest-tools
-./run_td.sh
+./run_td
 ```
 
 An example output:
@@ -342,15 +343,54 @@ cd tdx/guest-tools
 	tdx_guest
 	```
 
+<a id="boot-td-gpu"></a>
+## 8. Boot TD with H100 GPU
+
+On Plucky 25.04, we support the GPU pass-through to TD VM for NVIDIA H100 GPU.
+To see the list of GPUs on your plaform, you can run:
+
+   ```bash
+   sudo gpu-cc/h100/setup-gpus.sh
+   ```
+
+Example output:
+
+   ```console
+   ================================
+   List of NVidia GPUs (PCI BDFs):
+   0000:b8:00.0
+   ================================
+   ```
+
+You can pass-through one or more GPUs to TD VM by using the script `run_td`.
+
+For now, we only support the pass-through with 24.04 guest, so you have to
+generate the guest image with `create-td-image.sh -v 24.04`.
+
+   ```bash
+   ./guest-tools/run_td --image=<path_to_24.04_image> --gpus=0000:b8:00.0
+   ```
+
+Inside the TD, the passed through GPUs can be listed with `lspci`
+and `nvidia-smi`.
+
+You can run ollama to run a LLM model on the GPU
+
+   ```bash
+   ollama run llama3
+   ```
+
+The GPU usage can be monitored with `nvtop`.
+
 <a id="setup-remote-attestation"></a>
-## 8. Setup Remote Attestation on Host OS and Inside TD
+## 9. Setup Remote Attestation on Host OS and Inside TD
 Attestation is a process in which the attester requests the verifier (e.g., Intel Tiber Trust Services) to confirm that a TD is operating in a secure and trusted environment.
 This process involves the attester generating a "TD Quote", which contains measurements of the Trusted Execution Environment (TEE) and other cryptographic evidence.
 The TD Quote is sent to the verifier who then confirms its validity against reference values and policies.
 If confirmed, the verifier returns an attestation token.  The attester can then send the token to a relying party who will validate it.
 For more on the basics of attestation, see [Attestation overview](https://docs.trustauthority.intel.com/main/articles/concept-attestation-overview.html).
 
-### 8.1 Check Hardware Status
+### 9.1 Check Hardware Status
 
 For attestation to work, you need _Production_ hardware. Run the `check-production.sh` script to verify.
 
@@ -359,7 +399,7 @@ cd tdx/attestation
 sudo ./check-production.sh
 ```
 
-### 8.2 Setup Intel® SGX Data Center Attestation Primitives (Intel® SGX DCAP) on the Host OS
+### 9.2 Setup Intel® SGX Data Center Attestation Primitives (Intel® SGX DCAP) on the Host OS
 
 1. Install the required DCAP packages from Canonical's PPA on the host OS.<a id="step-8-2-1"></a>
 
@@ -506,7 +546,7 @@ sudo ./check-production.sh
           - `SGX Factory Reset` to `Enable`
           - `SGX Auto MP Registration` to `Enable`
 
-### 8.3 Setup [Intel Tiber Trust Services CLI](https://github.com/intel/trustauthority-client-for-go) Inside TD
+### 9.3 Setup [Intel Tiber Trust Services CLI](https://github.com/intel/trustauthority-client-for-go) Inside TD
 
 NOTE: If you have already installed the attestation components as part of the TD image creation,
 you proceed to [step 4](#verify-itts-client-version).
@@ -537,7 +577,7 @@ you proceed to [step 4](#verify-itts-client-version).
 	```
 
 <a id="perform-remote-attestation"></a>
-### 9. Perform Remote Attestation Using [Intel Tiber Trust Services CLI](https://www.intel.com/content/www/us/en/security/trust-authority.html)
+### 10. Perform Remote Attestation Using [Intel Tiber Trust Services CLI](https://www.intel.com/content/www/us/en/security/trust-authority.html)
 
 1. Subscribe to the Intel Tiber Trust Service [free trial](https://plan.seek.intel.com/2023_ITATrialForm).
 
@@ -609,7 +649,7 @@ you proceed to [step 4](#verify-itts-client-version).
 	```
 
 <a id="inspect-event-log-and-measurements"></a>
-## 10. Inspect Event Log and Measurements
+## 11. Inspect Event Log and Measurements
 
 One of the key components of remote attestation is the runtime measurement. The runtime measurement values
 are stored in the RTMRs registers for each TD by the TDX module. During the system boot, each component
@@ -621,7 +661,7 @@ And furthermore, to see how the boot chain can impact the contents and the size 
 the [boot methods section](guest-tools/direct-boot/README.md).
 
 <a id="build-packages-from-source"></a>
-## 11. Build Packages from Source
+## 12. Build Packages from Source
 
 Even though the Intel TDX components live in a separate PPA from the rest of the Ubuntu packages,
 they follow the Ubuntu standards and offer users the same facilities for code source access and building.
@@ -678,7 +718,7 @@ Here are example instructions for building QEMU (for normal user with sudo right
 
 
 <a id="build-kernel-from-source"></a>
-## 12. Build Kernel from Source
+## 13. Build Kernel from Source
 
 1. Initialize a matching build environment.
 
@@ -714,12 +754,12 @@ Here are example instructions for building QEMU (for normal user with sudo right
 	```
 
 <a id="sanity-functional-tests"></a>
-## 13. Run Tests
+## 14. Run Tests
 
 Please follow [tests/README](tests/README.md) to run Intel TDX tests.
 
 <a id="troubleshooting-tips"></a>
-## 14. Troubleshooting Tips
+## 15. Troubleshooting Tips
 
 | Issue # | Description | Suggestions |
 | - | - | - |

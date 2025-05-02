@@ -52,7 +52,7 @@ fi
 LOGFILE=/tmp/tdx-guest-setup.txt
 FORCE_RECREATE=false
 TMP_GUEST_IMG_PATH="/tmp/tdx-guest-tmp.qcow2"
-SIZE=50
+SIZE=100
 GUEST_USER=${GUEST_USER:-"tdx"}
 GUEST_PASSWORD=${GUEST_PASSWORD:-"123456"}
 GUEST_HOSTNAME=${GUEST_HOSTNAME:-"tdx-guest"}
@@ -316,7 +316,7 @@ EOT
 }
 
 setup_guest_image() {
-    info "Run setup scripts inside the guest image. Please wait ..."
+    info "Run setup scripts inside the guest image. Please wait (can take > 10 minutes) ..."
     virt-customize -a ${TMP_GUEST_IMG_PATH} \
        --mkdir /tmp/tdx/ \
        --copy-in ${SCRIPT_DIR}/setup.sh:/tmp/tdx/ \

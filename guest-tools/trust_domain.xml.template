@@ -1,11 +1,11 @@
 <domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
   <name>DOMAIN</name>
-  <memory unit='GiB'>2</memory>
+  <memory unit='GiB'>16</memory>
   <memoryBacking>
     <source type="anonymous"/>
     <access mode="private"/>
   </memoryBacking>
-  <vcpu placement="static">16</vcpu>
+  <vcpu placement="static">32</vcpu>
   <os>
     <type arch='x86_64' machine='q35'>hvm</type>
     <loader type='rom' readonly='yes'>/usr/share/qemu/OVMF.fd</loader>
@@ -27,7 +27,7 @@
     <suspend-to-disk enable='no'/>
   </pm>
   <cpu mode='host-passthrough'>
-    <topology sockets='1' cores='16' threads='1'/>
+    <topology sockets='1' cores='32' threads='1'/>
   </cpu>
   <devices>
     <emulator>/usr/bin/qemu-system-x86_64</emulator>
