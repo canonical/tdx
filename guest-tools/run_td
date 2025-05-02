@@ -1,0 +1,131 @@
+#!/usr/bin/env python3
+
+# This file is part of Canonical's TDX repository which includes tools
+# to setup and configure a confidential computing environment
+# based on Intel TDX technology.
+# See the LICENSE file in the repository for the license text.
+
+# Copyright 2025 Canonical Ltd.
+# SPDX-License-Identifier: GPL-3.0-only
+
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranties
+# of MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU General Public License for more details.
+
+import argparse
+import os
+import platform
+import signal
+import subprocess
+import time
+
+file_path = os.path.realpath(os.path.dirname(__file__))
+
+pidfile='/tmp/tdx-demo-td-pid.pid'
+process_name='td'
+ssh_port=10022
+logfile='/tmp/tdx-guest-td.log'
+
+if os.environ.get('TD_IMG'):
+    td_img=os.environ.get('TD_IMG')
+else:
+    ubuntu_version=platform.freedesktop_os_release().get('VERSION_ID')
+    td_img=f'{file_path}/image/tdx-guest-ubuntu-{ubuntu_version}-generic.qcow2'
+
+tdvf_params='/usr/share/ovmf/OVMF.fd'
+
+def do_print():
+    try:
+        with open(pidfile) as pid_file:
+            pid=int(pid_file.read())        
+            print(f'TD started by QEMU with PID: {pid}.')
+            print(f'To log in with the non-root user (default: tdx / password: 123456), as specified in setup-tdx-config, use:')
+            print(f'   $ ssh -p {ssh_port} <username>@localhost')
+            print('To log in as root (default password: 123456), use:')
+            print(f'   $ ssh -p {ssh_port} root@localhost')
+    except:
+        pass
+
+def do_clean():
+    print('Clean VM')
+    with open(pidfile) as pid_file:
+        pid=int(pid_file.read())
+        os.kill(pid, signal.SIGTERM)
+        # wait for process to exit
+        time.sleep(3)
+        os.remove(pidfile)
+
+def add_vsock(cmd):
+    cmd.extend(['-device', 'vhost-vsock-pci,guest-cid=3'])
+
+def prepare_gpus(gpus):
+    gpu_args = ','.join(gpus)
+    setup_cmd = f'sudo {file_path}/../gpu-cc/h100/setup-gpus.sh {gpu_args}'
+    print(setup_cmd)
+    subprocess.check_call(setup_cmd, shell=True, stderr=subprocess.STDOUT)
+
+def add_gpus(cmd, gpus):
+    if len(gpus) <= 0:
+        return
+    prepare_gpus(gpus)
+    index=0
+    for gpu in gpus:
+        gpu_cmd = ['-object', f'iommufd,id=iommufd{index}',
+                   '-device', f'pcie-root-port,id=pci.{index},bus=pcie.{index}',
+		   '-device', f'vfio-pci,host={gpu},bus=pci.{index},iommufd=iommufd{index}']
+        cmd.extend(gpu_cmd)
+        index = index + 1
+
+def do_run(img_path, gpus):
+    print('Run VM')
+    print(f'  Image: {img_path}')
+    if len(gpus):
+        print(f'  Passthrough GPUs: {gpus}')
+
+    qemu_cmds = ['qemu-system-x86_64',
+		 '-accel', 'kvm',
+		 '-m', '100G', '-smp', '32',
+		 '-name', f'{process_name},process={process_name},debug-threads=on',
+		 '-cpu', 'host,-avx10',
+		 '-object', '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}',
+		 '-object', 'memory-backend-ram,id=mem0,size=100G',
+		 '-machine', 'q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=mem0',
+		 '-bios', tdvf_params,
+		 '-nographic', '-daemonize',
+                 '-nodefaults', '-vga', 'none',
+		 '-device', 'virtio-net-pci,netdev=nic0_td', '-netdev', f'user,id=nic0_td,hostfwd=tcp::{ssh_port}-:22',
+		 '-drive', f'file={img_path},if=none,id=virtio-disk0',
+		 '-device', 'virtio-blk-pci,drive=virtio-disk0',
+		 '-pidfile', pidfile
+		 ]
+
+    add_vsock(qemu_cmds)
+    add_gpus(qemu_cmds, gpus)
+
+    subprocess.run(qemu_cmds, stderr=subprocess.STDOUT)
+
+    do_print()
+
+def run_td(args):
+    global td_img
+    try:
+        do_clean()
+    except:
+        pass
+    if args.clean:
+       return
+    if args.image:
+        td_img=args.image
+    do_run(td_img, args.gpus)
+
+if __name__ == '__main__':
+   parser = argparse.ArgumentParser()
+   parser.add_argument("--image", type=str, help="Guest image")
+   parser.add_argument("--gpus", nargs='*', default=[], help="GPUs to pass-through")
+   parser.add_argument("--clean", action=argparse.BooleanOptionalAction, help="Clean the current VM")
+   args = parser.parse_args()
+   run_td(args)
