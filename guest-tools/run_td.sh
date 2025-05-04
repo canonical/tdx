@@ -63,7 +63,10 @@ qemu-system-x86_64 -D $LOGFILE \
 		   -drive file=${TD_IMG},if=none,id=virtio-disk0 \
 		   -device virtio-blk-pci,drive=virtio-disk0 \
 		   ${QUOTE_VSOCK_ARGS} \
-		   -pidfile /tmp/tdx-demo-td-pid.pid
+		   -pidfile /tmp/tdx-demo-td-pid.pid \
+		   -object iommufd,id=iommufd0, \
+		   -device pcie-root-port,id=pci.1,bus=pcie.0 \
+		   -device vfio-pci,host=0000:b8:00.0,bus=pci.1,addr=0x0,iommufd=iommufd0
 
 ret=$?
 if [ $ret -ne 0 ]; then
