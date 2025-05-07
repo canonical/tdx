@@ -49,7 +49,7 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-if [ ! -d "${SCRIPT_DIR}/nvtrust/" ]; then
+if [ ! -d "nvtrust" ]; then
   rm -rf nvtrust
   git clone -b 2025.4.11.001 --recursive https://github.com/NVIDIA/nvtrust.git
 fi
@@ -76,7 +76,7 @@ enable_cc_mode() {
 }
 
 unbind_gpus() {
-    
+    echo "Unbind GPUs"
 }
 
 

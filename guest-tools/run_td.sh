@@ -51,14 +51,15 @@ QUOTE_VSOCK_ARGS="-device vhost-vsock-pci,guest-cid=3"
 
 qemu-system-x86_64 -D $LOGFILE \
 		   -accel kvm \
-		   -m 2G -smp 16 \
+		   -m 100G -smp 32 \
 		   -name ${PROCESS_NAME},process=${PROCESS_NAME},debug-threads=on \
 		   -cpu host \
 		   -object '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}' \
-		   -machine q35,kernel_irqchip=split,confidential-guest-support=tdx,hpet=off \
+		   -object memory-backend-ram,id=mem0,size=100G \
+		   -machine q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=mem0 \
 		   -bios ${TDVF_FIRMWARE} \
 		   -nographic -daemonize \
-		   -nodefaults \
+		   -nodefaults -vga none \
 		   -device virtio-net-pci,netdev=nic0_td -netdev user,id=nic0_td,hostfwd=tcp::${SSH_PORT}-:22 \
 		   -drive file=${TD_IMG},if=none,id=virtio-disk0 \
 		   -device virtio-blk-pci,drive=virtio-disk0 \
@@ -66,7 +67,7 @@ qemu-system-x86_64 -D $LOGFILE \
 		   -pidfile /tmp/tdx-demo-td-pid.pid \
 		   -object iommufd,id=iommufd0, \
 		   -device pcie-root-port,id=pci.1,bus=pcie.0 \
-		   -device vfio-pci,host=0000:b8:00.0,bus=pci.1,addr=0x0,iommufd=iommufd0
+		   -device vfio-pci,host=0000:b8:00.0,bus=pci.1,iommufd=iommufd0
 
 ret=$?
 if [ $ret -ne 0 ]; then
