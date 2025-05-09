@@ -43,7 +43,7 @@ def test_guest_tdxattest_tsm_vsock():
         qm.run()
         ssh = Qemu.QemuSSH(qm)
 
-        ssh.check_exec('rm -f /etc/tdx-attest.conf')
+        # ssh.check_exec('rm -f /etc/tdx-attest.conf')
         ssh.check_exec('cd /opt/intel/tdx-quote-generation-sample/ && make clean && make')
         stdout, _ = ssh.check_exec('cd /opt/intel/tdx-quote-generation-sample/ && ./test_tdx_attest')
 
@@ -90,6 +90,7 @@ def test_guest_tdxattest_vsock_wrong_qgs_addr(qm):
     ssh.check_exec('rm -f /etc/tdx-attest.conf')
     ssh.check_exec('cd /opt/intel/tdx-quote-generation-sample/ && make clean && make')
     ret, stdout, stderr = ssh.exec_command('cd /opt/intel/tdx-quote-generation-sample/ && ./test_tdx_attest')
+
     assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
 
 @pytest.mark.quote_generation
@@ -109,6 +110,7 @@ def test_guest_tdxattest_vsock_failure():
         ssh.check_exec('rm -f /etc/tdx-attest.conf')
         ssh.check_exec('cd /opt/intel/tdx-quote-generation-sample/ && make clean && make')
         ret, stdout, stderr = ssh.exec_command('cd /opt/intel/tdx-quote-generation-sample/ && ./test_tdx_attest')
+
         assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
 
 @pytest.mark.quote_generation

@@ -27,7 +27,7 @@ def test_guest_boot(qm):
 
     m = Qemu.QemuSSH(qm)
 
-    #deploy_and_setup(m)
+    deploy_and_setup(m)
 
     # tdx guest device driver
     m.check_exec('ls -la /dev/tdx_guest')
@@ -50,14 +50,14 @@ def test_guest_early_printk(qm):
     #   grub-install --no-nvram
     # '''
     add_earlyprintk_cmd = r'''
-      sed -i -E "s/GRUB_CMDLINE_LINUX=\"(.*)\"/GRUB_CMDLINE_LINUX=\"\1 earlyprintk=ttyS0,115200\"/g" /etc/default/grub
-      grub2-mkconfig -o /boot/grub2/grub.cfg
+      sudo grubby --update-kernel=ALL --args="console=tty0 console=ttyS0,115200n8 earlyprintk=ttyS0 3"
     '''
     m.check_exec(add_earlyprintk_cmd)
 
     qm.reboot()
 
     m = Qemu.QemuSSH(qm)
-    m.check_exec('grep earlyprintk=ttyS0,115200 /proc/cmdline')
+
+    m.check_exec('grep "115200n8 earlyprintk=ttyS0 3" /proc/cmdline')
 
     qm.stop()

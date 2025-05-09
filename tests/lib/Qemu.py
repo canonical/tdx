@@ -28,6 +28,7 @@ import tempfile
 import time
 import sys
 import stat
+import json
 import util
 
 script_path=os.path.dirname(os.path.realpath(__file__))
@@ -181,7 +182,7 @@ class QemuMachineType:
     def __init__(self, machine = QemuEfiMachine.OVMF_Q35_TDX):
         self.machine = machine
         self.qgs_addr = None
-    def enable_qgs_addr(self, addr : dict = {'type': 'vsock', 'cid':'2','port':'4050'}):
+    def enable_qgs_addr(self, addr : dict = {'type': 'vsock', 'cid':'3','port':'4050'}):
         """
         Enable the QGS (Quote Generation Service) address
         The address is a dictionary that corresponds to the object
@@ -285,6 +286,7 @@ class QemuCommand:
                 self.command[i] = 'vhost-vsock-pci,guest-cid=%d' % (guest_cid)
                 cid_exists = True
                 break
+
         # If guest_cid does not exist, add it to the command list
         if not cid_exists:
             self.command = self.command + [
@@ -424,7 +426,8 @@ class QemuSSH():
                 self.ssh_conn.connect('127.0.0.1',
                                       username=self.username,
                                       pkey=self.private_key,
-                                      port=self.port)
+                                      port=self.port,
+                                      banner_timeout=200)
                 break
             except paramiko.ssh_exception.SSHException as exc:
                 # socket is open, but not SSH service responded
@@ -465,10 +468,10 @@ class QemuSSH():
         kv_pass=self.password
         kv_host='127.0.0.1'
         kv_port=self.port
-        ssh_opts=f'-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p {kv_port}'
+        ssh_opts=f'-i /home/sdp/bprashan/centos_keys/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p {kv_port}'
         rsync_opts='-atrv --delete --exclude="*~"'
         # use sshpass to pass clear text password for ssh
-        rsync_opts += f' -e "sshpass -p {kv_pass} ssh {ssh_opts}"'
+        rsync_opts += f' -e " ssh {ssh_opts}"'
         if sudo:
             rsync_opts += ' --rsync-path="sudo rsync"'
         subprocess.check_call(f'rsync {rsync_opts}  {fname} {kv_user}@{kv_host}:{dest}',

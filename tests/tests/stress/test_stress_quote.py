@@ -33,7 +33,7 @@ def test_stress_tdxattest_tsm():
         qm.run()
         ssh = Qemu.QemuSSH(qm)
 
-        ssh.check_exec('rm -f /etc/tdx-attest.conf')
+        # ssh.check_exec('rm -f /etc/tdx-attest.conf')
         nb_iterations = 200
         stdout, _ = ssh.check_exec(f'''
             count={nb_iterations}
@@ -41,4 +41,5 @@ def test_stress_tdxattest_tsm():
               cd /opt/intel/tdx-quote-generation-sample/ && make clean && make && ./test_tdx_attest | grep "Successfully get the TD Quote"
             done
             ''')
+
         assert stdout.read().decode().count('Successfully get the TD Quote') == nb_iterations

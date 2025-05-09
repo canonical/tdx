@@ -17,12 +17,7 @@ cleanup() {
 
 setup() {
     # installation
-    sudo DEBIAN_FRONTEND=noninteractive apt install -y php-cli php-xml build-essential unzip
-
-    if [ ! -f ${SCRIPT_DIR}/phoronix-test-suite_10.8.4_all.deb ]; then
-        wget https://phoronix-test-suite.com/releases/repo/pts.debian/files/phoronix-test-suite_10.8.4_all.deb
-    fi
-    sudo DEBIAN_FRONTEND=noninteractive apt install -y ./phoronix-test-suite_10.8.4_all.deb
+    sudo yum install -y phoronix-test-suite
 
     # phoronix configuration
     phoronix-test-suite user-config-set \

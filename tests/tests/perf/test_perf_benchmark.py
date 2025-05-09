@@ -16,6 +16,7 @@
 #
 
 import os
+import pytest
 
 from parameterized import parameterized
 
@@ -40,7 +41,7 @@ def test_run_perf(name, machine):
         test_profile='tdx_memory'
         m = Qemu.QemuSSH(qm)
         script_path=os.path.dirname(os.path.realpath(__file__))
-        qm.rsync_file(f'{script_path}/../lib/pts', '/')
+        qm.rsync_file(f'{script_path}/../../lib/pts', '/')
         m.ssh_conn.exec_command('chmod a+x /pts/benchmark.sh')
         _, stdout, _ = m.ssh_conn.exec_command(f'/pts/benchmark.sh {test_profile} &> /pts/benchmark-{name}.txt')
         assert (0 == stdout.channel.recv_exit_status()), 'benchmark run failed !'
