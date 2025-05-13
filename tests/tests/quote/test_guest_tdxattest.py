@@ -30,6 +30,7 @@ import Qemu
 #                  to contact the QGSD service for the quote generation
 
 @pytest.mark.quote_generation
+@pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-580")
 def test_guest_tdxattest_tsm_vsock():
     """
     TDX attest library
@@ -50,6 +51,7 @@ def test_guest_tdxattest_tsm_vsock():
         assert 'Successfully get the TD Quote' in stdout.read().decode()
 
 @pytest.mark.quote_generation
+@pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-580")
 def test_guest_tdxattest_tsm_failure():
     """
     TDX attest library
@@ -70,6 +72,7 @@ def test_guest_tdxattest_tsm_failure():
         assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
 
 @pytest.mark.quote_generation
+@pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-580")
 def test_guest_tdxattest_vsock_wrong_qgs_addr(qm):
     """
     Success even when QGS address is not properly configured
@@ -94,6 +97,7 @@ def test_guest_tdxattest_vsock_wrong_qgs_addr(qm):
     assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
 
 @pytest.mark.quote_generation
+@pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-580")
 def test_guest_tdxattest_vsock_failure():
     """
     TDX attest library
@@ -114,6 +118,7 @@ def test_guest_tdxattest_vsock_failure():
         assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
 
 @pytest.mark.quote_generation
+@pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-580")
 def test_guest_tdxattest_failure():
     """
     TDX attest library
@@ -132,6 +137,7 @@ def test_guest_tdxattest_failure():
         assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
 
 @pytest.mark.quote_generation
+@pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-580")
 def test_guest_tdxattest_failure_1(qm):
     """
     Failure when vsock disabled and QGS addr is not properly configured

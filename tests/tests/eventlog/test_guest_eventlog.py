@@ -19,11 +19,12 @@
 
 import os
 import time
-
+import pytest
 import Qemu
 import util
 from common import *
 
+@pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-579")
 def test_guest_eventlog(qm):
     """
     Dump event log
@@ -40,6 +41,7 @@ def test_guest_eventlog(qm):
 
     qm.stop()
 
+@pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-579")
 def test_guest_eventlog_initrd(qm):
     """
     Check presence of event log for initrd measurement

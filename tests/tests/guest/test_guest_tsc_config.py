@@ -21,7 +21,7 @@ import os
 import subprocess
 import time
 import re
-
+from common import *
 import Qemu
 import util
 
@@ -46,6 +46,7 @@ def test_guest_tsc_config(qm):
 
     # Get cpuid value from guest and parse it
     m = Qemu.QemuSSH(qm)
+    deploy_and_setup(m)
     out_str = ''
     [outlines, err] = m.check_exec('cpuid -rl 0x15 -1')
     for l in outlines.readlines():
@@ -76,7 +77,9 @@ def test_guest_set_tsc_frequency(qm):
 
     # Get cpuid value from guest and parse it
     m = Qemu.QemuSSH(qm)
+    deploy_and_setup(m)
     out_str = ''
+
     [outlines, err] = m.check_exec('cpuid -rl 0x15 -1')
     for l in outlines.readlines():
         out_str += l

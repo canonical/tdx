@@ -297,7 +297,13 @@ class TDEventLogActor:
         self._rtmrs = {}
 
     def _read(self, ccel_file="/sys/firmware/acpi/tables/data/CCEL"):
-        assert os.path.exists(ccel_file), f"Could not find the CCEL file {ccel_file}"
+        if os.path.exists(ccel_file):
+            pass
+        elif os.path.exists("/sys/firmware/acpi/tables/CCEL"):
+            ccel_file = "/sys/firmware/acpi/tables/CCEL"
+        else:
+            assert f"Could not find the CCEL file {ccel_file}"
+
         try:
             with open(ccel_file, "rb") as fobj:
                 self._data = fobj.read()
@@ -471,6 +477,15 @@ def check_initrd():
 
     td_event_log_actor.process()
 
-    initrd_digest = sha384(open('/boot/initrd.img','rb').read()).hexdigest()
+    process = subprocess.run("uname -r", stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    encoding="utf-8", shell=True)
+    if process.returncode != 0:
+        assert False, f"Failed to get kernel version, {process.stderr}"
+    kernel_version = process.stdout.strip()
+
+    initramfs_file = os.path.join("/boot", f"initramfs-{kernel_version}.img")
+    assert os.path.exists(initramfs_file), f"Could not find the initramfs file {initramfs_file}"
+
+    initrd_digest = sha384(open(initramfs_file,'rb').read()).hexdigest()
     events = td_event_log_actor.find_hash(initrd_digest)
     assert len(events) == 1

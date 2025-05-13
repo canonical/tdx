@@ -72,12 +72,12 @@ if [[ ! -f "${TDXTEST_GUEST_IMG}" ]]; then
     exit
 fi
 
-dnf install -y python3 python3-pip
-pip3 install tox
+sudo dnf install -y python3 python3-pip msr-tools cpuid
+sudo pip3 install tox
 
 export TDXTEST_GUEST_IMG
 
 echo "Run tests with TD image: ${TDXTEST_GUEST_IMG}"
 echo "  pytest args: ${pytest_args}"
-export PATH=$PATH:/home/sdp/.local/bin
+export PATH=$PATH:/usr/local/bin
 tox -- --ignore=lib/ ${pytest_args}

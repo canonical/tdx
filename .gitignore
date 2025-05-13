@@ -3,3 +3,6 @@
 initrd*
 uki.efi*
 vmlinuz*
+*cache*
+.tox
+*.log

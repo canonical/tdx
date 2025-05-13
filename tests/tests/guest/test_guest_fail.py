@@ -21,12 +21,13 @@ import os
 import subprocess
 import time
 import re
-
+import pytest
 import Qemu
 import util
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
+@pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-581")
 def test_guest_noept_fail(qm, release_kvm_use):
     """
     tdx_NOEPT test case (See https://github.com/intel/tdx/wiki/Tests)
@@ -56,6 +57,7 @@ def test_guest_noept_fail(qm, release_kvm_use):
         print(err.decode())
         assert "-accel kvm: vm-type TDX not supported by KVM" in err.decode()
 
+@pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-581")
 def test_guest_disable_tdx_fail(qm, release_kvm_use):
     """
     tdx_disabled test case (See https://github.com/intel/tdx/wiki/Tests)

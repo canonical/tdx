@@ -18,6 +18,7 @@
 import os
 import Qemu
 from common import *
+import pytest
 
 def test_guest_boot(qm):
     """
@@ -36,6 +37,7 @@ def test_guest_boot(qm):
 
     qm.stop()
 
+@pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-585")
 def test_guest_early_printk(qm):
     """
     Test Early Printk with Debug Off (Intel Case ID 018)
