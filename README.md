@@ -8,12 +8,13 @@
 * [5. Create TD Image](#create-td-image)
 * [6. Boot TD](#boot-td)
 * [7. Verify TD](#verify-td)
-* [8. WIP - Setup Remote Attestation on Host OS and Inside TD](#setup-remote-attestation)
-* [9. WIP - Perform Remote Attestation Using Intel Tiber Trust Services CLI](#perform-remote-attestation)
-* [10. Build Packages From Source](#build-packages-from-source)
-* [11. Build Kernel From Source](#build-kernel-from-source)
-* [12. Run Tests](#sanity-functional-tests)
-* [13. Troubleshooting Tips](#troubleshooting-tips)
+* [8. Setup Remote Attestation on Host OS and Inside TD](#setup-remote-attestation)
+* [9. Perform Remote Attestation Using Intel Tiber Trust Services CLI](#perform-remote-attestation)
+* [10. Inspect Event Log and Measurements](#inspect-event-log-and-measurements)
+* [11. Build Packages From Source](#build-packages-from-source)
+* [12. Build Kernel From Source](#build-kernel-from-source)
+* [13. Run Tests](#sanity-functional-tests)
+* [14. Troubleshooting Tips](#troubleshooting-tips)
 
 <!-- headings -->
 <a id="introduction"></a>
@@ -26,9 +27,8 @@ Cloud Service Providers’ (CSP) ability to provide managed cloud services witho
 For more information, see the [Intel TDX overview](https://www.intel.com/content/www/us/en/developer/tools/trust-domain-extensions/overview.html).
 
 This tech preview of Intel TDX on Ubuntu provides base host OS, guest OS, and remote attestation functionalities.
-Tree Ubuntu releases are currently supported for base host OS and guest OS:
+Two Ubuntu releases are currently supported for base host OS and guest OS:
 * Ubuntu Plucky 25.04 with bounce buffer support for NVIDIA H100 Tensor Core GPU 
-* Ubuntu Oracular 24.10
 * Ubuntu Noble 24.04 LTS
 
 Follow these instructions to set up the Intel TDX host, create a TD, boot the TD, and attest the integrity of the TD's execution environment.
@@ -46,16 +46,19 @@ tool and attach the report.
 
 <a id="supported-hardware"></a>
 ## 3. Supported Hardware
-This table lists the Ubuntu versions and the hardware they support:
+This table lists the Ubuntu versions and the hardware\* they support:
 
 | Ubuntu Version | Processor | Code Name | TDX Module Version |
 | - | - | - | - |
-| 24.10, 24.04, 25.04 | 4th Gen Intel® Xeon® Scalable Processors (select SKUs with Intel® TDX) | Sapphire Rapids | 1.5.x |
-| 24.10, 24.04, 25.04 | 5th Gen Intel® Xeon® Scalable Processors | Emerald Rapids | 1.5.x |
-| 24.10, 24.04, 25.04 | Intel® Xeon® 6 Processors with E-Cores | Sierra Forest | 1.5.x |
-| 24.10, 24.04, 25.04 | Intel® Xeon® 6 Processors with P-Cores | Granite Rapids | 2.0.x |
+| 24.04, 25.04\* | 4th Gen Intel® Xeon® Scalable Processors (select SKUs with Intel® TDX) | Sapphire Rapids | 1.5.x |
+| 24.04, 25.04\* | 5th Gen Intel® Xeon® Scalable Processors | Emerald Rapids | 1.5.x |
+| 24.04, 25.04\* | Intel® Xeon® 6 Processors with E-Cores | Sierra Forest | 1.5.x |
+| 24.04, 25.04\* | Intel® Xeon® 6 Processors with P-Cores | Granite Rapids | 2.0.x |
 
-To help identify which processor you have, please visit [ark.intel.com](https://www.intel.com/content/www/us/en/ark.html) and search for the part number. Then, look for "Code Name" and "Intel® Trust Domain Extensions (Intel® TDX)".
+\* Ubuntu 25.04 includes bounce buffer support for NVIDIA H100 Tensor Core GPU
+
+To help identify which processor you have, please visit [ark.intel.com](https://www.intel.com/content/www/us/en/ark.html) and search for the part number. 
+Then, look for "Code Name" and "Intel® Trust Domain Extensions (Intel® TDX)".
 
 <a id="setup-host-os"></a>
 ## 4. Setup Host OS
@@ -66,7 +69,7 @@ the host OS into an Intel TDX-enabled host OS, optionally install remote attesta
 
 Download and install appropriate Ubuntu Server on the host machine:
 * [Ubuntu 25.04 server](https://releases.ubuntu.com/25.04/)
-* [Ubuntu 24.10 server](https://releases.ubuntu.com/24.10/)
+* [Ubuntu 25.04 server](https://releases.ubuntu.com/25.04/)
 * [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/)
 
 ### 4.2 Enable Intel TDX in Host OS
@@ -158,7 +161,7 @@ cd tdx/guest-tools/image/
 sudo ./create-td-image.sh -v 25.04
 ```
 
-You can pass `24.04` or `24.10` to the `-v` to generate a TD image based on Ubuntu 24.04 and 24.10. 
+You can pass `24.04` or `25.04` to the `-v` to generate a TD image based on Ubuntu 24.04 and 25.04. 
 
 The resulting image will be based on an ([`Ubuntu cloud image`](https://cloud-images.ubuntu.com/)),
 the default root password is `123456`, and other default settings are used.
@@ -170,7 +173,7 @@ Important options for TD image creation:
 
 ### 5.2 Convert a Regular VM Image into a TD Image
 
-If you have an existing Ubuntu (`24.04`, `24.10` or `25.04`) VM image, you can enable the Intel TDX feature using the following steps:
+If you have an existing Ubuntu (`24.04` or `25.04`) VM image, you can enable the Intel TDX feature using the following steps:
 
 1. Boot up your regular guest.
 
@@ -257,12 +260,11 @@ To log in as root (default password: 123456), use:
    * All VMs can be listed with the following command:
 
         ```bash
-        ./tdvirsh list --all
+        ./tdvirsh list
         ```
 
         Example output:
 
-        ```console
         Id   Name                                                        State
         ---------------------------------------------------------------------------
         1    tdvirsh-trust_domain-f7210c2b-2657-4f30-adf3-639b573ea39f   running (ip:192.168.122.212, hostfwd:32855, cid:3)
@@ -341,7 +343,7 @@ cd tdx/guest-tools
 	```
 
 <a id="setup-remote-attestation"></a>
-## 8. WIP - Setup Remote Attestation on Host OS and Inside TD
+## 8. Setup Remote Attestation on Host OS and Inside TD
 Attestation is a process in which the attester requests the verifier (e.g., Intel Tiber Trust Services) to confirm that a TD is operating in a secure and trusted environment.
 This process involves the attester generating a "TD Quote", which contains measurements of the Trusted Execution Environment (TEE) and other cryptographic evidence.
 The TD Quote is sent to the verifier who then confirms its validity against reference values and policies.
@@ -365,6 +367,7 @@ sudo ./check-production.sh
 
 	NOTE 2: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
+	```bash
 	```bash
 	cd tdx/attestation
 	sudo ./setup-attestation-host.sh
@@ -460,7 +463,6 @@ sudo ./check-production.sh
     Please check the following two logs to confirm successful registration:
 
     1. Check the log of the MPA service:
-
        ```bash
        sudo systemctl status mpa_registration_tool
        ```
@@ -530,78 +532,84 @@ you proceed to [step 4](#verify-itts-client-version).
 
 	```console
 	Intel® Trust Authority CLI for TDX
-	Version: 1.5.0-
-	Build Date: 2024-07-08T09:53:15+00:00
+	Version: 1.9.0-
+	Build Date: 2025-04-25T13:16:08+00:00
 	```
 
 <a id="perform-remote-attestation"></a>
-### 9. WIP - Perform Remote Attestation Using Intel Tiber Trust Services CLI
+### 9. Perform Remote Attestation Using [Intel Tiber Trust Services CLI](https://www.intel.com/content/www/us/en/security/trust-authority.html)
 
-1. [Boot a TD](#boot-td) and connect to it.
+1. Subscribe to the Intel Tiber Trust Service [free trial](https://plan.seek.intel.com/2023_ITATrialForm).
 
-2. Inside the TD, generate a sample TD Quote to prove the Quote Generation Service is working properly.
+2. Obtain an Attestation API key following this [tutorial](https://docs.trustauthority.intel.com/main/articles/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client).
+
+3. [Boot a TD](#boot-td) and connect to it.
+
+4. Create a `config.json` file like the example below:
+
+	```console
+	{
+		"trustauthority_url": "https://portal.trustauthority.intel.com",
+		"trustauthority_api_url": "https://api.trustauthority.intel.com",
+		"trustauthority_api_key": "<Your Intel Tiber Trust Service Attestation API key>"
+	}
+	```
+
+5. Inside the TD, generate a sample TD Quote to prove the Quote Generation Service is working properly.
 
 	```bash
-	trustauthority-cli quote
+	trustauthority-cli evidence --tdx -config ./config.json
 	```
 
 	An example output of a successful quote generation:
 
 	```console
-        [4 0 2 0 129 0 0 0 0 0 0 0 147 154 114 51 247 156 76 169 148 10 13 179 149 127 6 7 153 37 33 
-         114 143 8 198 185 144 222 132 242 244 129 151 76 0 0 0 0 5 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 28 
-         198 161 122 183 153 233 166 147 250 199 83 107 230 28 18 238 30 15 171 173 168 45 12 153 15 
-         8 204 238 42 168 109 231 123 8 112 245 88 197 112 231 255 229 93 109 71 250 4 0 0 0 0 0 0 0
-         0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-         0 0 0 0 0 0 16 0 0 0 0 231 2 6 0 0 0 0 0 71 161 204 7 75 145 77 248 89 107 173 14 209 61 80
-         213 97 173 30 255 199 247 204 83 10 184 109 167 234 73 255 192 62 87 231 218 130 159 140 18
-         156 98 156 57 112 80 83 35 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-	                                       ....
-	                                       ....
-	                                       ....
-         15 43 88 111 53 111 47 115 88 54 79 57 81 87 120 72 82 65 118 90 85 71 79 100 82 81 55 99 
-         118 113 82 88 97 113 73 61 10 45 45 45 45 45 69 78 68 32 67 69 82 84 73 70 73 67 65 84 69 
-         45 45 45 45 45 10 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
-         0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]
+	2025/05/07 18:26:56 [DEBUG] GET https://api.trustauthority.intel.com/appraisal/v2/nonce
+	{
+	  "tdx": {
+	  "runtime_data": null,
+	  "quote": "BAACAIEAAAAAAAAAk5pyM/ecTKmUCg2zlX8GBxV6gksV7Xbz/aRVQ/+Hn3IAAAAAAwMCAAAAAAAA
+	   AAAAAAAAAGhfiR6lwg6PonsVG/NL87UPuvcUPMU2YnJ8vbFnwK2DhfH281cVOakeEEocltdeBAAAAAAAAAAAA
+	   .....
+	   .....
+	   .....
+	   xjakFkQmdOVkhRNEVGZ1FVSW1VTTFscWROSW56ZzdTVgpVcjlRR3prbkJxd3dEZ1lEVlIwUEFRSC9CQVFEQWd
+           AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+  	  "verifier_nonce": {
+          "val": "OE5jNXFFTGU1Mys4eTlXbR.....TjJeXY4SXF3VFhVY2JETWdzRHdGMm11TFRmbXZEQWozcmc9PQ==",
+          "iat": "MjAyNS0wNS0wNyAxODoyNjozMyArMDAwMCBVVEM=",
+          "signature": "iP4jb39gbeSsBA7KyoeTtOMM.....lfGpOloCxxPCRAjP8p85EvS74KETdzuta3I0fR36lIv"
+  	  }
+ 	 }
+	}
+	```
+
+6. Use the Intel Tiber Trust Service CLI to generation an attestation token.
+      Under the hood, the CLI will generate a TD Quote using the CPU, send the TD Quote to the external Intel Tiber Trust Service for TD Quote verification, and receive an attestation token on success.  
+
+	```bash
+	trustauthority-cli token -config ./config.json
+	```
+
+	An example of a successful attestation token generation:
+
+	```console
+	2025/05/07 18:26:32 [DEBUG] GET https://api.trustauthority.intel.com/appraisal/v2/nonce
+	2025/05/07 18:26:34 [DEBUG] POST https://api.trustauthority.intel.com/appraisal/v2/attest
+	Trace Id: KNbaPEPfoAMEZGg=
+	Request Id: e09ad54d-3e84-4655-8230-c58e67e01a41
+	eyJhbGciOiJQUzM4NCIsImprdSI6Imh0dHBzOi8vcG9ydGFsLnRydXN0YXV0aG9yaXR5LmludGVsLmNvbS9jZXJ0cy
+	IsImtpZCI6ImQxNTU0ZTBhYTJlOWViODZlNzdmNDFlMjQ3NTllNzcxMmVkNDI0YjM2NWZmMjBhMjJhZDFjMmUzYzdj
+	.....
+	.....
+	.....
+	NjA0NTVhYzY3YWU2YzJlN2IyNTZmN2I3NjgwMDlhYjg4MDgxYiIsInR5cCI6IkpXVCJ9.eyJhcHByYWlzYWwiOnsib
+	WV0aG9kIjoiZGVmYXVsdCIsInZlciI6Mn0sImVhdF9wcm9maWxlIjoiaHR0cHM6Ly9wb3J0YWwudHJ1c3RhdXRob3J
 
 	```
 
-3. Attest with the [Intel Tiber Trust Service](https://www.intel.com/content/www/us/en/security/trust-authority.html).
-   1. Subscribe to the Intel Tiber Trust Service [free trial](https://plan.seek.intel.com/2023_ITATrialForm).
-   2. Obtain an Attestation API key following this [tutorial](https://docs.trustauthority.intel.com/main/articles/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client).
-
-   3. Create a `config.json` file like the example below:
-
-		```console
-		{
-			"trustauthority_url": "https://portal.trustauthority.intel.com",
-			"trustauthority_api_url": "https://api.trustauthority.intel.com",
-			"trustauthority_api_key": "<Your Intel Tiber Trust Service Attestation API key>"
-		}
-		```
-
-   4. Use the Intel Tiber Trust Service CLI to generation an attestation token.
-      Under the hood, the CLI will generate a TD Quote using the CPU, send the TD Quote to the external Intel Tiber Trust Service for TD Quote verification, and receive an attestation token on success.  
-
-		```bash
-		trustauthority-cli token -c config.json
-		```
-
-		An example of a successful attestation token generation:
-
-		```console
-		2024/04/30 22:55:17 [DEBUG] GET https://api.trustauthority.intel.com/appraisal/v1/nonce
-		2024/04/30 22:55:18 [DEBUG] POST https://api.trustauthority.intel.com/appraisal/v1/attest
-		Trace Id: U5sA2GNVoAMEPkQ=
-		eyJhbGciOiJQUzM4NCIsImprdSI6Imh0dHBzOi8vYW1iZXItdGVzdDEtdXNlcjEucHJvamVjdC1hbWJlci1zbWFzLmN
-		.....
-		.....
-		.....
-		DRctLIeN4MioXztymyK7qsT1p7n7Dh56-HmDQH47MVgrEL_S-wRYDQioEkUvtuA_3pGk
-
-		```
-
-#### 9.1. Event log and measurements
+<a id="inspect-event-log-and-measurements"></a>
+## 10. Inspect Event Log and Measurements
 
 One of the key components of remote attestation is the runtime measurement. The runtime measurement values
 are stored in the RTMRs registers for each TD by the TDX module. During the system boot, each component
@@ -613,7 +621,7 @@ And furthermore, to see how the boot chain can impact the contents and the size 
 the [boot methods section](guest-tools/direct-boot/README.md).
 
 <a id="build-packages-from-source"></a>
-## 10. Build Packages from Source
+## 11. Build Packages from Source
 
 Even though the Intel TDX components live in a separate PPA from the rest of the Ubuntu packages,
 they follow the Ubuntu standards and offer users the same facilities for code source access and building.
@@ -623,7 +631,7 @@ The core idea of building a package from source code is to be able to edit the s
 
 Here are example instructions for building QEMU (for normal user with sudo rights):
 
-1. Install Ubuntu 24.04, 24.10 or 25.04 (or use an existing Ubuntu system).
+1. Install Ubuntu 24.04 or 25.04 (or use an existing Ubuntu system).
 
 2. Install build dependencies:
 
@@ -670,7 +678,7 @@ Here are example instructions for building QEMU (for normal user with sudo right
 
 
 <a id="build-kernel-from-source"></a>
-## 11. Build Kernel from Source
+## 12. Build Kernel from Source
 
 1. Initialize a matching build environment.
 
@@ -706,15 +714,19 @@ Here are example instructions for building QEMU (for normal user with sudo right
 	```
 
 <a id="sanity-functional-tests"></a>
-## 12. Run Tests
+## 13. Run Tests
 
 Please follow [tests/README](tests/README.md) to run Intel TDX tests.
 
 <a id="troubleshooting-tips"></a>
-## 13. Troubleshooting Tips
+## 14. Troubleshooting Tips
 
 | Issue # | Description | Suggestions |
 | - | - | - |
 | 1 | Performance is poor | Ensure you're using the latest TDX module. You can check the current version with `dmesg` (the version line looks like: `virt/tdx: TDX module: attributes 0x0, vendor_id 0x8086, major_version 1, minor_version 5, build_date 20240129, build_num 698`). See [link](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/04/hardware_setup/#deploy-specific-intel-tdx-module-version) on ways to update your TDX module. <br> NOTE: If you chose to "Update Intel TDX Module via Binary Deployment", make sure you're using the correct TDX module version for your hardware. See the [Supported Hardware](#supported-hardware) table. |
-| 2 | TDX is not enabled on the host | 1. Ensure your installation of the TDX host components using `setup-tdx-host.sh` did not have any errors. <br> 2. Ensure BIOS settings are correct. See [step 4.3](#step-4.3) |
+| 2 | TDX is not enabled on the host | 1. Ensure your installation of the TDX host components using `setup-tdx-host.sh` did not result in any issues.  Use `system-report.sh` to see if there are unexpected results. <br> 2. Ensure BIOS settings are correct. See [step 4.3](#step-4.3) |
 | 3 | Installation seems to hang | 1. Verify you can get out to the Internet. <br> 2. If you're behind a proxy, make sure you have proper proxy settings. <br> 3. If you're behind a proxy, use `sudo -E` to preserve user environment. |
+| 4 | TDX host is not working. `system-report.sh` shows `SGX_AND_MCHECK_STATUS: 1861 (expected value: 0)` | The SGX registration UEFI variables maybe corrupt.  Boot into the BIOS and set `SGX Factory Reset` to `Enable`. |
+| 5 | I rebooted my TD, but it actually shuts down. | Legacy (non-TDX) guests support reboot by resetting VCPU context.  However, TD guests don't allow it for security reasons. You must power it down and boot it up again.  Also, if you're using `virsh` to manage your TD, `virsh reset` also results in the shutdown of the TD.  You must use `virsh reboot`, which does a fake reboot by shutting it down, killing the qemu process, and starting up a new qemu process. |
+
+
