@@ -126,6 +126,6 @@ if __name__ == '__main__':
    parser = argparse.ArgumentParser()
    parser.add_argument("--image", type=str, help="Guest image")
    parser.add_argument("--gpus", nargs='*', default=[], help="GPUs to pass-through")
-   parser.add_argument("--clean", action=argparse.BooleanOptionalAction, help="Clean the current VM")
+   parser.add_argument("--clean", action='store_true', help="Clean the current VM")
    args = parser.parse_args()
    run_td(args)
