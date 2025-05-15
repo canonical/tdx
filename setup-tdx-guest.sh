@@ -134,6 +134,8 @@ EOF
     update-initramfs -u
 
     # https://documentation.ubuntu.com/server/how-to/graphics/install-nvidia-drivers/index.html
+    # Cannot use ubuntu-drivers because we do not have GPUs passed-through in the guest image build
+    # VM
     #apt install --yes ubuntu-drivers-common
     #ubuntu-drivers install --gpgpu nvidia:570-server
     #apt install --yes nvidia-utils-570-server
