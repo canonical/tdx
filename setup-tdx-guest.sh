@@ -179,17 +179,21 @@ ExecStart=nvidia-smi conf-compute -srs 1
 WantedBy=multi-user.target
 EOF
     systemctl enable nvidia-tdx
+fi
 
-    # install ollama
-    if [[ "${TDX_SETUP_NVIDIA_H100_OLLAMA}" == "1" ]]; then
-	echo "Setup components for NVIDIA H100... Install OLLAMA"
-	curl \-fsSL https://ollama.com/install.sh | sh
-	mkdir -p /etc/systemd/system/ollama.service.d/
-	cat <<-EOF > /etc/systemd/system/ollama.service.d/override.conf
+# install ollama
+if [[ "${TDX_SETUP_APPS_OLLAMA}" == "1" ]]; then
+   echo "Install OLLAMA"
+   curl \-fsSL https://ollama.com/install.sh | sh
+   mkdir -p /etc/systemd/system/ollama.service.d/
+
+   if [[ "${TDX_SETUP_NVIDIA_H100}" == "1" ]]; then
+       cat <<-EOF > /etc/systemd/system/ollama.service.d/override.conf
 [Unit]
 After=nvidia-tdx.service
 EOF
-	systemctl enable ollama.service
-	sync
-    fi
+   fi
+
+   systemctl enable ollama.service
+   sync
 fi

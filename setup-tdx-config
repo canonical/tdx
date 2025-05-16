@@ -48,11 +48,8 @@ TDX_SETUP_ATTESTATION=1
 #
 # Set to 1 to setup necessary components to enable H100 GPU
 # pass-through to TD VM
-# TDX_SETUP_NVIDIA_H100_OLLAMA can be set to 1 to instal
-# ollama in the TD guest image
 ################################################################
 TDX_SETUP_NVIDIA_H100=1
-TDX_SETUP_NVIDIA_H100_OLLAMA=1
 
 ################################################################
 # HOST                                                         #
@@ -76,3 +73,12 @@ TDX_SETUP_INTEL_KERNEL=0
 GUEST_USER="tdx"
 GUEST_PASSWORD="123456"
 GUEST_HOSTNAME="tdx-guest"
+
+################################################################
+# APPS
+################################################################
+
+################################################################
+# Enable AI Apps in the guest
+################################################################
+TDX_SETUP_APPS_OLLAMA=1
