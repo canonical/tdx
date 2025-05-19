@@ -28,6 +28,26 @@ _on_error() {
 }
 trap '_on_error $?' ERR
 
+parse_params() {
+    while :; do
+        case "${1-}" in
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        upgrade)
+            install_kobuk
+            exit 0
+            ;;
+        "")
+	    break
+        esac
+        shift
+    done
+}
+
+parse_params "$@"
+
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
@@ -52,6 +72,32 @@ fi
 
 source ${SCRIPT_DIR}/setup-tdx-common
 
+install_kobuk() {
+    # install TDX feature
+    # install modules-extra to have tdx_guest module
+    apt install --yes --allow-downgrades \
+	${KERNEL_TYPE} \
+	shim-signed \
+	grub-efi-amd64-signed \
+	grub-efi-amd64-bin
+
+    # if a specific kernel has to be used instead of generic
+    # TODO : install linux-modules-extra
+    if [ -n "${KERNEL_RELEASE}" ]; then
+	apt install --yes --allow-downgrades \
+	    "linux-image-unsigned-${KERNEL_RELEASE}"
+    fi
+
+    KERNEL_RELEASE=$(get_kernel_version "$KERNEL_TYPE")
+    # select the right kernel for next boot
+    grub_set_kernel
+
+    # some kernels (for example -intel) might not be installed with the modules-extra
+    # but we need it to support a wider range of hardware (network cards, ...)
+    # just force the installation of modules-extra to make sure we have it
+    apt install --yes --allow-downgrades linux-modules-extra-${KERNEL_RELEASE}
+}
+
 apt update
 apt install --yes software-properties-common gawk &> /dev/null
 
@@ -66,29 +112,7 @@ add_kobuk_ppas ${TDX_PPA:-tdx-release}
 # upgrade the system to have the latest components (mostly generic kernel)
 apt upgrade --yes
 
-# install TDX feature
-# install modules-extra to have tdx_guest module
-apt install --yes --allow-downgrades \
-   ${KERNEL_TYPE} \
-   shim-signed \
-   grub-efi-amd64-signed \
-   grub-efi-amd64-bin
-
-# if a specific kernel has to be used instead of generic
-# TODO : install linux-modules-extra
-if [ -n "${KERNEL_RELEASE}" ]; then
-  apt install --yes --allow-downgrades \
-    "linux-image-unsigned-${KERNEL_RELEASE}"
-fi
-
-KERNEL_RELEASE=$(get_kernel_version "$KERNEL_TYPE")
-# select the right kernel for next boot
-grub_set_kernel
-
-# some kernels (for example -intel) might not be installed with the modules-extra
-# but we need it to support a wider range of hardware (network cards, ...)
-# just force the installation of modules-extra to make sure we have it
-apt install --yes --allow-downgrades linux-modules-extra-${KERNEL_RELEASE}
+install_kobuk
 
 # setup attestation
 if [[ "${TDX_SETUP_ATTESTATION}" == "1" ]]; then
