@@ -95,7 +95,10 @@ apt update
 apt install --yes software-properties-common gawk &> /dev/null
 
 # cleanup
-rm -f /etc/apt/preferences.d/*tdx-*
+# NB: '*' before kobuk to keep backward compatiblity to make sure
+# we clean up all conf files that have been deployed in the
+# previous releases
+rm -f /etc/apt/preferences.d/*kobuk*tdx-*
 rm -f /etc/apt/apt.conf.d/99unattended-upgrades-kobuk
 
 # stop at error
