@@ -47,6 +47,14 @@ cleanup
 
 set -e
 
+# Ubuntu make the kernels (vmlinuz) readable ONLY for root user
+# this makes libguestfs fails when it is run as normal user
+# For more details, see the LP bug on that topic:
+# https://bugs.launchpad.net/ubuntu/+source/linux/+bug/759725
+# To work-around this issue, we allow normal users to read the kernel
+# files
+sudo chmod 0644 /boot/vmlinuz-*
+
 # create an overlay image with guest image as a backing image
 qemu-img create -f qcow2 -b ${TD_GUEST_IMG} -F qcow2 ${TMP_GUEST_IMG}
 
