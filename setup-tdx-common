@@ -44,7 +44,7 @@ add_kobuk_ppa() {
 
   add-apt-repository -y ppa:${team}/${ppa_id}
 
-  cat <<EOF | tee /etc/apt/preferences.d/tdx-${team}-${ppa_id}-pin-4000
+  cat <<EOF | tee /etc/apt/preferences.d/kobuk-tdx-${team}-${ppa_id}-pin-4000
 Package: *
 Pin: release o=${distro_id}
 Pin-Priority: 4000
