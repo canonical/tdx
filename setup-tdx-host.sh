@@ -45,6 +45,23 @@ source ${SCRIPT_DIR}/setup-tdx-common
 # the kernel flavour/type we want to use
 KERNEL_TYPE=linux-image-intel
 
+
+usage() {
+    cat <<EOM
+Usage: ./$(basename "${BASH_SOURCE[0]}") [-h] [upgrade]
+
+Setup the host for Intel TDX enablement.
+
+This script should be called without any argument to do the initial setup
+of the TDX components.
+
+Available options:
+
+upgrade                     Upgrade the components (kernel, qemu, ...)
+-h,   --help                Print this help and exit
+EOM
+}
+
 # add the login user to kvm group
 # the idea is that the login user will be the one who will run the guest (qemu)
 # so skip adding root
@@ -85,6 +102,44 @@ grub_cmdline_nohibernate() {
   fi
 }
 
+install_kobuk() {
+    apt install --yes --allow-downgrades \
+        ${KERNEL_TYPE} \
+        qemu-system-x86 \
+        libvirt-daemon-system \
+        libvirt-clients \
+        ovmf \
+
+    KERNEL_RELEASE=$(get_kernel_version "$KERNEL_TYPE")
+    # select the right kernel for next boot
+    grub_set_kernel
+
+    # some kernels (for example -intel) might not be installed with the modules-extra
+    # but we need it to support a wider range of hardware (network cards, ...)
+    # just force the installation of modules-extra to make sure we have it
+    apt install --yes --allow-downgrades linux-modules-extra-${KERNEL_RELEASE}
+}
+
+parse_params() {
+    while :; do
+        case "${1-}" in
+        -h | --help)
+            usage
+            exit 0
+            ;;
+        upgrade)
+            install_kobuk
+            exit 0
+            ;;
+        "")
+	    break
+        esac
+        shift
+    done
+}
+
+parse_params "$@"
+
 if [ "$EUID" -ne 0 ]
   then echo "Please run as root"
   exit
@@ -105,21 +160,7 @@ set -e
 # shellcheck disable=SC2086
 add_kobuk_ppas ${TDX_PPA:-tdx-release}
 
-apt install --yes --allow-downgrades \
-    ${KERNEL_TYPE} \
-    qemu-system-x86 \
-    libvirt-daemon-system \
-    libvirt-clients \
-    ovmf \
-
-KERNEL_RELEASE=$(get_kernel_version "$KERNEL_TYPE")
-# select the right kernel for next boot
-grub_set_kernel
-
-# some kernels (for example -intel) might not be installed with the modules-extra
-# but we need it to support a wider range of hardware (network cards, ...)
-# just force the installation of modules-extra to make sure we have it
-apt install --yes --allow-downgrades linux-modules-extra-${KERNEL_RELEASE}
+install_kobuk
 
 # in recent -intel kernel, tdx is enabled by default in kvm_intel
 # so this is not necessary anymore
