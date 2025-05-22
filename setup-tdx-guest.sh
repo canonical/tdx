@@ -124,7 +124,9 @@ else
   echo "Skip installing attestation components..."
 fi
 
-if [[ "${TDX_SETUP_NVIDIA_H100}" == "1" ]]; then
+# We only support Nvidia drivers in Ubuntu LTS
+# So restrict the driver installation only on Noble 24.04
+if [[ "${TDX_SETUP_NVIDIA_H100}" == "1" ]] && [[ "$(lsb_release -sr)" == "24.04" ]]; then
     echo "Setup components for NVIDIA H100..."
     echo "Setup components for NVIDIA H100... Enable LKCA"
     # Enable LKCA
