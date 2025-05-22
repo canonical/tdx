@@ -62,6 +62,42 @@ All other options will be passed to virsh. To see virsh usage run:
 EOM
 }
 
+attach_gpus() {
+    if [ -z "$1" ]; then
+	return
+    fi
+    prepare_gpus "$1"
+    build_hostdevs_xml "$1"
+}
+
+prepare_gpus() {
+    sudo ${SCRIPT_DIR}/../gpu-cc/h100/setup-gpus.sh "$1" &> /dev/null
+}
+
+build_hostdevs_xml() {
+    local pci_list="$1"
+    IFS=',' read -ra bdfs <<< "$pci_list"
+    for bdf in "${bdfs[@]}"; do
+        if [[ "$bdf" =~ ^([0-9a-fA-F]{4}):([0-9a-fA-F]{2}):([0-9a-fA-F]{2})\.([0-7])$ ]]; then
+            domain="${BASH_REMATCH[1]}"
+            bus="${BASH_REMATCH[2]}"
+            slot="${BASH_REMATCH[3]}"
+            func="${BASH_REMATCH[4]}"
+
+	    read -r -d '' hostdev << EOM
+<hostdev mode='subsystem' type='pci' managed='yes'>
+  <source>
+      <address domain='${domain}' bus='0x${bus}' slot='0x${slot}' function='0x${func}'/>
+  </source>
+</hostdev>
+EOM
+	    HOSTDEVS="${HOSTDEVS}\n${hostdev}"
+        else
+            echo "Invalid BDF format: $bdf"
+        fi
+    done
+}
+
 check_input_paths() {
     error=0
     if [ $? -ne 0 ] || [ ! -f ${base_img_path} ]; then
@@ -93,11 +129,13 @@ create_overlay_image() {
 create_domain_xml() {
     awk -v img_path=${base_img_path} \
         -v domain=${DOMAIN_PREFIX} \
+        -v hostdevs="${HOSTDEVS}" \
         -v overlay_path=${overlay_image_path} '
         {
   gsub("BASE_IMG_PATH", img_path, $0);
   gsub("DOMAIN", domain, $0);
   gsub("OVERLAY_IMG_PATH", overlay_path, $0);
+  gsub("HOSTDEV_DEVICES", hostdevs, $0);
   print;
         }
   ' ${xml_template_path} > ${WORKDIR_PATH}/${DOMAIN_PREFIX}.xml
@@ -190,6 +228,7 @@ print_all() {
 run_td() {
     echo "Create and run new virsh domain from ${base_img_path} and ${xml_template_path} "
     echo "---"
+    attach_gpus ${gpus}
     check_input_paths
     create_overlay_image
     create_domain_xml
@@ -214,6 +253,10 @@ parse_params() {
                         ;;
                     -t | --xml-template)
                         xml_template="${2-}"
+                        shift 2
+                        ;;
+                    -g | --gpus)
+                        gpus="${2-}"
                         shift 2
                         ;;
                     "")
