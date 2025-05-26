@@ -22,6 +22,23 @@ import pytest
 import Qemu
 import util
 
+def vm_teardown(max_td_vms, qm):
+    try:
+        # stop all machines
+        for i in range(max_td_vms):
+            print("Stopping machine %d" % (i))
+            qm[i].shutdown()
+
+        # wait for all machines to exit
+        for i in range(max_td_vms):
+            print("Waiting for machine to exit %d" % (i))
+            try:
+                qm[i].communicate()
+            except:
+                pass
+    except Exception as e:
+        print("Exception occured during vm cleanup: %s" % (e))
+
 def test_stress_huge_resource_vm(qm):
     """
     Test huge resources  (Intel Case ID 007)
@@ -114,35 +131,28 @@ def test_stress_max_guests():
 
     qm = [None] * max_td_vms
 
-    # initialize machines
-    for i in range(max_td_vms):
-        qm[i] = Qemu.QemuMachine()
+    try:
+        # initialize machines
+        for i in range(max_td_vms):
+            qm[i] = Qemu.QemuMachine()
 
-    # start machines
-    for i in range(max_td_vms):
-        print("Starting machine %d" % (i))
-        qm[i].run()
+        # start machines
+        for i in range(max_td_vms):
+            print("Starting machine %d" % (i))
+            qm[i].run()
 
-    # wait for all machines running
-    for i in range(max_td_vms):
-        print("Waiting for machine %d" % (i))
-        ssh = Qemu.QemuSSH(qm[i])
+        # wait for all machines running
+        for i in range(max_td_vms):
+            print("Waiting for machine %d" % (i))
+            ssh = Qemu.QemuSSH(qm[i])
 
-    # try to run a new TD
-    # expect qemu quit immediately with a specific error message
-    with Qemu.QemuMachine() as one_more:
-        one_more.run()
-        check_qemu_fail_to_start(one_more, error_msg="KVM_TDX_INIT_VM failed: No space left on device")
-
-    # stop all machines
-    for i in range(max_td_vms):
-        print("Stopping machine %d" % (i))
-        qm[i].shutdown()
-
-    # wait for all machines to exit
-    for i in range(max_td_vms):
-        print("Stopping machine %d" % (i))
-        try:
-            qm[i].communicate()
-        except:
-            pass
+        # try to run a new TD
+        # expect qemu quit immediately with a specific error message
+        with Qemu.QemuMachine() as one_more:
+            one_more.run()
+            check_qemu_fail_to_start(one_more, error_msg="KVM_TDX_INIT_VM failed: No space left on device")
+    except Exception as e:
+        vm_teardown(max_td_vms, qm)
+        pytest.fail(f"Test failed due to exception: {e}")
+    finally:
+        vm_teardown(max_td_vms, qm)

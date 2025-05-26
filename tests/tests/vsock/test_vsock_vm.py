@@ -30,12 +30,15 @@ guest_cid=25
 # Helper Functions
 
 def run_iperf_server_on_host():
-    cmd = ['iperf3', '--vsock', '-s', '-1']
-    subprocess.run(cmd, stderr=subprocess.STDOUT, timeout=30)
+    cmd = ['/tmp/iperf-vsock/build/src/iperf3', '--vsock', '-s', '-1']
+    process = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=300)
+    if process.returncode != 0:
+        print("iperf server on host failed with return code:", process.stderr.strip())
+        assert False, 'Failed iperf server on host test'
 
 
 def run_iperf_server_on_guest(ssh):
-    cmd = 'iperf3 --vsock -s -1'
+    cmd = '/tmp/iperf-vsock/build/src/iperf3 --vsock -s -1'
     stdout, stderr = ssh.check_exec(cmd)
 
 
@@ -54,7 +57,7 @@ def test_vsock_vm_client(qm):
     t = threading.Thread(target=run_iperf_server_on_host)
     t.start()
 
-    cmd = 'iperf3 --vsock -c 2'
+    cmd = '/tmp/iperf-vsock/build/src/iperf3 --vsock -c 2'
     stdout, stderr = ssh.check_exec(cmd)
     assert 0 == stdout.channel.recv_exit_status(), 'Failed iperf server on client test'
 
@@ -78,7 +81,7 @@ def test_vsock_vm_server(qm):
     # Give time to iperf server to start
     time.sleep(1)
 
-    cmd = ['iperf3', '--vsock', '-c', '%d' % (guest_cid)]
+    cmd = ['/tmp/iperf-vsock/build/src/iperf3', '--vsock', '-c', '%d' % (guest_cid)]
     rc = subprocess.run(cmd, stderr=subprocess.STDOUT, timeout=30)
     assert 0 == rc.returncode, 'Failed iperf server on guest test'
 

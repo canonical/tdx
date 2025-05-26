@@ -4,6 +4,7 @@ import subprocess
 
 import Qemu
 import util
+import glob
 
 script_path=os.path.dirname(os.path.realpath(__file__))
 
@@ -72,3 +73,19 @@ def cpu_core():
     cpu = util.cpu_select()
     with util.CpuOnOff(cpu) as cpu:
         yield cpu
+
+@pytest.fixture(scope="function", autouse=True)
+def test_cleanup():
+    results = glob.glob("/tmp/tdxtest*")
+
+    for folder in results:
+        pid_file = os.path.join(folder, "qemu.pid")
+        if os.path.exists(pid_file):
+            pid = open(pid_file).read().strip()
+            try:
+                subprocess.run(f"pkill -TERM -F {pid}", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, check=True)
+                subprocess.run(f"rm -rf {folder}/* ", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, check=False)
+                subprocess.run(f"rm -rf {folder}/ ", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, check=False)
+                subprocess.run(f"/run/user/$UID/tdxtest-* ", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, check=False)
+            except Exception as e:
+                print(f"Error during cleanup")
