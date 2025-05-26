@@ -70,7 +70,6 @@ the host OS into an Intel TDX-enabled host OS, optionally install remote attesta
 
 Download and install appropriate Ubuntu Server on the host machine:
 * [Ubuntu 25.04 server](https://releases.ubuntu.com/25.04/)
-* [Ubuntu 25.04 server](https://releases.ubuntu.com/25.04/)
 * [Ubuntu 24.04 server](https://releases.ubuntu.com/24.04/)
 
 ### 4.2 Enable Intel TDX in Host OS
@@ -403,7 +402,7 @@ For `run_td`.
 For `tdvirsh`.
 
    ```bash
-   ./guest-tools/tdvirsh new --gpus 0000:b8:00.0,0000:b9:00.0
+   ./guest-tools/tdvirsh new -i <path_to_24.04_image> --gpus 0000:b8:00.0,0000:b9:00.0
    ```
 
 Inside the TD, the passed through GPUs can be listed with `lspci`
