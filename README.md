@@ -423,6 +423,8 @@ NOTE: This command can fail because the ollama daemon is still starting up, so p
 
 The GPU usage can be monitored with `nvtop`.
 
+![](docs/images/td-h100.gif)
+
 <a id="setup-remote-attestation"></a>
 ## 9. Setup Remote Attestation on Host OS and Inside TD
 Attestation is a process in which the attester requests the verifier (e.g., Intel Tiber Trust Services) to confirm that a TD is operating in a secure and trusted environment.
