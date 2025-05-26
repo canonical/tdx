@@ -8,7 +8,7 @@
 * [5. Create TD Image](#create-td-image)
 * [6. Boot TD](#boot-td)
 * [7. Verify TD](#verify-td)
-* [8. Boot TD with GPU passthrough](#boot-td-gpu)
+* [8. Boot TD with NVIDIA H100 GPU](#boot-td-gpu)
 * [9. Setup Remote Attestation on Host OS and Inside TD](#setup-remote-attestation)
 * [10. Perform Remote Attestation Using Intel Tiber Trust Services CLI](#perform-remote-attestation)
 * [11. Inspect Event Log and Measurements](#inspect-event-log-and-measurements)
@@ -344,9 +344,17 @@ cd tdx/guest-tools
 	```
 
 <a id="boot-td-gpu"></a>
-## 8. Boot TD with H100 GPU
+## 8. Boot TD with NVIDIA H100 GPU
 
-On Plucky 25.04, we support the GPU pass-through to TD VM for NVIDIA H100 GPU.
+⚠️ ONLY for Host running Ubuntu Plucky 25.04 and TD running Ubuntu Noble 24.04 ⚠️
+
+Starting from the release for Ubuntu Plucky 25.04, we added support to pass-through
+one or several NVIDIA H100 GPU to the TD. [The H100 Tensor Core GPU was the first NVIDIA GPU to introduce support for CC](https://developer.nvidia.com/blog/announcing-confidential-computing-general-access-on-nvidia-h100-tensor-core-gpus/). It
+can be included into the Trusted Computing Base (TCB) offered by Intel TDX to enable you to run your
+AI workloads with security guarantees offered by Confidential Computing.
+
+### 8.1 List of evailable GPUs
+
 To see the list of GPUs on your plaform, you can run:
 
    ```bash
@@ -362,23 +370,57 @@ Example output:
    ================================
    ```
 
-You can pass-through one or more GPUs to TD VM by using the script `run_td`.
+The example output above is for a platform with 1 NVIDIA H100 GPU. For each GPU, its PCI BDF is shown.
+This PCI BDF will be used to identify the GPU when it is passed through to the TD.
+
+### 8.2 Enable GPU H100 support
+
+To install Nvidia drivers in the TD image, the configuration variable `TDX_SETUP_NVIDIA_H100`
+has to be set to `1`. If that is the case, the image generation tool `create-td-image.sh` will install
+all the required components to enable H100 support in the TD guest.
+
+Additionally, you can use the configuration variable `TDX_SETUP_APPS_OLLAMA` to tell `create-td-image.sh`
+to install and configure `ollama`. This allows to run an AI workload in the TD and make use of the GPUs. 
 
 For now, we only support the pass-through with 24.04 guest, so you have to
 generate the guest image with `create-td-image.sh -v 24.04`.
 
+### 8.3 Run TD with GPUs
+
+As of now, only full GPU passthrough is supported. This means that the GPU is fully allocated to the
+TD and cannot be used anywhere else. Before allocating any GPU to a TD, please make sure the GPU
+is not being used by any other VM or TD.
+
+To pass-through GPUs to the TD, the argument `--gpus` are added to launcher scripts : `run_td` and `tdvirsh`.
+You can pick one of these tools to run the TD.
+
+For `run_td`.
+
    ```bash
-   ./guest-tools/run_td --image=<path_to_24.04_image> --gpus=0000:b8:00.0
+   ./guest-tools/run_td --image=<path_to_24.04_image> --gpus=0000:b8:00.0,0000:b9:00.0
+   ```
+
+For `tdvirsh`.
+
+   ```bash
+   ./guest-tools/tdvirsh new --gpus 0000:b8:00.0,0000:b9:00.0
    ```
 
 Inside the TD, the passed through GPUs can be listed with `lspci`
-and `nvidia-smi`.
+or `nvidia-smi`.
 
-You can run ollama to run a LLM model on the GPU
+### 8.4 Test GPUs in TD
+
+If you enable the configuration variable `TDX_SETUP_APPS_OLLAMA`, the TD comes with
+`ollama` preinstalled and configured with `llama3` LLM model.
+
+You can use `ollama` to show the use the GPU to accelerate LLM requests:
 
    ```bash
    ollama run llama3
    ```
+
+NOTE: This command can fail because the ollama daemon is still starting up, so please wait a bit and try again.
 
 The GPU usage can be monitored with `nvtop`.
 
