@@ -47,7 +47,7 @@ tool and attach the report.
 
 <a id="supported-hardware"></a>
 ## 3. Supported Hardware
-This table lists the Ubuntu versions and the hardware\* they support:
+This table lists the Host OS Ubuntu versions and the hardware\* they support:
 
 | Ubuntu Version | Processor | Code Name | TDX Module Version |
 | - | - | - | - |
