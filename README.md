@@ -287,6 +287,8 @@ To log in as root (default password: 123456), use:
 
 ### 6.3 Secure Boot TD
 
+⚠️ ONLY with Host Ubuntu LTS 24.04 ⚠️
+
 We provide a libvirt template (`trust_domain-sb.xml.template`) that shows how a TD can be booted with secure boot.
 As a result, you can easily boot a TD with secure boot enabled using the following commands:
 
