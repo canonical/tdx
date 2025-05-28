@@ -72,6 +72,8 @@ attach_gpus() {
 
 prepare_gpus() {
     sudo ${SCRIPT_DIR}/../gpu-cc/h100/setup-gpus.sh "$1" &> /dev/null
+    # increase the amount of locked memory limit
+    echo 0x200000 | sudo tee /sys/module/vfio_iommu_type1/parameters/dma_entry_limit
 }
 
 build_hostdevs_xml() {
