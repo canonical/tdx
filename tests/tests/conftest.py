@@ -10,11 +10,10 @@ script_path=os.path.dirname(os.path.realpath(__file__))
 
 # Is platform registered for quote generation
 def is_platform_registered():
-    
-    # try:
-    #    subprocess.check_call([f'{script_path}/../../attestation/check-registration.sh'])
-    # except:
-    #    return False
+    try:
+        subprocess.check_call([f'{script_path}/../../attestation/check-registration.sh'])
+    except:
+        return False
     return True
 
 def pytest_runtest_setup(item):
@@ -88,4 +87,4 @@ def test_cleanup():
                 subprocess.run(f"rm -rf {folder}/ ", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, check=False)
                 subprocess.run(f"/run/user/$UID/tdxtest-* ", stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, shell=True, check=False)
             except Exception as e:
-                print(f"Error during cleanup")
+                print(f"Error during cleanup for workspace {folder}: {e}")

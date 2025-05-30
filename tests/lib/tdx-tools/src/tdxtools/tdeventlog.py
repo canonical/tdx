@@ -6,6 +6,7 @@ import logging
 from typing import List
 from typing import Dict, List
 import os
+import subprocess
 from hashlib import sha384
 
 from .binaryblob import BinaryBlob

@@ -37,6 +37,7 @@ cleanup() {
 
 install_deps() {
   sudo dnf install -y sshpass cpuid git
+  rm -rf /tmp/iperf-vsock
   git clone https://github.com/stefano-garzarella/iperf-vsock /tmp/iperf-vsock
   cd /tmp/iperf-vsock
   ./bootstrap.sh

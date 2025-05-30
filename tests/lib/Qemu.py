@@ -243,7 +243,6 @@ class QemuCommand:
                         'ovmf' : QemuOvmf(machine),
                         'serial' : QemuSerial(f'{self.workdir}/serial.log'),
                         'machine' : QemuMachineType(machine)}
-        self.plugins['machine'].enable_qgs_addr()
         self.command = ['-pidfile', f'{self.workdir}/qemu.pid', '-vga', 'none']
 
     def get_command(self):
@@ -397,7 +396,7 @@ class QemuMonitor():
 
 class QemuSSH():
     CONNECT_SLEEP = 1
-    CONNECT_TIMEOUT = 60
+    CONNECT_TIMEOUT = 120
 
     def __init__(self,
                  qemu_machine,

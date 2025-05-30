@@ -18,7 +18,7 @@
 import random
 import string
 import pytest
-
+import subprocess
 import Qemu
 
 # This file contains tests for the tdxattest lib in the guest
@@ -28,22 +28,28 @@ import Qemu
 # - vsock : the application connects directly to the QGSD service in the host
 # - configfs tsm : the application use configsf tsm to ask the guest kernel
 #                  to contact the QGSD service for the quote generation
+def change_qgsd_state(state):
+    cmd = ['systemctl', state, 'qgsd']
+    rc = subprocess.run(cmd, stderr=subprocess.STDOUT, timeout=30)
+    assert 0 == rc.returncode, 'Failed change state of qgsd'
 
 @pytest.mark.quote_generation
 @pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-580")
-def test_guest_tdxattest_tsm_vsock():
+def test_guest_tdxattest_tsm():
     """
     TDX attest library
-    Success when both TSM andvsock support are available
-    vsock support is enabled in the QEMU command line
-    Default TSM : 'quote-generation-socket': {'type': 'vsock', 'cid': '2', 'port': '4050'}
-    Default vock : '-device vhost-vsock-pci,guest-cid=3'
+    Success when only TSM is available
+    vsock support is disabled by removing the configuration file and not enabling
+    the vsock support in QEMU command line
     """
     with Qemu.QemuMachine() as qm:
-        qm.qcmd.add_vsock(10)
+        machine = qm.qcmd.plugins['machine']
+        machine.enable_qgs_addr()
+
         qm.run()
         ssh = Qemu.QemuSSH(qm)
 
+        change_qgsd_state('start')
         # ssh.check_exec('rm -f /etc/tdx-attest.conf')
         ssh.check_exec('cd /opt/intel/tdx-quote-generation-sample/ && make clean && make')
         stdout, _ = ssh.check_exec('cd /opt/intel/tdx-quote-generation-sample/ && ./test_tdx_attest')
@@ -59,9 +65,6 @@ def test_guest_tdxattest_tsm_failure():
     quote generation socket specified.
     """
     with Qemu.QemuMachine() as qm:
-        # Disable the vsock support 'quote-generation-socket': {'type': 'vsock', 'cid': '2', 'port': '4050'}
-        qm.qcmd.plugins['machine'] = Qemu.QemuMachineType(Qemu.QemuEfiMachine.OVMF_Q35_TDX)
-        qm.qcmd.add_vsock(10)
         qm.run()
         ssh = Qemu.QemuSSH(qm)
 
@@ -70,6 +73,26 @@ def test_guest_tdxattest_tsm_failure():
         ret, stdout, stderr = ssh.exec_command('cd /opt/intel/tdx-quote-generation-sample/ && ./test_tdx_attest')
 
         assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
+
+@pytest.mark.quote_generation
+def test_guest_tdxattest_vsock():
+    """
+    TDX attest library
+    Success when only vsock is available
+    ConfigFs TSM is disabled
+    """
+    with Qemu.QemuMachine() as qm:
+        qm.qcmd.add_vsock(10)
+
+        qm.run()
+        ssh = Qemu.QemuSSH(qm)
+
+        disable_tsm(ssh)
+
+        ssh.check_exec('cd /opt/intel/tdx-quote-generation-sample/ && make clean && make')
+        ret, stdout, stderr = ssh.exec_command('cd /opt/intel/tdx-quote-generation-sample/ && ./test_tdx_attest')
+
+        assert 'Successfully get the TD Quote' in stdout.read().decode()
 
 @pytest.mark.quote_generation
 @pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-580")
@@ -81,20 +104,21 @@ def test_guest_tdxattest_vsock_wrong_qgs_addr(qm):
       (the configfs tsm method should fail however)
     - vsock is enabled for the guest
     Expected behavior:
-    The quote generation request should fail
+    The quote generation request should succeed because
+    vsock is enabled and tdxattest should fallback to use vsock
     """
     qm.qcmd.add_vsock(10)
+
     machine = qm.qcmd.plugins['machine']
     machine.enable_qgs_addr(addr = {'type': 'vsock', 'cid':'3','port':'4050'})
 
     qm.run()
     ssh = Qemu.QemuSSH(qm)
 
-    ssh.check_exec('rm -f /etc/tdx-attest.conf')
     ssh.check_exec('cd /opt/intel/tdx-quote-generation-sample/ && make clean && make')
     ret, stdout, stderr = ssh.exec_command('cd /opt/intel/tdx-quote-generation-sample/ && ./test_tdx_attest')
 
-    assert (ret != 0) and ('Failed to get the quote' in stderr.read().decode())
+    assert 'Successfully get the TD Quote' in stdout.read().decode()
 
 @pytest.mark.quote_generation
 @pytest.mark.xfail(reason="https://jira.devtools.intel.com/browse/SICT0-580")
@@ -105,13 +129,11 @@ def test_guest_tdxattest_vsock_failure():
     vsock arguments specified
     """
     with Qemu.QemuMachine() as qm:
-        qm.qcmd.add_vsock(10)
         qm.run()
         ssh = Qemu.QemuSSH(qm)
 
         disable_tsm(ssh)
 
-        ssh.check_exec('rm -f /etc/tdx-attest.conf')
         ssh.check_exec('cd /opt/intel/tdx-quote-generation-sample/ && make clean && make')
         ret, stdout, stderr = ssh.exec_command('cd /opt/intel/tdx-quote-generation-sample/ && ./test_tdx_attest')
 
