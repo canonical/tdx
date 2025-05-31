@@ -29,7 +29,7 @@ For more information, see the [Intel TDX overview](https://www.intel.com/content
 
 This tech preview of Intel TDX on Ubuntu provides base host OS, guest OS, and remote attestation functionalities.
 Two Ubuntu releases are currently supported for base host OS and guest OS:
-* Ubuntu Plucky 25.04 with bounce buffer support for NVIDIA H100 Tensor Core GPU 
+* Ubuntu Plucky 25.04 with shared device pass-through support for NVIDIA H100 Tensor Core GPU 
 * Ubuntu Noble 24.04 LTS
 
 Follow these instructions to set up the Intel TDX host, create a TD, boot the TD, and attest the integrity of the TD's execution environment.
@@ -56,7 +56,7 @@ This table lists the Host OS Ubuntu versions and the hardware\* they support:
 | 24.04, 25.04\* | Intel® Xeon® 6 Processors with E-Cores | Sierra Forest | 1.5.x |
 | 24.04, 25.04\* | Intel® Xeon® 6 Processors with P-Cores | Granite Rapids | 2.0.x |
 
-\* Ubuntu 25.04 includes bounce buffer support for NVIDIA H100 Tensor Core GPU
+\* Ubuntu 25.04 host + Ubuntu 24.04 guest are needed to enable shared device pass-through support for NVIDIA H100 Tensor Core GPU
 
 To help identify which processor you have, please visit [ark.intel.com](https://www.intel.com/content/www/us/en/ark.html) and search for the part number. 
 Then, look for "Code Name" and "Intel® Trust Domain Extensions (Intel® TDX)".
@@ -152,7 +152,7 @@ This can be performed on any Ubuntu 22.04 or newer system - an Intel TDX-specifi
 
 ### 5.1 Create a New TD Image
 
-NOTE: The NVIDIA H100 is only supported with Ubuntu 24.04 TD.  
+NOTE: The NVIDIA H100 Tensor Core GPU is only supported with Ubuntu 24.04 TD.  
 
 A TD image based on Ubuntu 25.04 can be generated with the following commands:
 
@@ -161,7 +161,7 @@ cd tdx/guest-tools/image/
 sudo ./create-td-image.sh -v 25.04
 ```
 
-You can pass `24.04` or `25.04` to the `-v` to generate a TD image based on Ubuntu 24.04 and 25.04. 
+You can pass `24.04` or `25.04` to the `-v` to generate a TD image based on Ubuntu 24.04 or 25.04. 
 
 The resulting image will be based on an ([`Ubuntu cloud image`](https://cloud-images.ubuntu.com/)),
 the default root password is `123456`, and other default settings are used.
@@ -192,16 +192,16 @@ If you have an existing Ubuntu (`24.04` or `25.04`) VM image, you can enable the
 <a id="boot-td"></a>
 ## 6. Boot TD
 
-Now that you have a TD image, let’s boot it using one of the following two ways:
-* Boot using QEMU
-* Boot using virsh
+Now that you have a TD image, let’s boot it using one of the following methods:
 
-NOTE: The script provided for the virsh method supports running multiple TDs simultaneously.
-The script provided for the QEMU method supports running only a single instance.
+* Boot using QEMU with the `run_td` script
+* Boot using virsh with the `tdvirsh` script
 
-### 6.1 Boot TD with QEMU
+NOTE: The `tdvirsh` script supports running multiple TDs simultaneously.
+The `run_td` script only supports running only a single TD because it sets a static default SSH port number.
+You can launch another TDs with `run_td` if you change the port number in the script.  
 
-Boot TD with the `run-td.sh` script. 
+### 6.1 Boot TD with QEMU using `run_td` script
 
 If no parameter is provided, the script will use the generic 
 kernel image, located in `./image/`, with the same Ubuntu version as the host.
@@ -227,7 +227,7 @@ To log in as root (default password: 123456), use:
    $ ssh -p 10022 root@localhost
 ```
 
-### 6.2 Boot TD with virsh (libvirt)
+### 6.2 Boot TD with virsh (libvirt) using the `tdvirsh` script
 
 1. [Recommended] Configure libvirt to be usable as non-root user.
    1. Apply the following settings to the file `/etc/libvirt/qemu.conf`.
@@ -265,6 +265,7 @@ To log in as root (default password: 123456), use:
 
         Example output:
 
+        ```console
         Id   Name                                                        State
         ---------------------------------------------------------------------------
         1    tdvirsh-trust_domain-f7210c2b-2657-4f30-adf3-639b573ea39f   running (ip:192.168.122.212, hostfwd:32855, cid:3)
@@ -287,7 +288,7 @@ To log in as root (default password: 123456), use:
 
 ### 6.3 Secure Boot TD
 
-⚠️ ONLY with Host Ubuntu LTS 24.04 ⚠️
+⚠️ ONLY with Host running Ubuntu Noble 24.04 ⚠️
 
 We provide a libvirt template (`trust_domain-sb.xml.template`) that shows how a TD can be booted with secure boot.
 As a result, you can easily boot a TD with secure boot enabled using the following commands:
@@ -300,7 +301,7 @@ cd tdx/guest-tools
 <a id="verify-td"></a>
 ## 7. Verify TD
 
-1. Log into the TD using one of the following commands.
+1. Log into the TD using one of the following commands:
 
    NOTE: If you booted your TD with `td_virsh_tool.sh`, you will likely need
    a different port number from the one below. The tool will print the appropriate port to use
@@ -347,14 +348,14 @@ cd tdx/guest-tools
 <a id="boot-td-gpu"></a>
 ## 8. Boot TD with NVIDIA H100 GPU
 
-⚠️ ONLY for Host running Ubuntu Plucky 25.04 and TD running Ubuntu Noble 24.04 ⚠️
+⚠️ ONLY for Host running Ubuntu Plucky 25.04 Host and TD running Ubuntu Noble 24.04 ⚠️
 
 Starting from the release for Ubuntu Plucky 25.04, we added support to pass-through
 one or several NVIDIA H100 GPU to the TD. [The H100 Tensor Core GPU was the first NVIDIA GPU to introduce support for CC](https://developer.nvidia.com/blog/announcing-confidential-computing-general-access-on-nvidia-h100-tensor-core-gpus/). It
 can be included into the Trusted Computing Base (TCB) offered by Intel TDX to enable you to run your
 AI workloads with security guarantees offered by Confidential Computing.
 
-### 8.1 List of evailable GPUs
+### 8.1 List Available NVIDIA GPUs
 
 To see the list of GPUs on your plaform, you can run:
 
@@ -366,7 +367,7 @@ Example output:
 
    ```console
    ================================
-   List of NVidia GPUs (PCI BDFs):
+   List of NVIDIA GPUs (PCI BDFs):
    0000:b8:00.0
    ================================
    ```
@@ -374,9 +375,9 @@ Example output:
 The example output above is for a platform with 1 NVIDIA H100 GPU. For each GPU, its PCI BDF is shown.
 This PCI BDF will be used to identify the GPU when it is passed through to the TD.
 
-### 8.2 Enable GPU H100 support
+### 8.2 Enable NVIDIA GPU H100 Support
 
-To install Nvidia drivers in the TD image, the configuration variable `TDX_SETUP_NVIDIA_H100`
+To install NVIDIA drivers in the TD image, the configuration variable `TDX_SETUP_NVIDIA_H100`
 has to be set to `1`. If that is the case, the image generation tool `create-td-image.sh` will install
 all the required components to enable H100 support in the TD guest.
 
@@ -388,20 +389,20 @@ generate the guest image with `create-td-image.sh -v 24.04`.
 
 ### 8.3 Run TD with GPUs
 
-As of now, only full GPU passthrough is supported. This means that the GPU is fully allocated to the
+As of now, only full GPU pass-through is supported. This means that the GPU is fully allocated to the
 TD and cannot be used anywhere else. Before allocating any GPU to a TD, please make sure the GPU
 is not being used by any other VM or TD.
 
 To pass-through GPUs to the TD, the argument `--gpus` are added to launcher scripts : `run_td` and `tdvirsh`.
 You can pick one of these tools to run the TD.
 
-For `run_td`.
+For `run_td`:
 
    ```bash
    ./guest-tools/run_td --image=<path_to_24.04_image> --gpus=0000:b8:00.0,0000:b9:00.0
    ```
 
-For `tdvirsh`.
+For `tdvirsh`:
 
    ```bash
    ./guest-tools/tdvirsh new -i <path_to_24.04_image> --gpus 0000:b8:00.0,0000:b9:00.0
@@ -412,7 +413,7 @@ or `nvidia-smi`.
 
 ### 8.4 Test GPUs in TD
 
-If you enable the configuration variable `TDX_SETUP_APPS_OLLAMA`, the TD comes with
+If you enable the configuration variable `TDX_SETUP_APPS_OLLAMA` in `setup-tdx-config`, the TD comes with
 `ollama` preinstalled and configured with `llama3` LLM model.
 
 You can use `ollama` to show the use the GPU to accelerate LLM requests:
@@ -452,7 +453,6 @@ sudo ./check-production.sh
 
 	NOTE 2: If you're behind a proxy, use `sudo -E` to preserve user environment.
 
-	```bash
 	```bash
 	cd tdx/attestation
 	sudo ./setup-attestation-host.sh
@@ -626,7 +626,7 @@ you proceed to [step 4](#verify-itts-client-version).
 
 1. Subscribe to the Intel Tiber Trust Service [free trial](https://plan.seek.intel.com/2023_ITATrialForm).
 
-2. Obtain an Attestation API key following this [tutorial](https://docs.trustauthority.intel.com/main/articles/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client).
+2. Obtain an Attestation API key following this [tutorial](https://docs.trustauthority.intel.com/main/articles/articles/ita/tutorial-api-key.html?tabs=attestation-api-key-portal%2Cattestation-sgx-client).
 
 3. [Boot a TD](#boot-td) and connect to it.
 
@@ -808,10 +808,10 @@ Please follow [tests/README](tests/README.md) to run Intel TDX tests.
 
 | Issue # | Description | Suggestions |
 | - | - | - |
-| 1 | Performance is poor | Ensure you're using the latest TDX module. You can check the current version with `dmesg` (the version line looks like: `virt/tdx: TDX module: attributes 0x0, vendor_id 0x8086, major_version 1, minor_version 5, build_date 20240129, build_num 698`). See [link](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/04/hardware_setup/#deploy-specific-intel-tdx-module-version) on ways to update your TDX module. <br> NOTE: If you chose to "Update Intel TDX Module via Binary Deployment", make sure you're using the correct TDX module version for your hardware. See the [Supported Hardware](#supported-hardware) table. |
+| 1 | Performance is poor | Ensure you're using the latest TDX module. You can check the current version with `sudo dmesg | grep -i tdx` (the version line looks like: `virt/tdx: TDX module: attributes 0x0, vendor_id 0x8086, major_version 1, minor_version 5, build_date 20240129, build_num 698`). See [link](https://cc-enabling.trustedservices.intel.com/intel-tdx-enabling-guide/04/hardware_setup/#deploy-specific-intel-tdx-module-version) on ways to update your TDX module. <br> NOTE: If you chose to "Update Intel TDX Module via Binary Deployment", make sure you're using the correct TDX module version for your hardware. See the [Supported Hardware](#supported-hardware) table. |
 | 2 | TDX is not enabled on the host | 1. Ensure your installation of the TDX host components using `setup-tdx-host.sh` did not result in any issues.  Use `system-report.sh` to see if there are unexpected results. <br> 2. Ensure BIOS settings are correct. See [step 4.3](#step-4.3) |
-| 3 | Installation seems to hang | 1. Verify you can get out to the Internet. <br> 2. If you're behind a proxy, make sure you have proper proxy settings. <br> 3. If you're behind a proxy, use `sudo -E` to preserve user environment. |
-| 4 | TDX host is not working. `system-report.sh` shows `SGX_AND_MCHECK_STATUS: 1861 (expected value: 0)` | The SGX registration UEFI variables maybe corrupt.  Boot into the BIOS and set `SGX Factory Reset` to `Enable`. |
-| 5 | I rebooted my TD, but it actually shuts down. | Legacy (non-TDX) guests support reboot by resetting VCPU context.  However, TD guests don't allow it for security reasons. You must power it down and boot it up again.  Also, if you're using `virsh` to manage your TD, `virsh reset` also results in the shutdown of the TD.  You must use `virsh reboot`, which does a fake reboot by shutting it down, killing the qemu process, and starting up a new qemu process. |
-
-
+| 3 | TDX host is not working. `system-report.sh` shows `SGX_AND_MCHECK_STATUS: 1861 (expected value: 0)` | The SGX registration UEFI variables maybe corrupt.  Boot into the BIOS and set `SGX Factory Reset` to `Enable`. This will result in two new keys. |
+| 4 | `sudo dmesg | grep -i tdx` shows `virt/tdx: module initialization failed (-5)` | You may have an old and unsupported TDX module.  See Suggestion #1 above to try and resolve. |
+| 5 | Installation seems to hang | 1. Verify you can get out to the Internet. <br> 2. If you're behind a proxy, make sure you have proper proxy settings. <br> 3. If you're behind a proxy, use `sudo -E` to preserve user environment. |
+| 6 | I rebooted my TD, but it actually shuts down. | Legacy (non-TDX) guests support reboot by resetting VCPU context.  However, TD guests don't allow it for security reasons. You must power it down and boot it up again.  Also, if you're using `virsh` to manage your TD, `virsh reset` also results in the shutdown of the TD.  You must use `virsh reboot`, which does a fake reboot by shutting it down, killing the qemu process, and starting up a new qemu process. |
+| 7 | I got unsuccessful result after running `setup-tdx-host.sh | 1. Make sure your network connection is good. <br> 2. If you're behind a proxy, use `sudo -E` to preserve user environment. <br> 3. Re-run the script again. |
