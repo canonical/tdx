@@ -102,7 +102,7 @@ Usage: $(basename "$0") [OPTION]...
   -u                        Guest user name, default is "tdx"
   -p                        Guest password, default is "123456"
   -s                        Specify the size of guest image
-  -v                        Ubuntu version (24.04, 24.10, 25.04)
+  -v                        Ubuntu version (24.04, 25.04)
   -o <output file>          Specify the output file, default is tdx-guest-ubuntu-<version>.qcow2.
                             Please make sure the suffix is qcow2. Due to permission consideration,
                             the output file will be put into /tmp/<output file>.
