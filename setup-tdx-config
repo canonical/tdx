@@ -27,12 +27,12 @@
 #   - short : tdx (in this case, the team will be kobuk-team)
 #   - full : ppa:canonical-kernel-team/bootstrap
 ################################################################
-TDX_PPA="tdx tdx-proposed"
+TDX_PPA="tdx-release"
 
 ################################################################
 # The TDX PPA for attestation
 ################################################################
-TDX_PPA_ATTESTATION=tdx-attestation
+TDX_PPA_ATTESTATION=tdx-attestation-release
 
 ################################################################
 # Enable the installation of DCAP packages from Canonical's
@@ -41,7 +41,7 @@ TDX_PPA_ATTESTATION=tdx-attestation
 # Set to 1 to enable
 # By default, the attestation components are not installed
 ################################################################
-TDX_SETUP_ATTESTATION=1
+TDX_SETUP_ATTESTATION=0
 
 ################################################################
 # Enable the NVIDIA H100
@@ -49,7 +49,7 @@ TDX_SETUP_ATTESTATION=1
 # Set to 1 to setup necessary components to enable H100 GPU
 # pass-through to TD VM
 ################################################################
-TDX_SETUP_NVIDIA_H100=1
+TDX_SETUP_NVIDIA_H100=0
 
 ################################################################
 # HOST                                                         #
@@ -81,4 +81,4 @@ GUEST_HOSTNAME="tdx-guest"
 ################################################################
 # Enable AI Apps in the guest
 ################################################################
-TDX_SETUP_APPS_OLLAMA=1
+TDX_SETUP_APPS_OLLAMA=0
