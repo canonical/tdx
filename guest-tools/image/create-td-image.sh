@@ -52,7 +52,7 @@ fi
 LOGFILE=/tmp/tdx-guest-setup.txt
 FORCE_RECREATE=false
 TMP_GUEST_IMG_PATH="/tmp/tdx-guest-tmp.qcow2"
-SIZE=50
+SIZE=100
 GUEST_USER=${GUEST_USER:-"tdx"}
 GUEST_PASSWORD=${GUEST_PASSWORD:-"123456"}
 GUEST_HOSTNAME=${GUEST_HOSTNAME:-"tdx-guest"}
@@ -102,7 +102,7 @@ Usage: $(basename "$0") [OPTION]...
   -u                        Guest user name, default is "tdx"
   -p                        Guest password, default is "123456"
   -s                        Specify the size of guest image
-  -v                        Ubuntu version (24.04, 24.10, ...)
+  -v                        Ubuntu version (24.04, 25.04)
   -o <output file>          Specify the output file, default is tdx-guest-ubuntu-<version>.qcow2.
                             Please make sure the suffix is qcow2. Due to permission consideration,
                             the output file will be put into /tmp/<output file>.
@@ -316,7 +316,7 @@ EOT
 }
 
 setup_guest_image() {
-    info "Run setup scripts inside the guest image. Please wait ..."
+    info "Run setup scripts inside the guest image. Please wait (can take > 10 minutes) ..."
     virt-customize -a ${TMP_GUEST_IMG_PATH} \
        --mkdir /tmp/tdx/ \
        --copy-in ${SCRIPT_DIR}/setup.sh:/tmp/tdx/ \

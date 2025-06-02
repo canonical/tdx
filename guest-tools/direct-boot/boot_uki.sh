@@ -21,7 +21,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 UBUNTU_VERSION=$1
 
 if [[ -z "${UBUNTU_VERSION}" ]]; then
-    echo "Usage: $0 <24.04|24.10>"
+    echo "Usage: $0 <24.04|25.04>"
     exit 1
 fi
 

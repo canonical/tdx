@@ -41,7 +41,8 @@ NOTE: The credentials necessary for login into the TD guest can also be found in
 2. Kernel, initrd and UKI
  
 NOTE: the provided instructions are for `24.04` guest.
-    Please replace `24.04` by `24.10` if you want to work with `oracular` TD guest.
+    Please replace `24.04` with `25.04` if you want to work with `plucky` TD guest.
+
 
 ```
 $ cd guest-tools/image

@@ -1,0 +1,9 @@
+# /dev/vfio/**
+SUBSYSTEM=="vfio", OWNER="root", GROUP="kvm"
+
+# /dev/iommu
+SUBSYSTEM=="misc", KERNEL=="iommu", OWNER="root", GROUP="kvm"
+
+# /dev/vfio/devices/vfio**
+SUBSYSTEM=="vfio-dev", OWNER="root", GROUP="kvm"
+

@@ -66,17 +66,26 @@ def check_ita_output(quote_str : str, for_success : bool = True):
         user_data: base64_encoded_user_data <- Optional
       On failure:
         Quote:
+    - Ubuntu 25.04
+      In 25.04, the ITA version is 1.9.0 and there is a major
+      client API shift with the version 1.6.1. The CLI quote
+      command is replaced by evidence command and it requires a configuration
+      file as input. There is also a major change in the output of the evidence
+      command.
+      On success:
+        Json file
     """
     # regex to check the output of ITA quote command, the regex depends on ITA version
     # for the moment, we extract the ITA version from the ubuntu release
     # {10,0}: check for at least 10 characters to declare the quote valid
     ita_output_regexp = {
         'noble' : '\\[[0-9 ]{10,}\\]',
-        'oracular' : 'Quote: [-A-Za-z0-9+/]{10,}'
+        'oracular' : 'Quote: [-A-Za-z0-9+/]{10,}',
+        'plucky' : 'TODO'
     }
     import re
     pattern = re.compile(ita_output_regexp[ubuntu_codename])
-    assert (bool(pattern.match(quote_str)) == for_success), f'Error for code name : {codename}'
+    assert (bool(pattern.match(quote_str)) == for_success), f'Error for code name : {ubuntu_codename}'
 
 def run_trust_authority():
     global ubuntu_codename

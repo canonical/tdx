@@ -123,3 +123,79 @@ if [[ "${TDX_SETUP_ATTESTATION}" == "1" ]]; then
 else
   echo "Skip installing attestation components..."
 fi
+
+# We only support Nvidia drivers in Ubuntu LTS
+# So restrict the driver installation only on Noble 24.04
+if [[ "${TDX_SETUP_NVIDIA_H100}" == "1" ]] && [[ "$(lsb_release -sr)" == "24.04" ]]; then
+    echo "Setup components for NVIDIA H100..."
+    echo "Setup components for NVIDIA H100... Enable LKCA"
+    # Enable LKCA
+    cat <<-EOF > /etc/modprobe.d/nvidia-lkca.conf
+install nvidia /sbin/modprobe ecdsa_generic; /sbin/modprobe ecdh; /sbin/modprobe --ignore-install nvidia
+EOF
+    update-initramfs -u
+
+    # https://documentation.ubuntu.com/server/how-to/graphics/install-nvidia-drivers/index.html
+    # Cannot use ubuntu-drivers because we do not have GPUs passed-through in the guest image build
+    # VM
+    #apt install --yes ubuntu-drivers-common
+    #ubuntu-drivers install --gpgpu nvidia:570-server
+    #apt install --yes nvidia-utils-570-server
+
+    echo "Setup components for NVIDIA H100... Install CUDA driver and toolkit"
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+    dpkg -i cuda-keyring_1.1-1_all.deb
+    apt update
+    apt install --yes cuda-toolkit-12-8
+    wget https://us.download.nvidia.com/tesla/570.86.15/nvidia-driver-local-repo-ubuntu2404-570.86.15_1.0-1_amd64.deb
+    dpkg -i ./nvidia-driver-local-repo-ubuntu2404-570.86.15_1.0-1_amd64.deb
+    cp /var/nvidia-driver-local-repo-ubuntu2404-570.86.15/nvidia-driver-local-41F54E74-keyring.gpg /usr/share/keyrings/
+    apt install --yes nvidia-driver-570-open
+
+    # install nvtop
+    echo "Setup components for NVIDIA H100... Install utilities"
+    apt install --yes nvtop
+
+    # enable and setup persistance mode
+    echo "Setup components for NVIDIA H100... Enable persistence mode"
+    systemctl enable nvidia-persistenced.service
+    mkdir -p /etc/systemd/system/nvidia-persistenced.service.d/
+    cat <<-EOF > /etc/systemd/system/nvidia-persistenced.service.d/override.conf
+[Service]
+ExecStart=
+ExecStart=/usr/bin/nvidia-persistenced --uvm-persistence-mode --verbose
+EOF
+
+    # needs to put NVIDIA GPU to ready state before any USE
+    # add init script to do it at VM boot
+    echo "Setup components for NVIDIA H100... Add set ready script"
+    cat <<-EOF > /lib/systemd/system/nvidia-tdx.service
+[Unit]
+Description=TDX H100 setup
+After=nvidia-persistenced.service
+
+[Service]
+ExecStart=nvidia-smi conf-compute -srs 1                                                                        
+
+[Install]
+WantedBy=multi-user.target
+EOF
+    systemctl enable nvidia-tdx
+fi
+
+# install ollama
+if [[ "${TDX_SETUP_APPS_OLLAMA}" == "1" ]]; then
+   echo "Install OLLAMA"
+   curl \-fsSL https://ollama.com/install.sh | sh
+   mkdir -p /etc/systemd/system/ollama.service.d/
+
+   if [[ "${TDX_SETUP_NVIDIA_H100}" == "1" ]]; then
+       cat <<-EOF > /etc/systemd/system/ollama.service.d/override.conf
+[Unit]
+After=nvidia-tdx.service
+EOF
+   fi
+
+   systemctl enable ollama.service
+   sync
+fi
