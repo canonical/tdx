@@ -79,5 +79,5 @@ export TDXTEST_GUEST_IMG
 
 echo "Run tests with TD image: ${TDXTEST_GUEST_IMG}"
 echo "  pytest args: ${pytest_args}"
-export PATH=$PATH:/usr/local/bin
+export PATH=$PATH:/usr/local/bin:/home/sdp/.local/bin
 tox -- --ignore=lib/ ${pytest_args}
