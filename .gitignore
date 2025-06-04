@@ -3,3 +3,4 @@
 initrd*
 uki.efi*
 vmlinuz*
+guest-tools/nvtrust/

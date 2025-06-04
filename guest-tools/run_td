@@ -62,56 +62,135 @@ def do_clean():
 def add_vsock(cmd):
     cmd.extend(['-device', 'vhost-vsock-pci,guest-cid=3'])
 
-def prepare_gpus(gpus):
-    gpu_args = ','.join(gpus)
-    setup_cmd = f'sudo {file_path}/../gpu-cc/h100/setup-gpus.sh {gpu_args}'
-    print(setup_cmd)
-    subprocess.check_call(setup_cmd, shell=True, stderr=subprocess.STDOUT)
+def setup_topology(gpus, nvswitches):
+    print("Allocating vfio devices")
 
-def add_gpus(cmd, gpus):
-    if len(gpus) <= 0:
-        return
-    prepare_gpus(gpus)
-    index=0
-    for gpu in gpus:
-        gpu_cmd = ['-object', f'iommufd,id=iommufd{index}',
-                   '-device', f'pcie-root-port,id=pci.{index},bus=pcie.{index}',
-		   '-device', f'vfio-pci,host={gpu},bus=pci.{index},iommufd=iommufd{index}']
-        cmd.extend(gpu_cmd)
-        index = index + 1
+    for product in ["2335", "22a3"]:
+        subprocess.run(["sudo", "sh", "-c", f"echo 10de {product} > /sys/bus/pci/drivers/vfio-pci/new_id"])
 
-def do_run(img_path, gpus):
+    print("Detected correct PPCIe topology")
+
+    print("Loading kernel modules")
+    subprocess.run(["sudo", "modprobe", "vfio"])
+    subprocess.run(["sudo", "modprobe", "vfio_pci"])
+
+    print("Configuring PCIe devices")
+    for device in [*gpus, *nvswitches]:
+        subprocess.run(["sudo", "./nvtrust/host_tools/python/nvidia_gpu_tools.py", "--set-ppcie-mode=on", "--reset-after-ppcie-mode-switch", f"--gpu-bdf={device}"])
+
+    print("Topology ready")
+
+def do_run(img_path):
+    gpus = pci_devices("10de", "2335")
+    nvswitches = pci_devices("10de", "22a3")
+
+    if len(gpus) != 8:
+        print(f"Error: detected fewer than 8 GPUs: {gpus}")
+        exit(1)
+    if len(nvswitches) != 4:
+        print(f"Error: detected fewer than 4 NVSwitches: {nvswitches}")
+        exit(1)
+
+    setup_topology(gpus, nvswitches)
+    
     print('Run VM')
     print(f'  Image: {img_path}')
     if len(gpus):
         print(f'  Passthrough GPUs: {gpus}')
 
-    qemu_cmds = ['qemu-system-x86_64',
-		 '-accel', 'kvm',
-		 '-m', '100G', '-smp', '32',
-		 '-name', f'{process_name},process={process_name},debug-threads=on',
-		 '-cpu', 'host,-avx10',
-		 '-object', '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}',
-		 '-object', 'memory-backend-ram,id=mem0,size=100G',
-		 '-machine', 'q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=mem0',
-		 '-bios', tdvf_params,
-		 '-nographic', '-daemonize',
-                 '-nodefaults', '-vga', 'none',
-		 '-device', 'virtio-net-pci,netdev=nic0_td', '-netdev', f'user,id=nic0_td,hostfwd=tcp::{ssh_port}-:22',
-		 '-drive', f'file={img_path},if=none,id=virtio-disk0',
-		 '-device', 'virtio-blk-pci,drive=virtio-disk0',
-		 '-pidfile', pidfile
-		 ]
+    qemu_cmds = [
+        'qemu-system-x86_64',
+        '-accel', 'kvm',
+        '-m', '100G',
+        '-smp', '32',
+        '-name', f'{process_name},process={process_name},debug-threads=on',
+        '-cpu', 'host,-avx10',
+        '-object', '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}',
+        '-object', 'memory-backend-ram,id=mem0,size=100G',
+        '-machine', 'q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=mem0',
+        '-bios', tdvf_params,
+        '-serial', 'stdio',
+        '-nographic',
+        '-nodefaults',
+        '-vga', 'none',
+        '-device', 'virtio-net-pci,netdev=nic0_td',
+        '-netdev', f'user,id=nic0_td,hostfwd=tcp::{ssh_port}-:22',
+        '-drive', f'file={img_path},if=none,id=virtio-disk0',
+        '-device', 'virtio-blk-pci,drive=virtio-disk0',
+        '-pidfile', pidfile
+    ]
 
     add_vsock(qemu_cmds)
-    add_gpus(qemu_cmds, gpus)
 
-    subprocess.run(qemu_cmds, stderr=subprocess.STDOUT)
+    qemu_cmds.extend([
+        "-object", "iommufd,id=iommufd0",
 
+        "-device", "pcie-root-port,port=16,chassis=1,id=pci.1,bus=pcie.0,multifunction=on,addr=0x5",
+        "-device", f"vfio-pci,host={gpus[0]},bus=pci.1,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb1,string=262144",
+
+        "-device", "pcie-root-port,port=17,chassis=2,id=pci.2,bus=pcie.0,addr=0x5.0x1",
+        "-device", f"vfio-pci,host={gpus[1]},bus=pci.2,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb2,string=262144",
+
+        "-device", "pcie-root-port,port=18,chassis=3,id=pci.3,bus=pcie.0,addr=0x5.0x2",
+        "-device", f"vfio-pci,host={gpus[2]},bus=pci.3,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb3,string=262144",
+
+        "-device", "pcie-root-port,port=19,chassis=4,id=pci.4,bus=pcie.0,addr=0x5.0x3",
+        "-device", f"vfio-pci,host={gpus[3]},bus=pci.4,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb4,string=262144",
+
+        "-device", "pcie-root-port,port=20,chassis=5,id=pci.5,bus=pcie.0,addr=0x5.0x4",
+        "-device", f"vfio-pci,host={gpus[4]},bus=pci.5,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb5,string=262144",
+
+        "-device", "pcie-root-port,port=21,chassis=6,id=pci.6,bus=pcie.0,addr=0x5.0x5",
+        "-device", f"vfio-pci,host={gpus[5]},bus=pci.6,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb6,string=262144",
+
+        "-device", "pcie-root-port,port=22,chassis=7,id=pci.7,bus=pcie.0,addr=0x5.0x6",
+        "-device", f"vfio-pci,host={gpus[6]},bus=pci.7,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb7,string=262144",
+
+        "-device", "pcie-root-port,port=23,chassis=8,id=pci.8,bus=pcie.0,addr=0x5.0x7",
+        "-device", f"vfio-pci,host={gpus[7]},bus=pci.8,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb8,string=262144",
+
+        "-device", "pcie-root-port,port=24,chassis=9,id=pci.9,bus=pcie.0,multifunction=on,addr=0x4",
+        "-device", f"vfio-pci,host=0000:{nvswitches[0]},bus=pci.9,addr=0x0,iommufd=iommufd0",
+        "-device", "pcie-root-port,port=25,chassis=10,id=pci.10,bus=pcie.0,addr=0x4.0x1",
+        "-device", f"vfio-pci,host=0000:{nvswitches[1]},bus=pci.10,addr=0x0,iommufd=iommufd0",
+        "-device", "pcie-root-port,port=26,chassis=11,id=pci.11,bus=pcie.0,addr=0x4.0x2",
+        "-device", f"vfio-pci,host=0000:{nvswitches[2]},bus=pci.11,addr=0x0,iommufd=iommufd0",
+        "-device", "pcie-root-port,port=27,chassis=12,id=pci.12,bus=pcie.0,addr=0x4.0x3",
+        "-device", f"vfio-pci,host=0000:{nvswitches[3]},bus=pci.12,addr=0x0,iommufd=iommufd0",
+    ])
+
+    for i, disk in enumerate(["/opt/tinfoil/modelpack/output/deepseek-ai/DeepSeek-R1-0528/4236a6af538feda4548eca9ab308586007567f52.mpk"], start=1):
+         qemu_cmds.extend([
+            "-drive", f"file={disk},if=none,id=disk{i},format=raw,readonly=on",
+            "-device", f"virtio-scsi-pci,id=scsi{i},disable-legacy=on,iommu_platform=true",
+            "-device", f"scsi-hd,drive=disk{i}",
+        ])
+
+    print(qemu_cmds)
+
+    subprocess.run(qemu_cmds, 
+                   stdin=None,           # Use current terminal's stdin
+                   stdout=None,          # Use current terminal's stdout  
+                   stderr=None)          # Use current terminal's stderr
     do_print()
 
+def pci_devices(vendor, product) -> list[str]:
+    output = subprocess.check_output(["lspci", "-d", f"{vendor}:{product}"], stderr=subprocess.STDOUT)
+    devices = []
+    for line in output.splitlines():
+        address = line.decode().strip().split(" ")[0]
+        devices.append(address)
+    return devices
+
 def run_td(args):
-    global td_img
     try:
         do_clean()
     except:
@@ -120,7 +199,7 @@ def run_td(args):
        return
     if args.image:
         td_img=args.image
-    do_run(td_img, args.gpus)
+    do_run(td_img)
 
 if __name__ == '__main__':
    parser = argparse.ArgumentParser()
