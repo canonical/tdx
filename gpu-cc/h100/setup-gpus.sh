@@ -71,6 +71,7 @@ enable_cc_mode() {
 
 setup_udev() {
     cp ${SCRIPT_DIR}/vfio-passthrough.rules /etc/udev/rules.d/
+    udevadm control --reload-rules
     udevadm trigger
 }
 
