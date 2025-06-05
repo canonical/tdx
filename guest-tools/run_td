@@ -30,10 +30,11 @@ process_name='td'
 ssh_port=10022
 logfile='/tmp/tdx-guest-td.log'
 
+ubuntu_version=platform.freedesktop_os_release().get('VERSION_ID')
+
 if os.environ.get('TD_IMG'):
     td_img=os.environ.get('TD_IMG')
 else:
-    ubuntu_version=platform.freedesktop_os_release().get('VERSION_ID')
     td_img=f'{file_path}/image/tdx-guest-ubuntu-{ubuntu_version}-generic.qcow2'
 
 tdvf_params='/usr/share/ovmf/OVMF.fd'
@@ -86,11 +87,17 @@ def do_run(img_path, gpus):
     if len(gpus):
         print(f'  Passthrough GPUs: {gpus}')
 
+    cpu_args='host'
+    # to avoid warning on 25.04
+    # qemu-system-x86_64: warning: TDX doesn't support requested feature: CPUID.07H_01H:EDX.avx10 [bit 19]
+    if ubuntu_version != '24.04':
+        cpu_args='host,-avx10'
+
     qemu_cmds = ['qemu-system-x86_64',
 		 '-accel', 'kvm',
 		 '-m', '100G', '-smp', '32',
 		 '-name', f'{process_name},process={process_name},debug-threads=on',
-		 '-cpu', 'host,-avx10',
+		 '-cpu', f'{cpu_args}',
 		 '-object', '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}',
 		 '-object', 'memory-backend-ram,id=mem0,size=100G',
 		 '-machine', 'q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=mem0',
