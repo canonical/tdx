@@ -50,7 +50,7 @@ def test_guest_tdxattest_tsm():
         ssh = Qemu.QemuSSH(qm)
 
         change_qgsd_state('start')
-        # ssh.check_exec('rm -f /etc/tdx-attest.conf')
+        ssh.check_exec('rm -f /etc/tdx-attest.conf')
         ssh.check_exec('cd /opt/intel/tdx-quote-generation-sample/ && make clean && make')
         stdout, _ = ssh.check_exec('cd /opt/intel/tdx-quote-generation-sample/ && ./test_tdx_attest')
 

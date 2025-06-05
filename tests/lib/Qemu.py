@@ -182,7 +182,8 @@ class QemuMachineType:
     def __init__(self, machine = QemuEfiMachine.OVMF_Q35_TDX):
         self.machine = machine
         self.qgs_addr = None
-    def enable_qgs_addr(self, addr : dict = {'type': 'vsock', 'cid':'3','port':'4050'}):
+
+    def enable_qgs_addr(self, addr : dict = {'type': 'vsock', 'cid':'2','port':'4050'}):
         """
         Enable the QGS (Quote Generation Service) address
         The address is a dictionary that corresponds to the object
@@ -190,6 +191,7 @@ class QemuMachineType:
         By default, the address is a vsock address with cid=2 (host cid) and port=4050
         """
         self.qgs_addr = addr
+
     def args(self):
         qemu_args = self.Qemu_Machine_Params[self.machine]
         if self.machine == QemuEfiMachine.OVMF_Q35_TDX:
