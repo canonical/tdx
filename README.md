@@ -85,7 +85,7 @@ Download and install appropriate Ubuntu Server on the host machine:
 2. Customize the setup of the host and TD by editing the configuration file `setup-tdx-config`.  
     By default, remote attestation components are not installed on the host and inside the TD.  
     You can choose to automatically install remote attestation packages provided by Canonical by setting `TDX_SETUP_ATTESTATION=1`.  
-   In this case, you can skip [step 8.2.1](#step-8-2-1) and [step 8.3.3](#step-8-3-3).  
+   In this case, you can skip [step 9.2.1](#step-9-2-1) and [step 9.3.3](#step-9-3-3).  
 
 3. Run the `setup-tdx-host.sh` script.<a id="step-4-2-3"></a>
 
@@ -447,7 +447,7 @@ sudo ./check-production.sh
 
 ### 9.2 Setup Intel® SGX Data Center Attestation Primitives (Intel® SGX DCAP) on the Host OS
 
-1. Install the required DCAP packages from Canonical's PPA on the host OS.<a id="step-8-2-1"></a>
+1. Install the required DCAP packages from Canonical's PPA on the host OS.<a id="step-9-2-1"></a>
 
 	NOTE 1: If you have already installed the attestation components as part of the host OS setup (see [step 2 in section 4.2](#step-4-2-3)), you can continue with [step 3](#verify-sgx-devices).
 
@@ -600,7 +600,7 @@ you proceed to [step 4](#verify-itts-client-version).
 
 2. Download this repository by downloading an asset file from the [releases page on GitHub](https://github.com/canonical/tdx/releases) or by cloning the repository (at the appropriate tag/branch).
 
-3. Install the Intel Tiber Trust Service CLI.<a id="step-8-3-3"></a>
+3. Install the Intel Tiber Trust Service CLI.<a id="step-9-3-3"></a>
 
 	```bash
 	cd tdx/attestation
