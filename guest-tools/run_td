@@ -127,12 +127,12 @@ def run_td(args):
        return
     if args.image:
         td_img=args.image
-    do_run(td_img, args.gpus)
+    do_run(td_img, args.gpus.split(','))
 
 if __name__ == '__main__':
    parser = argparse.ArgumentParser()
    parser.add_argument("--image", type=str, help="Guest image")
-   parser.add_argument("--gpus", nargs='*', default=[], help="GPUs to pass-through")
+   parser.add_argument("--gpus", type=str, help="GPUs to pass-through")
    parser.add_argument("--clean", action='store_true', help="Clean the current VM")
    args = parser.parse_args()
    run_td(args)
