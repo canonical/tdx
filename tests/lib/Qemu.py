@@ -56,7 +56,7 @@ class QemuCpu:
     def __init__(self):
         self.cpu_type = 'host'
         self.cpu_flags = ''
-        self.nb_cores=4
+        self.nb_cores=8
         self.nb_sockets=1
     def args(self):
         smp = ['-smp', f'{self.nb_cores},sockets={self.nb_sockets}']
@@ -108,7 +108,8 @@ class QemuOvmf():
         # cannot use pflash with kvm accel, need kvm support
         # so use bios by default
         self.bios = True
-        self.bios_path = '/usr/share/edk2/ovmf/OVMF.inteltdx.fd'
+        #self.bios_path = '/usr/share/edk2/ovmf/OVMF.inteltdx.fd'
+        self.bios_path = '/home/sdp/vasanth/edk2/OVMF.fd'
         self.ovmf_code_path = None
         self.ovmf_vars_template_path = None
         self.flash_size = QemuEfiFlashSize.SIZE_4MB
@@ -195,9 +196,9 @@ class QemuMachineType:
     def args(self):
         qemu_args = self.Qemu_Machine_Params[self.machine]
         if self.machine == QemuEfiMachine.OVMF_Q35_TDX:
-            tdx_object = {'qom-type':'tdx-guest', 'id':'tdx'}
-            if self.qgs_addr:
-                tdx_object.update({"quote-generation-socket": self.qgs_addr})
+            tdx_object = "{'qom-type':'tdx-guest', 'id':'tdx'}"
+            # if self.qgs_addr:
+            #     tdx_object.update({"quote-generation-socket": self.qgs_addr})
             qemu_args = ['-object', str(tdx_object)] + qemu_args
         return qemu_args
 
@@ -248,7 +249,8 @@ class QemuCommand:
         self.command = ['-pidfile', f'{self.workdir}/qemu.pid', '-vga', 'none']
 
     def get_command(self):
-        _args = ['/usr/libexec/qemu-kvm']
+        #_args = ['/usr/libexec/qemu-kvm']
+        _args = ['/home/sdp/vasanth/qemu-tdx/build/qemu-system-x86_64']
         for p in self.plugins.values():
             _args.extend(p.args())
         return _args + self.command
@@ -407,7 +409,7 @@ class QemuSSH():
 
         self.username = 'root'
         self.password = '123456'
-        self.private_key = paramiko.RSAKey.from_private_key_file('/home/sdp/bprashan/centos_keys/id_rsa')
+        self.private_key = paramiko.RSAKey.from_private_key_file('/home/sdp/vasanth/bkc_image/vm_ssh_test_key')
         self.port = qemu_machine.fwd_port
 
         # prevent paramiko to do spurious logs on stdout
@@ -469,7 +471,7 @@ class QemuSSH():
         kv_pass=self.password
         kv_host='127.0.0.1'
         kv_port=self.port
-        ssh_opts=f'-i /home/sdp/bprashan/centos_keys/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p {kv_port}'
+        ssh_opts=f'-i /home/sdp/vasanth/bkc_image/vm_ssh_test_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p {kv_port}'
         rsync_opts='-atrv --delete --exclude="*~"'
         # use sshpass to pass clear text password for ssh
         rsync_opts += f' -e " ssh {ssh_opts}"'
@@ -615,7 +617,7 @@ class QemuMachine:
         kv_user='root'
         kv_host='127.0.0.1'
         kv_port=self.fwd_port
-        ssh_opts=f'-i /home/sdp/bprashan/centos_keys/id_rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p {kv_port}'
+        ssh_opts=f'-i /home/sdp/vasanth/bkc_image/vm_ssh_test_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p {kv_port}'
         rsync_opts='-atrv --delete --exclude="*~"'
         # use sshpass to pass clear text password for ssh
         rsync_opts += f' -e "ssh {ssh_opts}"'

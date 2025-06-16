@@ -47,6 +47,7 @@ def test_run_perf(name, machine):
         assert (0 == stdout.channel.recv_exit_status()), 'benchmark run failed !'
         m.get(f'/pts/benchmark-{name}.txt', f'{script_path}/benchmark-{name}.txt')
         m.get(f'/pts/benchmark.csv', f'{script_path}/benchmark-{name}.csv')
+        m.get(f'/pts/benchmark.html', f'{script_path}/benchmark-{name}.html')
         m.poweroff()
     except Exception as e:
         pytest.fail('Error : %s' % (e))
