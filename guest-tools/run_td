@@ -127,7 +127,7 @@ def run_td(args):
        return
     if args.image:
         td_img=args.image
-    do_run(td_img, args.gpus.split(','))
+    do_run(td_img, args.gpus.split(',') if args.gpus else [])
 
 if __name__ == '__main__':
    parser = argparse.ArgumentParser()
