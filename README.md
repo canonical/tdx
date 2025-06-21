@@ -643,7 +643,7 @@ you proceed to [step 4](#verify-itts-client-version).
 5. Inside the TD, generate a sample TD quote to prove the Quote Generation Service is working properly.
 
 	```bash
-	trustauthority-cli evidence --tdx -config ./config.json
+	trustauthority-cli evidence --tdx --config ./config.json
 	```
 
 	An example output of a successful quote generation:
@@ -672,7 +672,7 @@ you proceed to [step 4](#verify-itts-client-version).
 6. Use the Intel Tiber Trust Service CLI to generate an attestation token.
    Under the hood, the CLI will generate a TD quote using the CPU, send quote to the external Intel Tiber Trust Service for verification, and receive an attestation token on success.  
 	```bash
-	trustauthority-cli token -config ./config.json
+	trustauthority-cli token --config ./config.json
 	```
 
 	An example of a successful attestation token generation:
