@@ -150,7 +150,11 @@ EOF
     wget https://us.download.nvidia.com/tesla/570.86.15/nvidia-driver-local-repo-ubuntu2404-570.86.15_1.0-1_amd64.deb
     dpkg -i ./nvidia-driver-local-repo-ubuntu2404-570.86.15_1.0-1_amd64.deb
     cp /var/nvidia-driver-local-repo-ubuntu2404-570.86.15/nvidia-driver-local-41F54E74-keyring.gpg /usr/share/keyrings/
-    apt install --yes nvidia-driver-570-open
+    # with the release of nvidia drivers v575, the installation of nvidia-driver-570-open fails
+    # both packages libnvidia-cfg1-570 and libnvidia-cfg1-575 are asked to be installed
+    # work-around : force nvidia-persistenced to stay on version 570 so that it does not ask for libnvidia-cfg1-575
+    apt install --yes nvidia-persistenced=570.148.08-1ubuntu1
+    apt install --yes nvidia-driver-570-open=570.148.08-1ubuntu1
 
     # install nvtop
     echo "Setup components for NVIDIA H100... Install utilities"
