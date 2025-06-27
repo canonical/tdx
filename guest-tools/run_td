@@ -76,7 +76,7 @@ def setup_topology(gpus, nvswitches):
 
     print("Configuring PCIe devices")
     for device in [*gpus, *nvswitches]:
-        subprocess.run(["sudo", "./nvtrust/host_tools/python/nvidia_gpu_tools.py", "--set-ppcie-mode=on", "--reset-after-ppcie-mode-switch", f"--gpu-bdf={device}"])
+        subprocess.run(["sudo", "./guest-tools/nvtrust/host_tools/python/nvidia_gpu_tools.py", "--set-ppcie-mode=on", "--reset-after-ppcie-mode-switch", f"--gpu-bdf={device}"])
 
     print("Topology ready")
 
