@@ -43,7 +43,7 @@ trap "on_exit" EXIT
 source ${SCRIPT_DIR}/setup-tdx-common
 
 # the kernel flavour/type we want to use
-KERNEL_TYPE=linux-image-intel
+KERNEL_TYPE=linux-image-generic
 
 
 usage() {
@@ -104,7 +104,7 @@ grub_cmdline_nohibernate() {
 
 install_kobuk() {
     apt install --yes --allow-downgrades \
-        ${KERNEL_TYPE} \
+        linux-image-unsigned-6.16.0-14-generic \
         qemu-system-x86 \
         libvirt-daemon-system \
         libvirt-clients \
@@ -113,11 +113,6 @@ install_kobuk() {
     KERNEL_RELEASE=$(get_kernel_version "$KERNEL_TYPE")
     # select the right kernel for next boot
     grub_set_kernel
-
-    # some kernels (for example -intel) might not be installed with the modules-extra
-    # but we need it to support a wider range of hardware (network cards, ...)
-    # just force the installation of modules-extra to make sure we have it
-    apt install --yes --allow-downgrades linux-modules-extra-${KERNEL_RELEASE}
 }
 
 parse_params() {
