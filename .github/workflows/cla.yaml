@@ -1,0 +1,11 @@
+name: Canonical License Agreement Check
+on:
+  pull_request:
+
+jobs:
+  cla-check:
+    name: CLA check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if CLA signed
+        uses: canonical/has-signed-canonical-cla@main
