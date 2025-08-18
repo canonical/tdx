@@ -187,7 +187,7 @@ def do_run(img_path, gpus):
 
     add_vsock(qemu_cmds)
 
-    if args.gpus and args.gpus[0] == "*":
+    if args.gpus and len(args.gpus) == 8:
         setup_ppcie(qemu_cmds)
     else:
         add_gpus(qemu_cmds, gpus)
