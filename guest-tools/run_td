@@ -77,9 +77,75 @@ def add_gpus(cmd, gpus):
     for gpu in gpus:
         gpu_cmd = ['-object', f'iommufd,id=iommufd{index}',
                    '-device', f'pcie-root-port,id=pci.{index},bus=pcie.{index}',
-		   '-device', f'vfio-pci,host={gpu},bus=pci.{index},iommufd=iommufd{index}']
+                   '-device', f'vfio-pci,host={gpu},bus=pci.{index},iommufd=iommufd{index}']
         cmd.extend(gpu_cmd)
         index = index + 1
+
+def pci_devices(vendor, product) -> list[str]:
+    output = subprocess.check_output(["lspci", "-d", f"{vendor}:{product}"], stderr=subprocess.STDOUT)
+    devices = []
+    for line in output.splitlines():
+        address = line.decode().strip().split(" ")[0]
+        devices.append(address)
+    return devices
+
+def setup_ppcie(cmd):
+    gpus = pci_devices("10de", "2335")
+    nvswitches = pci_devices("10de", "22a3")
+
+    if len(gpus) != 8:
+        print("PPCIe mode requires 8 GPUs")
+        exit(1)
+    if len(nvswitches) != 4:
+        print("PPCIe mode requires 4 NVSwitches")
+        exit(1)
+
+    # prepare_gpus(gpus)
+
+    cmd.extend([
+        "-object", "iommufd,id=iommufd0",
+
+        "-device", "pcie-root-port,port=16,chassis=1,id=pci.1,bus=pcie.0,multifunction=on,addr=0x5",
+        "-device", f"vfio-pci,host={gpus[0]},bus=pci.1,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb1,string=262144",
+
+        "-device", "pcie-root-port,port=17,chassis=2,id=pci.2,bus=pcie.0,addr=0x5.0x1",
+        "-device", f"vfio-pci,host={gpus[1]},bus=pci.2,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb2,string=262144",
+
+        "-device", "pcie-root-port,port=18,chassis=3,id=pci.3,bus=pcie.0,addr=0x5.0x2",
+        "-device", f"vfio-pci,host={gpus[2]},bus=pci.3,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb3,string=262144",
+
+        "-device", "pcie-root-port,port=19,chassis=4,id=pci.4,bus=pcie.0,addr=0x5.0x3",
+        "-device", f"vfio-pci,host={gpus[3]},bus=pci.4,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb4,string=262144",
+
+        "-device", "pcie-root-port,port=20,chassis=5,id=pci.5,bus=pcie.0,addr=0x5.0x4",
+        "-device", f"vfio-pci,host={gpus[4]},bus=pci.5,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb5,string=262144",
+
+        "-device", "pcie-root-port,port=21,chassis=6,id=pci.6,bus=pcie.0,addr=0x5.0x5",
+        "-device", f"vfio-pci,host={gpus[5]},bus=pci.6,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb6,string=262144",
+
+        "-device", "pcie-root-port,port=22,chassis=7,id=pci.7,bus=pcie.0,addr=0x5.0x6",
+        "-device", f"vfio-pci,host={gpus[6]},bus=pci.7,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb7,string=262144",
+
+        "-device", "pcie-root-port,port=23,chassis=8,id=pci.8,bus=pcie.0,addr=0x5.0x7",
+        "-device", f"vfio-pci,host={gpus[7]},bus=pci.8,addr=0x0,iommufd=iommufd0",
+        "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb8,string=262144",
+
+        "-device", "pcie-root-port,port=24,chassis=9,id=pci.9,bus=pcie.0,multifunction=on,addr=0x4",
+        "-device", f"vfio-pci,host=0000:{nvswitches[0]},bus=pci.9,addr=0x0,iommufd=iommufd0",
+        "-device", "pcie-root-port,port=25,chassis=10,id=pci.10,bus=pcie.0,addr=0x4.0x1",
+        "-device", f"vfio-pci,host=0000:{nvswitches[1]},bus=pci.10,addr=0x0,iommufd=iommufd0",
+        "-device", "pcie-root-port,port=26,chassis=11,id=pci.11,bus=pcie.0,addr=0x4.0x2",
+        "-device", f"vfio-pci,host=0000:{nvswitches[2]},bus=pci.11,addr=0x0,iommufd=iommufd0",
+        "-device", "pcie-root-port,port=27,chassis=12,id=pci.12,bus=pcie.0,addr=0x4.0x3",
+        "-device", f"vfio-pci,host=0000:{nvswitches[3]},bus=pci.12,addr=0x0,iommufd=iommufd0",
+    ])
 
 def do_run(img_path, gpus):
     print('Run VM')
@@ -93,28 +159,40 @@ def do_run(img_path, gpus):
     if ubuntu_version != '24.04':
         cpu_args='host,-avx10'
 
-    qemu_cmds = ['qemu-system-x86_64',
-		 '-accel', 'kvm',
-		 '-m', '100G', '-smp', '32',
-		 '-name', f'{process_name},process={process_name},debug-threads=on',
-		 '-cpu', f'{cpu_args}',
-		 '-object', '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}',
-		 '-object', 'memory-backend-ram,id=mem0,size=100G',
-		 '-machine', 'q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=mem0',
-		 '-bios', tdvf_params,
-		 '-nographic', '-daemonize',
-                 '-nodefaults', '-vga', 'none',
-		 '-device', 'virtio-net-pci,netdev=nic0_td', '-netdev', f'user,id=nic0_td,hostfwd=tcp::{ssh_port}-:22',
-		 '-drive', f'file={img_path},if=none,id=virtio-disk0',
-		 '-device', 'virtio-blk-pci,drive=virtio-disk0',
-		 '-pidfile', pidfile
-		 ]
+    qemu_cmds = [
+        'qemu-system-x86_64',
+        '-accel', 'kvm',
+        '-m', '100G',
+        '-smp', '32',
+        '-name', f'{process_name},process={process_name},debug-threads=on',
+        '-cpu', f'{cpu_args}',
+        '-object', '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}',
+        '-object', 'memory-backend-ram,id=mem0,size=100G',
+        '-machine', 'q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=mem0',
+        '-bios', tdvf_params,
+        '-nographic',
+        '-nodefaults',
+        '-vga', 'none',
+        '-device', 'virtio-net-pci,netdev=nic0_td',
+        '-netdev', f'user,id=nic0_td,hostfwd=tcp::{ssh_port}-:22',
+        '-drive', f'file={img_path},if=none,id=virtio-disk0',
+        '-device', 'virtio-blk-pci,drive=virtio-disk0',
+        '-pidfile', pidfile
+    ]
+
+    if args.foreground:
+        qemu_cmds.extend(['-serial', 'stdio'])
+    else:
+        qemu_cmds.extend(['-daemonize'])
 
     add_vsock(qemu_cmds)
-    add_gpus(qemu_cmds, gpus)
+
+    if args.gpus and args.gpus[0] == "*":
+        setup_ppcie(qemu_cmds)
+    else:
+        add_gpus(qemu_cmds, gpus)
 
     subprocess.run(qemu_cmds, stderr=subprocess.STDOUT)
-
     do_print()
 
 def run_td(args):
@@ -134,5 +212,6 @@ if __name__ == '__main__':
    parser.add_argument("--image", type=str, help="Guest image")
    parser.add_argument("--gpus", type=str, help="GPUs to pass-through")
    parser.add_argument("--clean", action='store_true', help="Clean the current VM")
+   parser.add_argument("--foreground", action='store_true', help="Run in foreground")
    args = parser.parse_args()
    run_td(args)
