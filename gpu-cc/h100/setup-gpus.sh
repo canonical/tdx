@@ -63,10 +63,25 @@ nvidia_h100_bdfs() {
     done < <(lspci -nn | grep "${NVIDIA_VENDOR_ID}" | grep "H100")
 }
 
+nvidia_nvlink_bdfs() {
+    while read -r line
+    do
+	# extract BDF
+	bdf=$(echo $line | cut -d " " -f1)
+	echo ${bdf}
+    done < <(lspci -nn | grep "${NVIDIA_VENDOR_ID}" | grep "NVSwitch")
+}
+
 enable_cc_mode() {
     GPU_BDF=$1
     ./nvtrust/host_tools/python/nvidia_gpu_tools.py --set-ppcie-mode=off --reset-after-ppcie-mode-switch --gpu-bdf=${GPU_BDF}
     ./nvtrust/host_tools/python/nvidia_gpu_tools.py --set-cc-mode=on --reset-after-cc-mode-switch --gpu-bdf=${GPU_BDF}
+}
+
+enable_ppcie_mode() {
+    GPU_BDF=$1
+    ./nvtrust/host_tools/python/nvidia_gpu_tools.py --set-cc-mode=off --reset-after-cc-mode-switch --gpu-bdf=${GPU_BDF}
+    ./nvtrust/host_tools/python/nvidia_gpu_tools.py --set-ppcie-mode=on --reset-after-ppcie-mode-switch --gpu-bdf=${GPU_BDF}
 }
 
 setup_udev() {
@@ -81,16 +96,33 @@ gpus_bdfs() {
 }
 
 GPUS=$(gpus_bdfs)
+NB_GPUS=$(echo ${GPUS} | wc -w)
 
 if [ ! -z "$1" ]; then
     if [ "$1" != "*" ]; then
 	GPUS=${1//,/ }
     fi
 
+    # Setup NVSwitches (if nb of GPUs equal to 8)
+    if [ ${NB_GPUS} -eq 8 ]; then
+        NVSWITCHES=$(nvidia_nvlink_bdfs)
+        for nvswitch_bdf in ${NVSWITCHES}
+        do
+            echo "======= Prepare NVSwitch ${nvswitch_bdf} for PPCIe"
+            enable_ppcie_mode ${nvswitch_bdf}
+        done
+    fi
+
     for gpu_bdf in ${GPUS}
     do
-	echo "======= Prepare ${gpu_bdf}"
-	enable_cc_mode ${gpu_bdf}
+        if [ ${NB_GPUS} -eq 8 ]; then
+            echo "======= Prepare ${gpu_bdf} for PPCIe"
+            enable_ppcie_mode ${gpu_bdf}
+        else
+            echo "======= Prepare ${gpu_bdf} for CC"
+            enable_cc_mode ${gpu_bdf}
+        fi
+
 	# virsh expect input format : pci_0000_b8_00_0
 	virsh_gpu_bdf=$(echo "${gpu_bdf}" | tr :. _)
 	# TMP: detach vfio first if already attached to vfio
@@ -106,5 +138,11 @@ else
     echo "================================"
     echo "List of NVidia GPUs (PCI BDFs):"
     echo ${GPUS}
+    if [ ${NB_GPUS} -eq 8 ]; then
+        NVSWITCHES=$(nvidia_nvlink_bdfs)
+        echo "================================"
+        echo "List of NVidia NVSwitches (PCI BDFs):"
+        echo ${NVSWITCHES}
+    fi
     echo "================================"
 fi
