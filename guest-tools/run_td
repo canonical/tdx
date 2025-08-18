@@ -76,7 +76,7 @@ def add_gpus(cmd, gpus):
     index=0
     for gpu in gpus:
         gpu_cmd = ['-object', f'iommufd,id=iommufd{index}',
-                   '-device', f'pcie-root-port,id=pci.{index},bus=pcie.{index}',
+                   '-device', f'pcie-root-port,port={index},chassis={index},id=pci.{index},bus=pcie.0',
                    '-device', f'vfio-pci,host={gpu},bus=pci.{index},iommufd=iommufd{index}']
         cmd.extend(gpu_cmd)
         index = index + 1
