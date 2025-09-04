@@ -147,8 +147,8 @@ def setup_ppcie(cmd):
         "-device", f"vfio-pci,host=0000:{nvswitches[3]},bus=pci.12,addr=0x0,iommufd=iommufd0",
     ])
 
-def do_run(img_path, gpus):
-    print('Run VM')
+def do_run(img_path, vcpus, mem, gpus):
+    print(f'Run VM {vcpus} vcpus {mem} RAM')
     print(f'  Image: {img_path}')
     if len(gpus):
         print(f'  Passthrough GPUs: {gpus}')
@@ -162,12 +162,12 @@ def do_run(img_path, gpus):
     qemu_cmds = [
         'qemu-system-x86_64',
         '-accel', 'kvm',
-        '-m', '100G',
-        '-smp', '32',
+        '-m', f'{mem}',
+        '-smp', f'{vcpus}',
         '-name', f'{process_name},process={process_name},debug-threads=on',
         '-cpu', f'{cpu_args}',
         '-object', '{"qom-type":"tdx-guest","id":"tdx","quote-generation-socket":{"type": "vsock", "cid":"2","port":"4050"}}',
-        '-object', 'memory-backend-ram,id=mem0,size=100G',
+        '-object', f'memory-backend-ram,id=mem0,size={mem}',
         '-machine', 'q35,kernel_irqchip=split,confidential-guest-support=tdx,memory-backend=mem0',
         '-bios', tdvf_params,
         '-nographic',
@@ -205,11 +205,18 @@ def run_td(args):
        return
     if args.image:
         td_img=args.image
-    do_run(td_img, args.gpus.split(',') if args.gpus else [])
+    if args.mem:
+        td_mem=args.mem
+    if args.vcpus:
+        td_vcpus=args.vcpus
+
+    do_run(td_img, td_vcpus, td_mem, args.gpus.split(',') if args.gpus else [])
 
 if __name__ == '__main__':
    parser = argparse.ArgumentParser()
    parser.add_argument("--image", type=str, help="Guest image")
+   parser.add_argument("--vcpus", type=str, help="Number of VCPUs. 32 by default.", default='32')
+   parser.add_argument("--mem", type=str, help="Memory. 100G by default", default='100G')
    parser.add_argument("--gpus", type=str, help="GPUs to pass-through")
    parser.add_argument("--clean", action='store_true', help="Clean the current VM")
    parser.add_argument("--foreground", action='store_true', help="Run in foreground")
