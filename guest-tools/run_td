@@ -82,7 +82,7 @@ def add_gpus(cmd, gpus):
         index = index + 1
 
 def pci_devices(vendor, product) -> list[str]:
-    output = subprocess.check_output(["lspci", "-d", f"{vendor}:{product}"], stderr=subprocess.STDOUT)
+    output = subprocess.check_output(["lspci", "-D", "-d", f"{vendor}:{product}"], stderr=subprocess.STDOUT)
     devices = []
     for line in output.splitlines():
         address = line.decode().strip().split(" ")[0]
@@ -100,7 +100,8 @@ def setup_ppcie(cmd):
         print("PPCIe mode requires 4 NVSwitches")
         exit(1)
 
-    # prepare_gpus(gpus)
+    all_devices = gpus + nvswitches
+    prepare_gpus(all_devices)
 
     cmd.extend([
         "-object", "iommufd,id=iommufd0",
@@ -138,13 +139,13 @@ def setup_ppcie(cmd):
         "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb8,string=262144",
 
         "-device", "pcie-root-port,port=24,chassis=9,id=pci.9,bus=pcie.0,multifunction=on,addr=0x4",
-        "-device", f"vfio-pci,host=0000:{nvswitches[0]},bus=pci.9,addr=0x0,iommufd=iommufd0",
+        "-device", f"vfio-pci,host={nvswitches[0]},bus=pci.9,addr=0x0,iommufd=iommufd0",
         "-device", "pcie-root-port,port=25,chassis=10,id=pci.10,bus=pcie.0,addr=0x4.0x1",
-        "-device", f"vfio-pci,host=0000:{nvswitches[1]},bus=pci.10,addr=0x0,iommufd=iommufd0",
+        "-device", f"vfio-pci,host={nvswitches[1]},bus=pci.10,addr=0x0,iommufd=iommufd0",
         "-device", "pcie-root-port,port=26,chassis=11,id=pci.11,bus=pcie.0,addr=0x4.0x2",
-        "-device", f"vfio-pci,host=0000:{nvswitches[2]},bus=pci.11,addr=0x0,iommufd=iommufd0",
+        "-device", f"vfio-pci,host={nvswitches[2]},bus=pci.11,addr=0x0,iommufd=iommufd0",
         "-device", "pcie-root-port,port=27,chassis=12,id=pci.12,bus=pcie.0,addr=0x4.0x3",
-        "-device", f"vfio-pci,host=0000:{nvswitches[3]},bus=pci.12,addr=0x0,iommufd=iommufd0",
+        "-device", f"vfio-pci,host={nvswitches[3]},bus=pci.12,addr=0x0,iommufd=iommufd0",
     ])
 
 def do_run(img_path, vcpus, mem, gpus):
@@ -187,7 +188,7 @@ def do_run(img_path, vcpus, mem, gpus):
 
     add_vsock(qemu_cmds)
 
-    if args.gpus and len(args.gpus) == 8:
+    if args.gpus and len(gpus) == 8:
         setup_ppcie(qemu_cmds)
     else:
         add_gpus(qemu_cmds, gpus)
