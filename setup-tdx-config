@@ -27,7 +27,7 @@
 #   - short : tdx (in this case, the team will be kobuk-team)
 #   - full : ppa:canonical-kernel-team/bootstrap
 ################################################################
-TDX_PPA="ppa:thibf/test ppa:paelzer/lp-2115707-virt-questing-late"
+TDX_PPA="ppa:thibf/tdx-questing"
 
 ################################################################
 # The TDX PPA for attestation
