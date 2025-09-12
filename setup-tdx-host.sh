@@ -72,6 +72,22 @@ add_user_to_kvm() {
     fi
 }
 
+# on 25.10, there is a fix in pam_limits that makes the memlock
+# limit set to 8192kb instead of higher value in previous releases
+# TD VM needs this limit to be much higher to run properly
+# so set it to unlimited
+set_memlock_unlimited() {
+  local file="/etc/security/limits.d/99-tdx-memlock.conf"
+  if [ "$(id -u)" -ne 0 ]; then
+    echo "This function must be run as root (use sudo)."
+    return 1
+  fi
+    cat > "$file" <<EOF
+* soft memlock unlimited
+* hard memlock unlimited
+EOF
+}
+
 grub_cmdline_kvm() {
   # update cmdline to add tdx=1 to kvm_intel
   if ! grep -q -E "GRUB_CMDLINE_LINUX.*=.*\".*kvm_intel.tdx( )*=1.*\"" /etc/default/grub; then
@@ -104,7 +120,7 @@ grub_cmdline_nohibernate() {
 
 install_kobuk() {
     apt install --yes --allow-downgrades \
-        linux-image-unsigned-6.17.0-4-generic \
+        linux-image-6.17.0-4-generic \
         qemu-system-x86 \
         libvirt-daemon-system \
         libvirt-clients \
@@ -160,12 +176,11 @@ add_kobuk_ppas ${TDX_PPA:-tdx-release}
 
 install_kobuk
 
-# in recent -intel kernel, tdx is enabled by default in kvm_intel
-# so this is not necessary anymore
-#grub_cmdline_kvm || true
-
+grub_cmdline_kvm || true
 grub_cmdline_nohibernate || true
 add_user_to_kvm || true
+
+set_memlock_unlimited
 
 # setup attestation
 if [[ "${TDX_SETUP_ATTESTATION}" == "1" ]]; then
