@@ -120,7 +120,7 @@ grub_cmdline_nohibernate() {
 
 install_kobuk() {
     apt install --yes --allow-downgrades \
-        linux-image-6.17.0-4-generic \
+        ${KERNEL_TYPE} \
         qemu-system-x86 \
         libvirt-daemon-system \
         libvirt-clients \
