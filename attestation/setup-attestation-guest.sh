@@ -29,6 +29,8 @@ source ${SCRIPT_DIR}/../setup-tdx-common
 apt install --yes software-properties-common
 add_kobuk_ppa ${TDX_PPA_ATTESTATION:-tdx-attestation-release}
 
+set -e
+
 apt update
 apt install --yes --allow-downgrades libtdx-attest-dev trustauthority-cli
 

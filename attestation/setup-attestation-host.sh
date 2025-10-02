@@ -31,6 +31,8 @@ add_kobuk_ppa ${TDX_PPA_ATTESTATION:-tdx-attestation-release}
 
 apt update
 
+set -e
+
 apt install --yes --allow-downgrades sgx-dcap-pccs tdx-qgs
 
 # install the Intel Quote Provider library implementation
