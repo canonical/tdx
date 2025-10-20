@@ -206,12 +206,24 @@ def run_td(args):
        return
     if args.image:
         td_img=args.image
-    do_run(td_img, args.gpus.split(',') if args.gpus else [])
+    
+    # Handle GPU arguments
+    gpus = []
+    if args.gpus:
+        if args.gpus.lower() == 'all':
+            # Detect all available GPUs (NVIDIA H100)
+            gpus = pci_devices("10de", "2335")
+            if gpus:
+                print(f"Detected {len(gpus)} GPU(s): {gpus}")
+        else:
+            gpus = args.gpus.split(',')
+    
+    do_run(td_img, gpus)
 
 if __name__ == '__main__':
    parser = argparse.ArgumentParser()
    parser.add_argument("--image", type=str, help="Guest image")
-   parser.add_argument("--gpus", type=str, help="GPUs to pass-through")
+   parser.add_argument("--gpus", type=str, help="GPUs to pass-through (comma-separated list of PCI addresses or 'all' to pass all GPUs)")
    parser.add_argument("--clean", action='store_true', help="Clean the current VM")
    parser.add_argument("--foreground", action='store_true', help="Run in foreground")
    args = parser.parse_args()
