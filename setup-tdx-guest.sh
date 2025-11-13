@@ -95,7 +95,9 @@ install_kobuk() {
     # some kernels (for example -intel) might not be installed with the modules-extra
     # but we need it to support a wider range of hardware (network cards, ...)
     # just force the installation of modules-extra to make sure we have it
-    apt install --yes --allow-downgrades linux-modules-extra-${KERNEL_RELEASE}
+    # NB: since 25.10 (6.17 kernel), linux-modules-extra has been removed, so ignore installation
+    # error
+    apt install --yes --allow-downgrades linux-modules-extra-${KERNEL_RELEASE} || true
 }
 
 apt update
