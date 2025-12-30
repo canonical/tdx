@@ -44,15 +44,13 @@ def do_print():
         with open(pidfile) as pid_file:
             pid=int(pid_file.read())        
             print(f'TD started by QEMU with PID: {pid}.')
-            print(f'To log in with the non-root user (default: tdx / password: 123456), as specified in setup-tdx-config, use:')
+            print(f'To log in with the user specified in image/cloud-init-data/user-data, use:')
             print(f'   $ ssh -p {ssh_port} <username>@localhost')
-            print('To log in as root (default password: 123456), use:')
-            print(f'   $ ssh -p {ssh_port} root@localhost')
     except:
         pass
 
 def do_clean():
-    print('Clean VM')
+    print('Clean VM..')
     with open(pidfile) as pid_file:
         pid=int(pid_file.read())
         os.kill(pid, signal.SIGTERM)
@@ -201,6 +199,7 @@ def run_td(args):
     try:
         do_clean()
     except:
+        print("do_clean exception")
         pass
     if args.clean:
        return

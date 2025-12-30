@@ -158,13 +158,15 @@ A TD image based on Ubuntu 25.04 can be generated with the following commands:
 
 ```bash
 cd tdx/guest-tools/image/
-sudo ./create-td-image.sh -v 25.04
+sudo ./create-td-image.sh -v 25.04 -k "<your ssh public key>"
 ```
 
 You can pass `24.04` or `25.04` to the `-v` to generate a TD image based on Ubuntu 24.04 or 25.04. 
 
 The resulting image will be based on an ([`Ubuntu cloud image`](https://cloud-images.ubuntu.com/)),
-the default root password is `123456`, and other default settings are used.
+with other default settings.
+Login is via the SSH private key corresponding to the one you used on the command line, with no
+root or regular user password login.
 Please note the most important options described after the commands and take a look at the `create-td-image.sh` script for more available options.
 
 Important options for TD image creation:
