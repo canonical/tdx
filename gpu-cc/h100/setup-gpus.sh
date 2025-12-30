@@ -49,10 +49,12 @@ if [ "$EUID" -ne 0 ]
   exit
 fi
 
-if [ ! -d "nvtrust" ]; then
-  rm -rf nvtrust
-  git clone -b 2025.4.11.001 --recursive https://github.com/NVIDIA/nvtrust.git
-fi
+get_nvtrust() {
+  if [ ! -d "nvtrust" ]; then
+    rm -rf nvtrust
+    git clone -b 2025.4.11.001 --recursive https://github.com/NVIDIA/nvtrust.git
+  fi
+}
 
 nvidia_h100_bdfs() {
     while read -r line
@@ -73,12 +75,14 @@ nvidia_nvlink_bdfs() {
 }
 
 enable_cc_mode() {
+    if [ ! -f ./nvtrust/host_tools/python/nvidia_gpu_tools.py ]; then get_nvtrust; fi
     GPU_BDF=$1
     ./nvtrust/host_tools/python/nvidia_gpu_tools.py --set-ppcie-mode=off --reset-after-ppcie-mode-switch --gpu-bdf=${GPU_BDF}
     ./nvtrust/host_tools/python/nvidia_gpu_tools.py --set-cc-mode=on --reset-after-cc-mode-switch --gpu-bdf=${GPU_BDF}
 }
 
 enable_ppcie_mode() {
+    if [ ! -f ./nvtrust/host_tools/python/nvidia_gpu_tools.py ]; then get_nvtrust; fi
     GPU_BDF=$1
     ./nvtrust/host_tools/python/nvidia_gpu_tools.py --set-cc-mode=off --reset-after-cc-mode-switch --gpu-bdf=${GPU_BDF}
     ./nvtrust/host_tools/python/nvidia_gpu_tools.py --set-ppcie-mode=on --reset-after-ppcie-mode-switch --gpu-bdf=${GPU_BDF}
@@ -97,6 +101,8 @@ gpus_bdfs() {
 
 GPUS=$(gpus_bdfs)
 NB_GPUS=$(echo ${GPUS} | wc -w)
+SB_STATE_OUTPUT=$(mokutil --sb-state 2>&1)
+SB_STATE=
 
 if [ ! -z "$1" ]; then
     if [ "$1" != "*" ]; then
@@ -104,7 +110,7 @@ if [ ! -z "$1" ]; then
     fi
 
     # Setup NVSwitches (if nb of GPUs equal to 8)
-    if [ ${NB_GPUS} -eq 8 ]; then
+    if [ ${NB_GPUS} -eq 8 ] && [ "$(mokutil --sb-state)" != "SecureBoot enabled" ]; then
         NVSWITCHES=$(nvidia_nvlink_bdfs)
         for nvswitch_bdf in ${NVSWITCHES}
         do
@@ -115,13 +121,15 @@ if [ ! -z "$1" ]; then
 
     for gpu_bdf in ${GPUS}
     do
-        if [ ${NB_GPUS} -eq 8 ]; then
-            echo "======= Prepare ${gpu_bdf} for PPCIe"
-            enable_ppcie_mode ${gpu_bdf}
-        else
-            echo "======= Prepare ${gpu_bdf} for CC"
-            enable_cc_mode ${gpu_bdf}
-        fi
+	if [ "$(mokutil --sb-state)" != "SecureBoot enabled" ]; then
+            if [ ${NB_GPUS} -eq 8 ]; then
+                echo "======= Prepare ${gpu_bdf} for PPCIe"
+                enable_ppcie_mode ${gpu_bdf}
+            else
+                echo "======= Prepare ${gpu_bdf} for CC"
+                enable_cc_mode ${gpu_bdf}
+            fi
+	fi
 
 	# virsh expect input format : pci_0000_b8_00_0
 	virsh_gpu_bdf=$(echo "${gpu_bdf}" | tr :. _)
