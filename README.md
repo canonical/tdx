@@ -1,5 +1,16 @@
 # Intel® Trust Domain Extensions (TDX) on Ubuntu
 
+> [!IMPORTANT]
+> **Project Status**
+> 
+> - Starting with **Ubuntu 25.10**, base TDX host support has been fully enabled directly in Ubuntu (no PPA required). Guest support was enabled directly in earlier versions of Ubuntu.
+> 
+> - Attestation support is still under development.  We plan to provide partial support in our upcoming release of **Ubuntu 26.04 LTS**.
+> 
+> - For basic instructions on how to setup TDX, see https://github.com/canonical/tdx/issues/411#issuecomment-3459591350.
+>
+> - You can continue to use this Tech Preview on **Ubuntu 25.04 and 24.04**, but they are no longer supported.
+
 ### Table of Contents:
 * [1. Introduction](#introduction)
 * [2. Report an Issue](#report-an-issue)
