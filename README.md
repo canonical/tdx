@@ -1,15 +1,15 @@
 # Intel® Trust Domain Extensions (TDX) on Ubuntu
 
 > [!IMPORTANT]
-> **Transition Period Notice**
+> **Project Status**
 > 
-> This repository is in a transition period as TDX support matures in Ubuntu:
+> - Starting with **Ubuntu 25.10**, base TDX host support has been fully enabled directly in Ubuntu (no PPA required). Guest support was enabled directly in earlier versions of Ubuntu.
 > 
-> - **Ubuntu 25.10+**: TDX support for QEMU and libvirt has been upstreamed and is available directly from the Ubuntu archive. **However, attestation support is not available in 25.10** (neither through PPA nor the Ubuntu archive).
+> - Attestation support is still under development.  We plan to provide partial support in our upcoming release of **Ubuntu 26.04 LTS**.
 > 
-> - **Ubuntu 25.04**: Users wanting to test attestation are welcome to try on 25.04, though this OS release is no longer officially supported.
-> 
-> - **Ubuntu 26.04 LTS** (upcoming): Partial attestation support is planned for the 26.04 LTS release or shortly thereafter.
+> - For basic instructions on how to setup TDX, see https://github.com/canonical/tdx/issues/411#issuecomment-3459591350.
+>
+> - You can continue to use this Tech Preview on **Ubuntu 25.04 and 24.04**, but they are no longer supported.
 
 ### Table of Contents:
 * [1. Introduction](#introduction)
