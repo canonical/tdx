@@ -44,15 +44,13 @@ def do_print():
         with open(pidfile) as pid_file:
             pid=int(pid_file.read())        
             print(f'TD started by QEMU with PID: {pid}.')
-            print(f'To log in with the non-root user (default: tdx / password: 123456), as specified in setup-tdx-config, use:')
+            print(f'To log in with the user specified in image/cloud-init-data/user-data, use:')
             print(f'   $ ssh -p {ssh_port} <username>@localhost')
-            print('To log in as root (default password: 123456), use:')
-            print(f'   $ ssh -p {ssh_port} root@localhost')
     except:
         pass
 
 def do_clean():
-    print('Clean VM')
+    print('Clean VM..')
     with open(pidfile) as pid_file:
         pid=int(pid_file.read())
         os.kill(pid, signal.SIGTERM)
@@ -81,17 +79,39 @@ def add_gpus(cmd, gpus):
         cmd.extend(gpu_cmd)
         index = index + 1
 
-def pci_devices(vendor, product) -> list[str]:
-    output = subprocess.check_output(["lspci", "-d", f"{vendor}:{product}"], stderr=subprocess.STDOUT)
+def pci_devices(vendor, device, subsystem) -> list[str]:
+    output = subprocess.check_output(["lspci", "-D", "-n", "-m", "-d", f"{vendor}:{device}"], stderr=subprocess.STDOUT)
     devices = []
     for line in output.splitlines():
-        address = line.decode().strip().split(" ")[0]
-        devices.append(address)
+        l = line.decode().strip().split(" ")
+        # assume the last argument is always subsystem,
+        # which man not be reliable, see man lspci..
+        if l[-1].strip('"') == subsystem:
+            address = l[0]
+            devices.append(address)
     return devices
 
 def setup_ppcie(cmd):
-    gpus = pci_devices("10de", "2335")
-    nvswitches = pci_devices("10de", "22a3")
+    h200_gpus = pci_devices("10de", "2335", "18be")
+    h200_switches = pci_devices("10de", "22a3", "1796")
+
+    b200_gpus = pci_devices("10de", "2901", "199b")
+    mlxswitches = pci_devices("15b3", "1021", "0087")
+
+    if h200_gpus and b200_gpus:
+        print("Error, no known system with both H200 and B200")
+        exit(1)
+    elif h200_gpus:
+        gpus = h200_gpus
+        nvswitches = h200_switches
+    elif b200_gpus:
+        gpus = b200_gpus
+        nvswitches = mlxswitches
+    else:
+        print("Error, did not find H200 or B200 gpus")
+
+    if not nvswitches:
+        print("Error, did not find nvswitches required for 8 gpu ppcie/cc config")
 
     if len(gpus) != 8:
         print("PPCIe mode requires 8 GPUs")
@@ -100,7 +120,8 @@ def setup_ppcie(cmd):
         print("PPCIe mode requires 4 NVSwitches")
         exit(1)
 
-    # prepare_gpus(gpus)
+    all_devices = gpus + nvswitches
+    prepare_gpus(all_devices)
 
     cmd.extend([
         "-object", "iommufd,id=iommufd0",
@@ -138,13 +159,13 @@ def setup_ppcie(cmd):
         "-fw_cfg", "name=opt/ovmf/X-PciMmio64Mb8,string=262144",
 
         "-device", "pcie-root-port,port=24,chassis=9,id=pci.9,bus=pcie.0,multifunction=on,addr=0x4",
-        "-device", f"vfio-pci,host=0000:{nvswitches[0]},bus=pci.9,addr=0x0,iommufd=iommufd0",
+        "-device", f"vfio-pci,host={nvswitches[0]},bus=pci.9,addr=0x0,iommufd=iommufd0",
         "-device", "pcie-root-port,port=25,chassis=10,id=pci.10,bus=pcie.0,addr=0x4.0x1",
-        "-device", f"vfio-pci,host=0000:{nvswitches[1]},bus=pci.10,addr=0x0,iommufd=iommufd0",
+        "-device", f"vfio-pci,host={nvswitches[1]},bus=pci.10,addr=0x0,iommufd=iommufd0",
         "-device", "pcie-root-port,port=26,chassis=11,id=pci.11,bus=pcie.0,addr=0x4.0x2",
-        "-device", f"vfio-pci,host=0000:{nvswitches[2]},bus=pci.11,addr=0x0,iommufd=iommufd0",
+        "-device", f"vfio-pci,host={nvswitches[2]},bus=pci.11,addr=0x0,iommufd=iommufd0",
         "-device", "pcie-root-port,port=27,chassis=12,id=pci.12,bus=pcie.0,addr=0x4.0x3",
-        "-device", f"vfio-pci,host=0000:{nvswitches[3]},bus=pci.12,addr=0x0,iommufd=iommufd0",
+        "-device", f"vfio-pci,host={nvswitches[3]},bus=pci.12,addr=0x0,iommufd=iommufd0",
     ])
 
 def do_run(img_path, vcpus, mem, gpus):
@@ -187,7 +208,7 @@ def do_run(img_path, vcpus, mem, gpus):
 
     add_vsock(qemu_cmds)
 
-    if args.gpus and len(args.gpus) == 8:
+    if gpus == "all":    # special case overload
         setup_ppcie(qemu_cmds)
     else:
         add_gpus(qemu_cmds, gpus)
@@ -200,6 +221,7 @@ def run_td(args):
     try:
         do_clean()
     except:
+        print("do_clean exception")
         pass
     if args.clean:
        return
@@ -210,14 +232,21 @@ def run_td(args):
     if args.vcpus:
         td_vcpus=args.vcpus
 
-    do_run(td_img, td_vcpus, td_mem, args.gpus.split(',') if args.gpus else [])
+    if args.gpus == "all":
+        gpus = args.gpus
+    elif args.gpus:
+        gpus = args.gpus.split(',')
+    else:
+        gpus = []
+
+    do_run(td_img, td_vcpus, td_mem, gpus)
 
 if __name__ == '__main__':
    parser = argparse.ArgumentParser()
    parser.add_argument("--image", type=str, help="Guest image")
    parser.add_argument("--vcpus", type=str, help="Number of VCPUs. 32 by default.", default='32')
    parser.add_argument("--mem", type=str, help="Memory. 100G by default", default='100G')
-   parser.add_argument("--gpus", type=str, help="GPUs to pass-through")
+   parser.add_argument("--gpus", type=str, help="GPUs to pass-through in lspci -D format or 'all'")
    parser.add_argument("--clean", action='store_true', help="Clean the current VM")
    parser.add_argument("--foreground", action='store_true', help="Run in foreground")
    args = parser.parse_args()
