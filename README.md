@@ -81,7 +81,6 @@ the host OS into an Intel TDX-enabled host OS, optionally install remote attesta
 
 Download and install appropriate Ubuntu Server on the host machine:
 * [Ubuntu Plucky 25.04 server](https://releases.ubuntu.com/25.04/)
-* [Ubuntu Noble 24.04 server](https://releases.ubuntu.com/24.04/)
 
 ### 4.2 Enable Intel TDX in Host OS
 
