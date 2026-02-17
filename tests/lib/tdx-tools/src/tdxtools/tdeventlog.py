@@ -3,7 +3,6 @@ TD Event log package.
 """
 
 import logging
-from typing import List
 from typing import Dict, List
 import os
 from hashlib import sha384
@@ -349,6 +348,19 @@ class TDEventLogActor:
                 events.append(event_log)
         return events
 
+    def _has_specid_signature(self, entry_start: int) -> bool:
+        """
+        Minimal SpecID check: return True if the event data starts with
+        the SpecID signature string "Spec ID Event03".
+        TCG PC Client Specific Platform Firmware Profile Specification:
+        https://trustedcomputinggroup.org/resource/pc-client-specific-platform-firmware-profile-specification/
+        """
+        specid_sig = b"Spec ID Event03\x00"
+        sig_off = entry_start + 32
+        if entry_start < 0 or sig_off + len(specid_sig) > len(self._data):
+            return False
+        return self._data[sig_off:sig_off + len(specid_sig)] == specid_sig
+
     def process(self) -> None:
         """
         Factory process raw data and generate entries
@@ -373,7 +385,7 @@ class TDEventLogActor:
             if rtmr == 0xFFFFFFFF:
                 break
 
-            if etype == TDEventLogType.EV_NO_ACTION:
+            if (etype == TDEventLogType.EV_NO_ACTION and self._has_specid_signature(start)):
                 self._specid_header = TDEventLogSpecIdHeader(
                     self._log_base + start)
                 self._specid_header.parse(self._data[start:])
@@ -386,6 +398,8 @@ class TDEventLogActor:
                 self._event_logs.append(event_log_obj)
 
             count += 1
+
+        assert self._specid_header is not None, "SpecID header not found"
 
     def replay(self) -> Dict[int, RTMR]:
         """
@@ -403,6 +417,12 @@ class TDEventLogActor:
             event_logs_by_index[index] = []
 
         for event_log in self._event_logs:
+            # Some platforms emit entries with td_register_index == 0, which
+            # results in rtmr == -1. These entries are not extendable into any
+            # RTMR, so skip them during replay.
+            if event_log.rtmr not in event_logs_by_index:
+                LOG.debug("Skip event with invalid RTMR index %s", event_log.rtmr)
+                continue
             event_logs_by_index[event_log.rtmr].append(event_log)
 
         rtmr_by_index = {}
@@ -471,6 +491,7 @@ def check_initrd():
 
     td_event_log_actor.process()
 
-    initrd_digest = sha384(open('/boot/initrd.img','rb').read()).hexdigest()
+    with open('/boot/initrd.img', 'rb') as f:
+        initrd_digest = sha384(f.read()).hexdigest()
     events = td_event_log_actor.find_hash(initrd_digest)
     assert len(events) == 1
