@@ -32,7 +32,7 @@ TDX_PPA=""
 ################################################################
 # The TDX PPA for attestation
 ################################################################
-TDX_PPA_ATTESTATION=tdx-attestation-release
+TDX_PPA_ATTESTATION="ppa:hectorcao/ubuntu-contrib"
 
 ################################################################
 # Enable the installation of DCAP packages from Canonical's

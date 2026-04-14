@@ -33,7 +33,7 @@ apt update
 
 set -e
 
-apt install --yes --allow-downgrades sgx-dcap-pccs tdx-qgs
+apt install --yes --allow-downgrades tdx-qgs
 
 # install the Intel Quote Provider library implementation
 # this package can be skipped if user can provider its own
