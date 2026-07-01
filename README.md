@@ -7,9 +7,7 @@
 > 
 > - Attestation support is still under development.  We plan to provide partial support in our upcoming release of **Ubuntu 26.04 LTS**.
 > 
-> - For basic instructions on how to setup TDX, see https://github.com/canonical/tdx/issues/411#issuecomment-3459591350.
->
-> - You can continue to use this Tech Preview on **Ubuntu 25.04 and 24.04**, but they are no longer supported.
+> - Documentation for using TDX on Ubuntu can be found here:  https://ubuntu.com/server/docs/how-to/virtualisation/intel-tdx/
 
 ### Table of Contents:
 * [1. Introduction](#introduction)
