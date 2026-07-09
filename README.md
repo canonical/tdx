@@ -5,7 +5,7 @@
 > 
 > - Starting with **Ubuntu 25.10**, base TDX host support has been fully enabled directly in Ubuntu (no PPA required). Guest support was enabled directly in earlier versions of Ubuntu.
 > 
-> - Attestation support is still under development.  We plan to provide partial support in our upcoming release of **Ubuntu 26.04 LTS**.
+> - Attestation support is still under development.  We plan to provide partial support in **Ubuntu 26.04 LTS**.
 > 
 > - Documentation for using TDX on Ubuntu can be found here:  https://ubuntu.com/server/docs/how-to/virtualisation/intel-tdx/
 
