@@ -39,7 +39,7 @@
 
 # UBUNTU_VERSION: the ubuntu version (24.04, 24.10, ...)
 # GUEST_USER: the username in the image
-# GUEST_PASSWORD: the user password in the image
+# GUEST_SSH_KEY: the SSH key to put in $GUEST_USER/.ssh/authorized_keys
 # GUEST_HOSTNAME: the guest hostname
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
@@ -54,7 +54,6 @@ FORCE_RECREATE=false
 TMP_GUEST_IMG_PATH="/tmp/tdx-guest-tmp.qcow2"
 SIZE=100
 GUEST_USER=${GUEST_USER:-"tdx"}
-GUEST_PASSWORD=${GUEST_PASSWORD:-"123456"}
 GUEST_HOSTNAME=${GUEST_HOSTNAME:-"tdx-guest"}
 
 ok() {
@@ -100,7 +99,7 @@ Usage: $(basename "$0") [OPTION]...
   -f                        Force to recreate the output image
   -n                        Guest host name, default is "tdx-guest"
   -u                        Guest user name, default is "tdx"
-  -p                        Guest password, default is "123456"
+  -k                        Guest SSH authorized key entry (should be quoted)
   -s                        Specify the size of guest image
   -v                        Ubuntu version (24.04, 25.04)
   -o <output file>          Specify the output file, default is tdx-guest-ubuntu-<version>.qcow2.
@@ -110,13 +109,13 @@ EOM
 }
 
 process_args() {
-    while getopts "v:o:s:n:u:p:r:fch" option; do
+    while getopts "v:o:s:n:u:k:r:fch" option; do
         case "$option" in
         o) GUEST_IMG_PATH=$(realpath "$OPTARG") ;;
         s) SIZE=${OPTARG} ;;
         n) GUEST_HOSTNAME=${OPTARG} ;;
         u) GUEST_USER=${OPTARG} ;;
-        p) GUEST_PASSWORD=${OPTARG} ;;
+        k) GUEST_SSH_KEY=${OPTARG} ;;
         f) FORCE_RECREATE=true ;;
         v) UBUNTU_VERSION=${OPTARG} ;;
         h)
@@ -133,6 +132,10 @@ process_args() {
 
     if [[ -z "${UBUNTU_VERSION}" ]]; then
         error "Please specify the ubuntu release by setting UBUNTU_VERSION or passing it via -v"
+    fi
+
+    if [[ -z "${GUEST_SSH_KEY}" ]]; then
+	error "Please specify the SSH authorized key to be configured for the user ${GUEST_USER}"
     fi
 
     # generate variables
@@ -276,9 +279,15 @@ config_cloud_init() {
     # configure the user-data
     cat <<EOT >> user-data
 
-user: $GUEST_USER
-password: $GUEST_PASSWORD
-chpasswd: { expire: False }
+users:
+- name: $GUEST_USER
+  gecos: TDX admin user
+  sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+  groups: users, sudo, adm
+  shell: /bin/bash
+  lock_passwd: true
+  ssh_authorized_keys:
+    - $GUEST_SSH_KEY
 EOT
 
     # configure the meta-dta
